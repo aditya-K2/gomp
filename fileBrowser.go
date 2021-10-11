@@ -46,6 +46,18 @@ func generateDirectoryTree(path [] string) *FileNode{
 		}
 		head = head1
 	}
-	fmt.Println(head)
 	return head
+}
+
+func (f FileNode) Print(count int){
+	if (len(f.children) == 0){
+		return
+	} else{
+		for i := range f.children{
+			for j := 0 ; j < count ; j++ {
+				fmt.Print("---")
+			}; fmt.Println(f.children[i].path)
+			f.children[i].Print(count + 1)
+		}
+	}
 }
