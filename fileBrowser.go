@@ -2,6 +2,7 @@ package main
 
 import (
 	"strings"
+	"fmt"
 )
 
 type FileNode struct{
@@ -19,29 +20,32 @@ func (f *FileNode) addChildNode(m FileNode){
 	f.children = append(f.children, m)
 }
 
-func mapGenerator(fileList [] string) map[string][]string {
-	var a map[string][]string = make(map[string][]string)
-	for i := range(fileList){
-		a[strings.Split(fileList[i] , "/")[0]] = append(a[strings.Split(fileList[i] , "/")[0]], strings.Split(fileList[i] , "/")[1])
-	}
-	return a
-}
-
-func generateDirectoryTree(fileList [] string) *FileNode{
+func generateDirectoryTree(path [] string) *FileNode{
 	var head *FileNode = new(FileNode)
-	for i:=0; i<len(fileList) ; i++ {
-		separatedPaths := strings.Split(fileList [i] , "/")
-		var currentNode *FileNode = new(FileNode)
-		tempNode := currentNode
-		for  j := range(separatedPaths) {
-			if j != (len(separatedPaths)-1) {
-				tempNode.addChildren(separatedPaths[j])
-				tempNode = &tempNode.children[0]
-			} else{
-				tempNode.addChildren(separatedPaths[j])
+	var head1 *FileNode = head
+	for i := range(path){
+		sepPaths := strings.Split(path[i], "/")
+		for j := range(sepPaths){
+			if(len(head.children) == 0){
+				head.addChildren(sepPaths[j])
+				head = &(head.children[len(head.children) - 1])
+			} else {
+				var headIsChanged = false
+				for k := range(head.children){
+					if head.children[k].path == sepPaths[j] {
+						head = &(head.children[k])
+						headIsChanged = true
+						break
+					}
+				}
+				if(!headIsChanged){
+					head.addChildren(sepPaths[j])
+					head = &(head.children[len(head.children) - 1])
+				}
 			}
 		}
-		head.addChildNode(*currentNode)
+		head = head1
 	}
-	return head;
+	fmt.Println(head)
+	return head
 }
