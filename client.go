@@ -33,7 +33,7 @@ func Update(conn mpd.Client, f []FileNode, inputTable *tview.Table) {
 	inputTable.Clear()
 	for i, j := range f {
 		if len(j.children) == 0 {
-			_songAttributes, err := conn.ListAllInfo(j.totalPath)
+			_songAttributes, err := conn.ListAllInfo(j.absolutePath)
 			if err == nil && _songAttributes[0]["Title"] != "" {
 				inputTable.SetCell(i, 0,
 					tview.NewTableCell("[#fbff00]"+_songAttributes[0]["Title"]).
