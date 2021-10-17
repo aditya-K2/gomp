@@ -19,6 +19,21 @@ func togglePlayBack(connection mpd.Client) error {
 	return err
 }
 
+func UpdatePlaylist(conn mpd.Client, t *tview.Table) {
+	_playlistAttr, _ := conn.PlaylistInfo(-1, -1)
+
+	t.Clear()
+	for i, j := range _playlistAttr {
+		if j["Title"] == "" || j["Artist"] == "" || j["Album"] == "" {
+			t.SetCell(i, 0, tview.NewTableCell(j["file"]))
+		} else {
+			t.SetCell(i, 0, tview.NewTableCell(j["Title"]))
+			t.SetCell(i, 1, tview.NewTableCell(j["Artist"]))
+			t.SetCell(i, 2, tview.NewTableCell(j["Album"]))
+		}
+	}
+}
+
 func join(stringSlice []string) string {
 	var _s string = stringSlice[0]
 	for i := 1; i < len(stringSlice); i++ {
@@ -58,8 +73,4 @@ func Update(conn mpd.Client, f []FileNode, inputTable *tview.Table) {
 					SetAlign(tview.AlignLeft))
 		}
 	}
-}
-
-func addSong(conn mpd.Client, currentDirectoryStructure []string, currentCellContent string) {
-	conn.Add(join(currentDirectoryStructure) + "/" + currentCellContent)
 }
