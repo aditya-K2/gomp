@@ -28,11 +28,25 @@ func insertAt(inputString, stringTobeInserted string, index int) string{
 }
 
 func getText(width , percentage float64, eta string) string{
-	q := "[#000000:#ffffff]"
+	q := "[#000000:#ffffff:bl]"
 	var a string
 	a += strings.Repeat(" ", int(width) - len(eta))
 	a = insertAt(a, eta, int(width/2) - 10)
 	a = insertAt(a, "[-:-:-]", int(width * percentage / 100))
 	q += a
 	return q
+}
+
+func formatString(a interface{}) string {
+	if a == "play" {
+		return "Playing"
+	} else if a == "1" {
+		return "On"
+	} else if a == "0" {
+		return "Off"
+	} else if a == "stop" {
+		return "Stopped"
+	} else {
+		return "Paused"
+	}
 }

@@ -5,6 +5,7 @@ import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/fhs/gompd/mpd"
 	"strconv"
+	"fmt"
 )
 
 // The progressBar is just a string which is separated by the color formatting String
@@ -58,6 +59,10 @@ func (s *progressBar) updateProgress(conn mpd.Client){
 	du , err := strconv.ParseFloat(_status["duration"], 8)
 	percentage := el / du * 100
 	if err == nil && err1 == nil{
+		s.t.SetTitle(fmt.Sprintf("[[::i] %s [-:-:-]Shuffle: %s Repeat: %s Single: %s Volume: %s ]", formatString(_status["state"]),formatString(_status["random"]), formatString(_status["repeat"]), formatString(_status["single"]), _status["volume"] )).SetTitleAlign(tview.AlignRight)
 		s.t.GetCell(1,0).Text = getText(float64(_width), percentage, strTime(el) + "/" + strTime(du) + "(" + strconv.FormatFloat(percentage, 'f', 2, 32) + "%" + ")")
+	} else {
+		s.t.SetTitle(fmt.Sprintf("[[::i] %s [-:-:-]Shuffle: %s Repeat: %s Single: %s]", formatString(_status["state"]),formatString(_status["random"]), formatString(_status["repeat"]), formatString(_status["single"]))).SetTitleAlign(tview.AlignRight)
+		s.t.GetCell(1,0).Text = ""
 	}
 }
