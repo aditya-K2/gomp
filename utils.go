@@ -4,7 +4,7 @@ import(
 	"strconv"
 )
 
-func convertToStrings(e float64) string{
+func strTime(e float64) string{
 	a := int(e)
 	var min, seconds string
 	if (a/60 < 10){

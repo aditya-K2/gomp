@@ -58,6 +58,6 @@ func (s *progressBar) updateProgress(conn mpd.Client){
 	du , err := strconv.ParseFloat(_status["duration"], 8)
 	percentage := el / du * 100
 	if err == nil && err1 == nil{
-		s.t.GetCell(1,0).Text = getText(float64(_width), percentage, convertToStrings(el) + "/" + convertToStrings(du) + "(" + strconv.FormatFloat(percentage, 'f', 2, 32) + "%" + ")")
+		s.t.GetCell(1,0).Text = getText(float64(_width), percentage, strTime(el) + "/" + strTime(du) + "(" + strconv.FormatFloat(percentage, 'f', 2, 32) + "%" + ")")
 	}
 }
