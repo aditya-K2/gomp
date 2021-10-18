@@ -14,6 +14,7 @@ import (
 var Volume int64
 var Random bool
 var Repeat bool
+var InsidePlaylist bool = true
 
 func main() {
 
@@ -29,11 +30,11 @@ func main() {
 	Navbar := tview.NewTable()
 	searchBar := tview.NewTable()
 
-	searchBar.SetBorder(true)
+	searchBar.SetBorder(true).SetTitle("Search").SetTitleAlign(tview.AlignLeft)
 	Navbar.SetBorder(true)
 	Navbar.SetSelectable(true, false)
-	Navbar.SetCell(0, 0, tview.NewTableCell("Files"))
-	Navbar.SetCell(1, 0, tview.NewTableCell("Playlist"))
+	Navbar.SetCell(0, 0, tview.NewTableCell("PlayList"))
+	Navbar.SetCell(1, 0, tview.NewTableCell("Files"))
 	Navbar.SetCell(2, 0, tview.NewTableCell("Most Played"))
 
 	searchNavFlex := tview.NewFlex().SetDirection(tview.FlexRow).
@@ -53,102 +54,135 @@ func main() {
 	expandedView.SetBorderPadding(1, 1, 1, 1).SetBorder(true)
 	expandedView.SetSelectable(true, false)
 
-	a, err := conn.GetFiles()
-	aer := generateDirectoryTree(a)
+	fileMap, err := conn.GetFiles()
+	dirTree := generateDirectoryTree(fileMap)
 
-	Update(*conn, aer.children, expandedView)
+	UpdatePlaylist(*conn, expandedView)
 
-	Navbar.SetDoneFunc(func(key tcell.Key) {
-		if key == tcell.KeyTAB {
-			App.SetFocus(searchBar)
-		} else if key == tcell.KeyBacktab {
-			App.SetFocus(expandedView)
-		}
-	})
-	expandedView.SetDoneFunc(func(key tcell.Key) {
-		if key == tcell.KeyTAB {
-			App.SetFocus(Navbar)
-		} else if key == tcell.KeyBacktab {
-			App.SetFocus(searchBar)
-		}
-	})
-	searchBar.SetDoneFunc(func(key tcell.Key) {
-		if key == tcell.KeyTAB {
-			App.SetFocus(expandedView)
-		} else if key == tcell.KeyBacktab {
-			App.SetFocus(Navbar)
-		}
-	})
-
-	v, _ := conn.Status()
-	Volume, _ = strconv.ParseInt(v["volume"], 10, 64)
-	Random, _ = strconv.ParseBool(v["random"])
-	Repeat, _ = strconv.ParseBool(v["repeat"])
+	_v, _ := conn.Status()
+	Volume, _ = strconv.ParseInt(_v["volume"], 10, 64)
+	Random, _ = strconv.ParseBool(_v["random"])
+	Repeat, _ = strconv.ParseBool(_v["repeat"])
 
 	expandedView.SetInputCapture(func(e *tcell.EventKey) *tcell.EventKey {
-		if e.Rune() == 108 {
-			r, _ := expandedView.GetSelection()
-			if len(aer.children[r].children) == 0 {
-				id, _ := conn.AddId(aer.children[r].absolutePath, -1)
-				conn.PlayId(id)
-			} else {
-				Update(*conn, aer.children[r].children, expandedView)
-				aer = &aer.children[r]
+		switch e.Rune() {
+		case 108: // L : Key
+			{
+				r, _ := expandedView.GetSelection()
+				if !InsidePlaylist {
+					if len(dirTree.children[r].children) == 0 {
+						id, _ := conn.AddId(dirTree.children[r].absolutePath, -1)
+						conn.PlayId(id)
+					} else {
+						Update(*conn, dirTree.children[r].children, expandedView)
+						dirTree = &dirTree.children[r]
+					}
+				} else {
+					conn.Play(r)
+				}
+				return nil
 			}
-			return nil
-		} else if e.Rune() == 112 {
-			togglePlayBack(*conn)
-			return nil
-		} else if e.Rune() == 104 {
-			if aer.parent != nil {
-				Update(*conn, aer.parent.children, expandedView)
-				aer = aer.parent
+		case 112: // P : Key
+			{
+				togglePlayBack(*conn)
+				return nil
 			}
-			return nil
-		} else if e.Rune() == 110 {
-			conn.Next()
-			return nil
-		} else if e.Rune() == 99 {
-			conn.Clear()
-			return nil
-		} else if e.Rune() == 78 {
-			conn.Previous()
-			return nil
-		} else if e.Rune() == 97 {
-			r, _ := expandedView.GetSelection()
-			conn.Add(aer.children[r].absolutePath)
-			return nil
-		} else if e.Rune() == 122 {
-			err := conn.Random(!Random)
-			if err == nil {
-				Random = !Random
+		case 104: // H : Key
+			{
+				if !InsidePlaylist {
+					if dirTree.parent != nil {
+						Update(*conn, dirTree.parent.children, expandedView)
+						dirTree = dirTree.parent
+					}
+				}
+				return nil
 			}
-			return nil
-		} else if e.Rune() == 114 {
-			err := conn.Repeat(!Repeat)
-			if err == nil {
-				Repeat = !Repeat
+		case 110: // N : Key
+			{
+				conn.Next()
+				return nil
 			}
-			return nil
-		} else if e.Rune() == 45 {
-			if Volume <= 0 {
-				Volume = 0
-			} else {
-				Volume -= 10
+		case 99: // C : Key
+			{
+				conn.Clear()
+				if InsidePlaylist {
+					UpdatePlaylist(*conn, expandedView)
+				}
+				return nil
 			}
-			conn.SetVolume(int(Volume))
-			return nil
-		} else if e.Rune() == 61 {
-			if Volume >= 100 {
-				Volume = 100
-			} else {
-				Volume += 10
+		case 78: // Shift - N : Key
+			{
+				conn.Previous()
+				return nil
 			}
-			conn.SetVolume(int(Volume))
-			return nil
-		} else {
-			// fmt.Println(e.Rune())
-			return e
+		case 97: // A : Key
+			{
+				if !InsidePlaylist {
+					r, _ := expandedView.GetSelection()
+					conn.Add(dirTree.children[r].absolutePath)
+				}
+				return nil
+			}
+		case 122: // Z : Key
+			{
+				err := conn.Random(!Random)
+				if err == nil {
+					Random = !Random
+				}
+				return nil
+			}
+		case 114: // R : Key
+			{
+				err := conn.Repeat(!Repeat)
+				if err == nil {
+					Repeat = !Repeat
+				}
+				return nil
+			}
+		case 45: // Minus : Key
+			{
+				if Volume <= 0 {
+					Volume = 0
+				} else {
+					Volume -= 10
+				}
+				conn.SetVolume(int(Volume))
+				return nil
+			}
+		case 61: // Plus : Key
+			{
+				if Volume >= 100 {
+					Volume = 100
+				} else {
+					Volume += 10
+				}
+				conn.SetVolume(int(Volume))
+				return nil
+			}
+		case 50: // 2 : Key
+			{
+				InsidePlaylist = false
+				Navbar.Select(1, 0)
+				Update(*conn, dirTree.children, expandedView)
+				return nil
+			}
+		case 49: // 1 : Key
+			{
+				InsidePlaylist = true
+				Navbar.Select(0, 0)
+				UpdatePlaylist(*conn, expandedView)
+				return nil
+			}
+		case 51: // 3 : Key
+			{
+				InsidePlaylist = false
+				Navbar.Select(2, 0)
+				return nil
+			}
+		default:
+			{
+				return e
+			}
 		}
 	})
 
