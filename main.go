@@ -36,6 +36,15 @@ func main() {
 	Random, _ = strconv.ParseBool(_v["random"])
 	Repeat, _ = strconv.ParseBool(_v["repeat"])
 
+	UI.expandedView.SetDrawFunc(func(s tcell.Screen, x, y, width, height int) (int, int, int, int) {
+		if InsidePlaylist {
+			UpdatePlaylist(*conn, UI.expandedView)
+		} else {
+			Update(*conn, dirTree.children, UI.expandedView)
+		}
+		return UI.expandedView.GetInnerRect()
+	})
+
 	UI.expandedView.SetInputCapture(func(e *tcell.EventKey) *tcell.EventKey {
 		switch e.Rune() {
 		case 108: // L : Key
