@@ -52,4 +52,5 @@ func newApplication(conn mpd.Client) *Application {
 		searchBar:    searchBar,
 		pBar:         pBar,
 	}
+
 }
