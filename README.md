@@ -8,8 +8,8 @@
 
 # Roadmap
 
-- [] Add Functionality to Sort out most played songs
-- [] Add a config parser ( preferably ***YAML*** )
+- [ ] Add Functionality to Sort out most played songs
+- [ ] Add a config parser ( preferably ***YAML*** )
 
 # Prerequisites
 
