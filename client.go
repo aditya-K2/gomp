@@ -63,15 +63,15 @@ func Update(conn mpd.Client, f []FileNode, inputTable *tview.Table) {
 			if err == nil && _songAttributes[0]["Title"] != "" {
 				_, _, w, _ := inputTable.GetInnerRect()
 				inputTable.SetCell(i, 0,
-					tview.NewTableCell("[#fbff00]"+getFormattedString(_songAttributes[0]["Title"], w/3)).
+					tview.NewTableCell("[green]"+getFormattedString(_songAttributes[0]["Title"], w/3)).
 						SetAlign(tview.AlignLeft))
 
 				inputTable.SetCell(i, 1,
-					tview.NewTableCell("[#fbff00]"+getFormattedString(_songAttributes[0]["Artist"], w/3)).
+					tview.NewTableCell("[magenta]"+getFormattedString(_songAttributes[0]["Artist"], w/3)).
 						SetAlign(tview.AlignLeft))
 
 				inputTable.SetCell(i, 2,
-					tview.NewTableCell("[#ff0030]"+_songAttributes[0]["Album"]).
+					tview.NewTableCell("[yellow]"+_songAttributes[0]["Album"]).
 						SetAlign(tview.AlignLeft))
 
 			} else if _songAttributes[0]["Title"] == "" {
@@ -81,7 +81,7 @@ func Update(conn mpd.Client, f []FileNode, inputTable *tview.Table) {
 			}
 		} else {
 			inputTable.SetCell(i, 0,
-				tview.NewTableCell("[#fbff00::b]"+j.path).
+				tview.NewTableCell("[yellow::b]"+j.path).
 					SetAlign(tview.AlignLeft))
 		}
 	}
