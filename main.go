@@ -8,7 +8,6 @@ import (
 
 	"github.com/fhs/gompd/mpd"
 	"github.com/gdamore/tcell/v2"
-	"github.com/rivo/tview"
 )
 
 var Volume int64
@@ -25,56 +24,29 @@ func main() {
 	}
 	defer conn.Close()
 
-	var pBar *progressBar = newProgressBar(*conn)
-	expandedView := tview.NewTable()
-	Navbar := tview.NewTable()
-	searchBar := tview.NewTable()
-
-	searchBar.SetBorder(true).SetTitle("Search").SetTitleAlign(tview.AlignLeft)
-	Navbar.SetBorder(true)
-	Navbar.SetSelectable(true, false)
-	Navbar.SetCell(0, 0, tview.NewTableCell("PlayList"))
-	Navbar.SetCell(1, 0, tview.NewTableCell("Files"))
-	Navbar.SetCell(2, 0, tview.NewTableCell("Most Played"))
-
-	searchNavFlex := tview.NewFlex().SetDirection(tview.FlexRow).
-		AddItem(searchBar, 0, 1, false).
-		AddItem(Navbar, 0, 7, false)
-
-	sNavExpViewFlex := tview.NewFlex().
-		AddItem(searchNavFlex, 0, 1, false).
-		AddItem(expandedView, 0, 4, false)
-
-	mainFlex := tview.NewFlex().SetDirection(tview.FlexRow).
-		AddItem(sNavExpViewFlex, 0, 8, false).
-		AddItem(pBar.t, 0, 1, false)
-
-	App := tview.NewApplication().SetRoot(mainFlex, true).SetFocus(expandedView)
-
-	expandedView.SetBorderPadding(1, 1, 1, 1).SetBorder(true)
-	expandedView.SetSelectable(true, false)
+	UI := newApplication(*conn)
 
 	fileMap, err := conn.GetFiles()
 	dirTree := generateDirectoryTree(fileMap)
 
-	UpdatePlaylist(*conn, expandedView)
+	UpdatePlaylist(*conn, UI.expandedView)
 
 	_v, _ := conn.Status()
 	Volume, _ = strconv.ParseInt(_v["volume"], 10, 64)
 	Random, _ = strconv.ParseBool(_v["random"])
 	Repeat, _ = strconv.ParseBool(_v["repeat"])
 
-	expandedView.SetInputCapture(func(e *tcell.EventKey) *tcell.EventKey {
+	UI.expandedView.SetInputCapture(func(e *tcell.EventKey) *tcell.EventKey {
 		switch e.Rune() {
 		case 108: // L : Key
 			{
-				r, _ := expandedView.GetSelection()
+				r, _ := UI.expandedView.GetSelection()
 				if !InsidePlaylist {
 					if len(dirTree.children[r].children) == 0 {
 						id, _ := conn.AddId(dirTree.children[r].absolutePath, -1)
 						conn.PlayId(id)
 					} else {
-						Update(*conn, dirTree.children[r].children, expandedView)
+						Update(*conn, dirTree.children[r].children, UI.expandedView)
 						dirTree = &dirTree.children[r]
 					}
 				} else {
@@ -91,7 +63,7 @@ func main() {
 			{
 				if !InsidePlaylist {
 					if dirTree.parent != nil {
-						Update(*conn, dirTree.parent.children, expandedView)
+						Update(*conn, dirTree.parent.children, UI.expandedView)
 						dirTree = dirTree.parent
 					}
 				}
@@ -106,7 +78,7 @@ func main() {
 			{
 				conn.Clear()
 				if InsidePlaylist {
-					UpdatePlaylist(*conn, expandedView)
+					UpdatePlaylist(*conn, UI.expandedView)
 				}
 				return nil
 			}
@@ -118,7 +90,7 @@ func main() {
 		case 97: // A : Key
 			{
 				if !InsidePlaylist {
-					r, _ := expandedView.GetSelection()
+					r, _ := UI.expandedView.GetSelection()
 					conn.Add(dirTree.children[r].absolutePath)
 				}
 				return nil
@@ -162,21 +134,21 @@ func main() {
 		case 50: // 2 : Key
 			{
 				InsidePlaylist = false
-				Navbar.Select(1, 0)
-				Update(*conn, dirTree.children, expandedView)
+				UI.Navbar.Select(1, 0)
+				Update(*conn, dirTree.children, UI.expandedView)
 				return nil
 			}
 		case 49: // 1 : Key
 			{
 				InsidePlaylist = true
-				Navbar.Select(0, 0)
-				UpdatePlaylist(*conn, expandedView)
+				UI.Navbar.Select(0, 0)
+				UpdatePlaylist(*conn, UI.expandedView)
 				return nil
 			}
 		case 51: // 3 : Key
 			{
 				InsidePlaylist = false
-				Navbar.Select(2, 0)
+				UI.Navbar.Select(2, 0)
 				return nil
 			}
 		default:
@@ -188,12 +160,12 @@ func main() {
 
 	go func() {
 		for {
-			App.Draw()
+			UI.App.Draw()
 			time.Sleep(time.Second)
 		}
 	}()
 
-	if err := App.Run(); err != nil {
+	if err := UI.App.Run(); err != nil {
 		panic(err)
 	}
 }
