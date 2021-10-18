@@ -1,13 +1,23 @@
 package main
 
 import (
+	"strings"
+
 	"github.com/fhs/gompd/mpd"
 	// "github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 	// "fmt"
 )
 
-var directoryMap map[string][]int = make(map[string][]int)
+func getFormattedString(s string, width int) string {
+	if len(s) < width {
+		s += strings.Repeat(" ", (width - len(s)))
+	} else {
+		s = s[:(width - 2)]
+		s += "  "
+	}
+	return s
+}
 
 func togglePlayBack(connection mpd.Client) error {
 	status, err := connection.Status()
@@ -24,12 +34,13 @@ func UpdatePlaylist(conn mpd.Client, t *tview.Table) {
 
 	t.Clear()
 	for i, j := range _playlistAttr {
+		_, _, w, _ := t.GetInnerRect()
 		if j["Title"] == "" || j["Artist"] == "" || j["Album"] == "" {
-			t.SetCell(i, 0, tview.NewTableCell(j["file"]))
+			t.SetCell(i, 0, tview.NewTableCell(getFormattedString(j["file"], w/3)))
 		} else {
-			t.SetCell(i, 0, tview.NewTableCell(j["Title"]))
-			t.SetCell(i, 1, tview.NewTableCell(j["Artist"]))
-			t.SetCell(i, 2, tview.NewTableCell(j["Album"]))
+			t.SetCell(i, 0, tview.NewTableCell(getFormattedString("[green]"+j["Title"], w/3)))
+			t.SetCell(i, 1, tview.NewTableCell(getFormattedString("[magenta]"+j["Artist"], w/3)))
+			t.SetCell(i, 2, tview.NewTableCell("[yellow]"+j["Album"]))
 		}
 	}
 }
@@ -50,12 +61,13 @@ func Update(conn mpd.Client, f []FileNode, inputTable *tview.Table) {
 		if len(j.children) == 0 {
 			_songAttributes, err := conn.ListAllInfo(j.absolutePath)
 			if err == nil && _songAttributes[0]["Title"] != "" {
+				_, _, w, _ := inputTable.GetInnerRect()
 				inputTable.SetCell(i, 0,
-					tview.NewTableCell("[#fbff00]"+_songAttributes[0]["Title"]).
+					tview.NewTableCell("[#fbff00]"+getFormattedString(_songAttributes[0]["Title"], w/3)).
 						SetAlign(tview.AlignLeft))
 
 				inputTable.SetCell(i, 1,
-					tview.NewTableCell("[#fbff00]"+_songAttributes[0]["Artist"]).
+					tview.NewTableCell("[#fbff00]"+getFormattedString(_songAttributes[0]["Artist"], w/3)).
 						SetAlign(tview.AlignLeft))
 
 				inputTable.SetCell(i, 2,
