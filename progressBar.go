@@ -31,7 +31,8 @@ func newProgressBar(conn mpd.Client) *progressBar {
 
 	a := tview.NewTable().
 		SetCell(0, 0, tview.NewTableCell("")).
-		SetCell(1, 0, tview.NewTableCell(""))
+		SetCell(1, 0, tview.NewTableCell("")).
+		SetCell(2, 0, tview.NewTableCell(""))
 
 	a.SetBorder(true)
 
@@ -49,7 +50,7 @@ func newProgressBar(conn mpd.Client) *progressBar {
 func (s *progressBar) updateTitle(conn mpd.Client) {
 	_currentAttributes, err := conn.CurrentSong()
 	if err == nil {
-		s.t.GetCell(0, 0).Text = _currentAttributes["Artist"] + " - " + _currentAttributes["Title"]
+		s.t.GetCell(0, 0).Text = "[green::bi]" + _currentAttributes["Title"] + "[-:-:-] - " + "[blue::b]" + _currentAttributes["Artist"] + "\n"
 	}
 }
 
@@ -61,9 +62,9 @@ func (s *progressBar) updateProgress(conn mpd.Client) {
 	percentage := el / du * 100
 	if err == nil && err1 == nil {
 		s.t.SetTitle(fmt.Sprintf("[[::i] %s [-:-:-]Shuffle: %s Repeat: %s Volume: %s ]", formatString(_status["state"]), formatString(_status["random"]), formatString(_status["repeat"]), _status["volume"])).SetTitleAlign(tview.AlignRight)
-		s.t.GetCell(1, 0).Text = getText(float64(_width), percentage, strTime(el)+"/"+strTime(du)+"("+strconv.FormatFloat(percentage, 'f', 2, 32)+"%"+")")
+		s.t.GetCell(2, 0).Text = getText(float64(_width), percentage, strTime(el)+"/"+strTime(du)+"("+strconv.FormatFloat(percentage, 'f', 2, 32)+"%"+")")
 	} else {
 		s.t.SetTitle(fmt.Sprintf("[[::i] %s [-:-:-]Shuffle: %s Repeat: %s]", formatString(_status["state"]), formatString(_status["random"]), formatString(_status["repeat"]))).SetTitleAlign(tview.AlignRight)
-		s.t.GetCell(1, 0).Text = ""
+		s.t.GetCell(2, 0).Text = ""
 	}
 }
