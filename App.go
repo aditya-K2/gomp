@@ -37,7 +37,7 @@ func newApplication(conn mpd.Client) *Application {
 
 	mainFlex := tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(sNavExpViewFlex, 0, 8, false).
-		AddItem(pBar.t, 0, 1, false)
+		AddItem(pBar.t, 5, 1, false)
 
 	expandedView.SetBorderPadding(1, 1, 1, 1).SetBorder(true)
 	expandedView.SetSelectable(true, false)
