@@ -160,6 +160,11 @@ func main() {
 				UI.Navbar.Select(2, 0)
 				return nil
 			}
+		case 113: // q : Key
+			{
+				UI.App.Stop()
+				return nil
+			}
 		default:
 			{
 				return e
