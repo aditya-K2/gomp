@@ -19,6 +19,8 @@ func newApplication(conn mpd.Client) *Application {
 	expandedView := tview.NewTable()
 	Navbar := tview.NewTable()
 	searchBar := tview.NewTable()
+	imagePreviewer := tview.NewBox()
+	imagePreviewer.SetBorder(true)
 
 	searchBar.SetBorder(true).SetTitle("Search").SetTitleAlign(tview.AlignLeft)
 	Navbar.SetBorder(true)
@@ -28,11 +30,12 @@ func newApplication(conn mpd.Client) *Application {
 	Navbar.SetCell(2, 0, tview.NewTableCell("Most Played"))
 
 	searchNavFlex := tview.NewFlex().SetDirection(tview.FlexRow).
-		AddItem(searchBar, 0, 1, false).
-		AddItem(Navbar, 0, 7, false)
+		AddItem(searchBar, 3, 1, false).
+		AddItem(Navbar, 0, 4, false).
+		AddItem(imagePreviewer, 10, 3, false)
 
 	sNavExpViewFlex := tview.NewFlex().
-		AddItem(searchNavFlex, 0, 1, false).
+		AddItem(searchNavFlex, 25, 1, false).
 		AddItem(expandedView, 0, 4, false)
 
 	mainFlex := tview.NewFlex().SetDirection(tview.FlexRow).
