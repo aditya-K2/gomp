@@ -11,14 +11,11 @@ import (
 
 // The progressBar is just a string which is separated by the color formatting String
 // for e.g
-
 // "[:#fbff00:]******************`innerText`[-:-:-]                "
-
 // the above string shows represents the progress until [-:-:-]
 // [-:-:-] this string represents resetting colors so the substring before it would be with a
 // colored background. this is done by calculating the innerRect of the table and taking that length as
 // 100% and then representing the rest of the information in relation to it
-
 type progressBar struct {
 	t *tview.Table
 }
