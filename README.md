@@ -10,6 +10,9 @@ https://user-images.githubusercontent.com/51816057/137694586-199e8c0c-aa5b-473f-
 
 - [ ] Add Functionality to Sort out most played songs
 - [ ] Add a config parser ( preferably ***YAML*** )
+- [ ] Ueberzug Integration
+- [ ] Fuzzy Searching
+- [ ] Visual Mode (like vim) for updating playlists
 
 # Prerequisites
 
