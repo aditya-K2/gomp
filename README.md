@@ -1,16 +1,17 @@
 # goMP
 
-![](https://img.shields.io/badge/status-usable-blue)
+![](https://img.shields.io/badge/status-alpha-red)
 
  MPD client inspired by ncmpcpp written in GO
 
-https://user-images.githubusercontent.com/51816057/137694586-199e8c0c-aa5b-473f-9657-ea399bb582a8.mp4
+https://user-images.githubusercontent.com/51816057/138585868-92aff5bd-dd7e-46af-bf06-28b83115120b.mp4
 
 # Roadmap
 
 - [ ] Add Functionality to Sort out most played songs
 - [ ] Add a config parser ( preferably ***YAML*** )
-- [x] ~~Ueberzug Integration~~
+- [x] Image Previews
+	- The Image Previews are working but the placement is very hacky and needs some work 
 - [ ] Fuzzy Searching
 - [ ] Visual Mode (like vim) for updating playlists
 
