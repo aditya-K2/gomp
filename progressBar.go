@@ -9,6 +9,9 @@ import (
 	"github.com/rivo/tview"
 )
 
+var CurrentSong string
+var DBDIR string = "PATH TO YOUR MPD DATABASE"
+
 // The progressBar is just a string which is separated by the color formatting String
 // for e.g
 // "[:#fbff00:]******************`innerText`[-:-:-]                "
@@ -23,7 +26,7 @@ type progressBar struct {
 // This Function returns a progressBar with a table of two rows
 // the First row will contain information about the current Song
 // and the Second one will contain the progressBar
-func newProgressBar(conn mpd.Client) *progressBar {
+func newProgressBar(conn mpd.Client, r *Renderer) *progressBar {
 	p := progressBar{}
 
 	a := tview.NewTable().
@@ -34,20 +37,30 @@ func newProgressBar(conn mpd.Client) *progressBar {
 	a.SetBorder(true)
 
 	a.SetDrawFunc(func(s tcell.Screen, x, y, width, height int) (int, int, int, int) {
-		p.updateTitle(conn)
+		p.updateTitle(conn, r)
 		p.updateProgress(conn)
 		return p.t.GetInnerRect()
 	})
 
-	p = progressBar{a}
+	CurrentSong = ""
 
+	p = progressBar{a}
 	return &p
 }
 
-func (s *progressBar) updateTitle(conn mpd.Client) {
+func (s *progressBar) updateTitle(conn mpd.Client, r *Renderer) {
 	_currentAttributes, err := conn.CurrentSong()
 	if err == nil {
-		s.t.GetCell(0, 0).Text = "[green::bi]" + _currentAttributes["Title"] + "[-:-:-] - " + "[blue::b]" + _currentAttributes["Artist"] + "\n"
+		song := "[green::bi]" + _currentAttributes["Title"] + "[-:-:-] - " + "[blue::b]" + _currentAttributes["Artist"] + "\n"
+		s.t.GetCell(0, 0).Text = song
+		if len(_currentAttributes) == 0 && CurrentSong != "" {
+			CurrentSong = ""
+			r.Send("stop")
+		} else if song != CurrentSong && len(_currentAttributes) != 0 {
+			r.Send(DBDIR + _currentAttributes["file"])
+			CurrentSong = song
+		}
+		// fmt.Println(len(_currentAttributes))
 	}
 }
 

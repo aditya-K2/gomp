@@ -24,7 +24,15 @@ func main() {
 	}
 	defer conn.Close()
 
-	UI := newApplication(*conn)
+	r := newRenderer()
+	c, _ := conn.CurrentSong()
+	if len(c) != 0 {
+		r.Start(DBDIR + c["file"])
+	} else {
+		r.Start("stop")
+	}
+
+	UI := newApplication(*conn, r)
 
 	fileMap, err := conn.GetFiles()
 	dirTree := generateDirectoryTree(fileMap)
@@ -163,6 +171,11 @@ func main() {
 		case 113: // q : Key
 			{
 				UI.App.Stop()
+				return nil
+			}
+		case 115:
+			{
+				conn.Stop()
 				return nil
 			}
 		default:

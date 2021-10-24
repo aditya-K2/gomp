@@ -2,8 +2,11 @@ package main
 
 import (
 	"github.com/fhs/gompd/mpd"
+	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
+
+var IMG_X, IMG_Y, IMG_W, IMG_H int
 
 type Application struct {
 	App          *tview.Application
@@ -13,14 +16,18 @@ type Application struct {
 	pBar         *progressBar
 }
 
-func newApplication(conn mpd.Client) *Application {
+func newApplication(conn mpd.Client, r *Renderer) *Application {
 
-	var pBar *progressBar = newProgressBar(conn)
+	var pBar *progressBar = newProgressBar(conn, r)
 	expandedView := tview.NewTable()
 	Navbar := tview.NewTable()
 	searchBar := tview.NewTable()
 	imagePreviewer := tview.NewBox()
 	imagePreviewer.SetBorder(true)
+	imagePreviewer.SetDrawFunc(func(s tcell.Screen, x, y, width, height int) (int, int, int, int) {
+		IMG_X, IMG_Y, IMG_W, IMG_H = imagePreviewer.GetRect()
+		return imagePreviewer.GetInnerRect()
+	})
 
 	searchBar.SetBorder(true).SetTitle("Search").SetTitleAlign(tview.AlignLeft)
 	Navbar.SetBorder(true)
@@ -32,10 +39,10 @@ func newApplication(conn mpd.Client) *Application {
 	searchNavFlex := tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(searchBar, 3, 1, false).
 		AddItem(Navbar, 0, 4, false).
-		AddItem(imagePreviewer, 10, 3, false)
+		AddItem(imagePreviewer, 9, 3, false)
 
 	sNavExpViewFlex := tview.NewFlex().
-		AddItem(searchNavFlex, 25, 1, false).
+		AddItem(searchNavFlex, 17, 1, false).
 		AddItem(expandedView, 0, 4, false)
 
 	mainFlex := tview.NewFlex().SetDirection(tview.FlexRow).
