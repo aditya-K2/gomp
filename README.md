@@ -18,6 +18,11 @@ https://user-images.githubusercontent.com/51816057/137694586-199e8c0c-aa5b-473f-
 
 - Music Player Daemon must be setup
 - Go Should Be Installed ( for building )
+- Set the Path to your mpd DATABASE in progressbar.go
+
+```go
+	var DBDIR string = "PATH TO YOUR MPD DATABASE HERE"
+```
 
 # Installing / Building
 
