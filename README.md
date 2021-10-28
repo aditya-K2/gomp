@@ -40,4 +40,12 @@ cd goMP &&
 go build
 ```
 
-## Most of the Key-bindings are same as ncmpcpp
+## Image Placement
+
+The image is rendered by calculating pixels by multiplying the rows and columns with the font-width which is calculated by dividing the terminal width and height ( Please let me know if there is a better way to do this ) this let's to uneven placement so it is better that you disable the borders for the imagePreview holder.
+
+in [App.go](https://github.com/aditya-K2/goMP/blob/master/App.go)
+
+```go
+	imagePreviewer.SetBorder(false)
+```
