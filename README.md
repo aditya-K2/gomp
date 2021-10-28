@@ -14,6 +14,7 @@ https://user-images.githubusercontent.com/51816057/138585868-92aff5bd-dd7e-46af-
 	- The Image Previews are working but the placement is very hacky and needs some work 
 - [ ] Fuzzy Searching
 - [ ] Visual Mode (like vim) for updating playlists
+- [ ] Music Visualizer
 
 # Prerequisites
 
