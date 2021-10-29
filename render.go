@@ -13,9 +13,6 @@ type Renderer struct {
 	c chan string
 }
 
-var ADDITIONAL_PADDING_X int = 16
-var ADDITIONAL_PADDING_Y int = 24
-
 /*
 	Returns a new Renderer with a string channel
 */

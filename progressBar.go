@@ -10,7 +10,6 @@ import (
 )
 
 var CurrentSong string
-var DBDIR string = "PATH TO YOUR MPD DATABASE"
 
 // The progressBar is just a string which is separated by the color formatting String
 // for e.g

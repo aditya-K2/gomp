@@ -1,6 +1,9 @@
 package main
 
 import (
+	"fmt"
+	"io/ioutil"
+	"os"
 	"strconv"
 	"strings"
 	"syscall"
@@ -79,4 +82,28 @@ func formatString(a interface{}) string {
 	} else {
 		return "Paused"
 	}
+}
+
+func getMusicDirectory() string {
+	a, _ := os.UserHomeDir()
+	content, err := ioutil.ReadFile(a + "/.config/mpd/mpd.conf")
+	if err != nil {
+		fmt.Println("No Config File for mpd Found")
+		panic(err)
+	}
+	ab := string(content)
+	maps := strings.Split(ab, "\n")
+	for _, j := range maps {
+		if strings.Contains(j, "music_directory") {
+			s := strings.SplitAfter(strings.ReplaceAll(j, " ", ""), "y")[1]
+			d := ""
+			for z, m := range s {
+				if (z != 0) && (z != (len(s) - 1)) {
+					d += string(m)
+				}
+			}
+			return d
+		}
+	}
+	return ""
 }

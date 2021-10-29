@@ -25,13 +25,13 @@ func getAlbumArt(uri string) string {
 	}
 	albumCover := m.Picture()
 	if albumCover != nil {
-		b, err := os.Create("hello.jpg")
+		b, err := os.Create("thumb.jpg")
 		if err != nil {
 			panic(err)
 		}
 		defer b.Close()
 		b.Write(albumCover.Data)
-		path = "hello.jpg"
+		path = "thumb.jpg"
 		b.Close()
 	}
 	f.Close()
@@ -51,8 +51,9 @@ func getImg(uri string) (image.Image, error) {
 		return nil, err
 	}
 
-	img = resize.Thumbnail(
-		uint(IMG_W*22), uint(IMG_H*15),
+	fw, fh := getFontWidth()
+	img = resize.Resize(
+		uint(float32(IMG_W)*(fw+IMAGE_WIDTH_EXTRA_X)), uint(float32(IMG_H)*(fh+IMAGE_WIDTH_EXTRA_Y)),
 		img,
 		resize.Bilinear,
 	)
