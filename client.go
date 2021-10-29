@@ -29,18 +29,18 @@ func togglePlayBack(connection mpd.Client) error {
 	return err
 }
 
-func UpdatePlaylist(conn mpd.Client, t *tview.Table) {
+func UpdatePlaylist(conn mpd.Client, inputTable *tview.Table) {
 	_playlistAttr, _ := conn.PlaylistInfo(-1, -1)
 
-	t.Clear()
+	inputTable.Clear()
 	for i, j := range _playlistAttr {
-		_, _, w, _ := t.GetInnerRect()
+		_, _, w, _ := inputTable.GetInnerRect()
 		if j["Title"] == "" || j["Artist"] == "" || j["Album"] == "" {
-			t.SetCell(i, 0, tview.NewTableCell(getFormattedString(j["file"], w/3)))
+			inputTable.SetCell(i, 0, tview.NewTableCell(getFormattedString(j["file"], w/3)))
 		} else {
-			t.SetCell(i, 0, tview.NewTableCell(getFormattedString("[green]"+j["Title"], w/3)))
-			t.SetCell(i, 1, tview.NewTableCell(getFormattedString("[magenta]"+j["Artist"], w/3)))
-			t.SetCell(i, 2, tview.NewTableCell("[yellow]"+j["Album"]))
+			inputTable.SetCell(i, 0, tview.NewTableCell(getFormattedString("[green]"+j["Title"], w/3)))
+			inputTable.SetCell(i, 1, tview.NewTableCell(getFormattedString("[magenta]"+j["Artist"], w/3)))
+			inputTable.SetCell(i, 2, tview.NewTableCell("[yellow]"+j["Album"]))
 		}
 	}
 }
