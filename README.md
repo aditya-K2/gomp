@@ -49,3 +49,14 @@ in [App.go](https://github.com/aditya-K2/goMP/blob/master/App.go)
 ```go
 	imagePreviewer.SetBorder(false)
 ```
+
+#### With Borders ( Sometimes \[Mostly Maximized Terminals\] )
+
+
+![Oct28(Thu)02:4134PM](https://user-images.githubusercontent.com/51816057/139225915-b3e30742-65a8-4482-ad38-753646b5082f.png)
+
+#### Without Borders 
+
+![Oct28(Thu)02:4513PM](https://user-images.githubusercontent.com/51816057/139226138-b68ebc22-204c-40f7-a7f2-0dd92b88f72b.png)
+
+Note: Your terminal window padding also affects the tui.
