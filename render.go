@@ -13,6 +13,9 @@ type Renderer struct {
 	c chan string
 }
 
+var ADDITIONAL_PADDING_X int = 16
+var ADDITIONAL_PADDING_Y int = 24
+
 /*
 	Returns a new Renderer with a string channel
 */
@@ -39,10 +42,11 @@ func (self *Renderer) Send(path string) {
 
 */
 func openImage(path string, c chan string) {
+	fw, fh := getFontWidth()
 	var im *ueberzug.Image
 	if path != "stop" {
 		img2, _ := getImg(getAlbumArt(path))
-		im, _ = ueberzug.NewImage(img2, (IMG_X*10)+15, (IMG_Y*22)+10)
+		im, _ = ueberzug.NewImage(img2, int(float32(IMG_X)*fw)+ADDITIONAL_PADDING_X, int(float32(IMG_Y)*fh)+ADDITIONAL_PADDING_Y)
 	}
 	d := <-c
 	if im != nil {
