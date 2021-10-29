@@ -40,7 +40,7 @@ var ADDITIONAL_PADDING_Y int = 24
 // Change according to your needs
 
 var IMAGE_WIDTH_EXTRA_X float32 = -1.5 // Decrementing
-var IMAGE_WIDTH_EXTRA_Y float32 = -3.75 // Incrementing
+var IMAGE_WIDTH_EXTRA_Y float32 = 3.75 // Incrementing
 
 ```
 
