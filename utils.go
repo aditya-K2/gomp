@@ -3,7 +3,36 @@ package main
 import (
 	"strconv"
 	"strings"
+	"syscall"
+	"unsafe"
 )
+
+type winsize struct {
+	Row    uint16
+	Col    uint16
+	Xpixel uint16
+	Ypixel uint16
+}
+
+func getWidth() *winsize {
+	ws := &winsize{}
+	retCode, _, errno := syscall.Syscall(syscall.SYS_IOCTL,
+		uintptr(syscall.Stdin),
+		uintptr(syscall.TIOCGWINSZ),
+		uintptr(unsafe.Pointer(ws)))
+
+	if int(retCode) == -1 {
+		panic(errno)
+	}
+	return ws
+}
+
+func getFontWidth() (float32, float32) {
+	g := getWidth()
+	fw := (float32(g.Xpixel) / float32(g.Col))
+	fh := (float32(g.Ypixel) / float32(g.Row))
+	return fw, fh
+}
 
 func strTime(e float64) string {
 	a := int(e)
