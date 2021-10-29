@@ -47,3 +47,8 @@ git clone https://github.com/aditya-K2/goMP &&
 cd goMP &&
 go build
 ```
+
+### Tested on following terminals:
+
+- Alacritty
+- ST
