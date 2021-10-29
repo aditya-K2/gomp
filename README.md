@@ -19,25 +19,29 @@ https://user-images.githubusercontent.com/51816057/138585868-92aff5bd-dd7e-46af-
 
 - Music Player Daemon must be setup
 - Go Should Be Installed ( for building )
-- Set the Path to your mpd DATABASE in [progressbar.go](https://github.com/aditya-K2/goMP/blob/master/progressBar.go)
-
-```go
-var DBDIR string = "PATH TO YOUR MPD DATABASE HERE"
-```
-
-- In [imageUtils.go](https://github.com/aditya-K2/goMP/blob/master/imageUtils.go) set the path for your default Image
+- Your mpd.conf file in ``~/.config/mpd/mpd.conf`` is automatically parsed to get ``music_directory``
+- In [globals.go](https://github.com/aditya-K2/goMP/blob/master/globals.go) set the path for your default Image
 
 ```go
 var path string = "YOUR DEFAULT IMAGE PATH HERE"
 ```
 
-- Change the default additional Image padding according to your terminal in [render.go](https://github.com/aditya-K2/goMP/blob/master/render.go)
+- Change the default additional Image padding according to your terminal in [globals.go](https://github.com/aditya-K2/goMP/blob/master/globals.go)
 
 ```go
 // Change according to your needs
 
 var ADDITIONAL_PADDING_X int = 16
 var ADDITIONAL_PADDING_Y int = 24
+```
+- Increment/Decrement Image Pixels according to your terminal in [globals.go](https://github.com/aditya-K2/goMP/blob/master/globals.go)
+
+```go
+// Change according to your needs
+
+var IMAGE_WIDTH_EXTRA_X float32 = -1.5 // Decrementing
+var IMAGE_WIDTH_EXTRA_Y float32 = -3.75 // Incrementing
+
 ```
 
 # Installing / Building
@@ -52,3 +56,4 @@ go build
 
 - Alacritty
 - ST
+- URXVT
