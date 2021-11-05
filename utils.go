@@ -94,6 +94,7 @@ func getMusicDirectory() string {
 	for _, j := range maps {
 		if strings.Contains(j, "music_directory") {
 			s := strings.SplitAfter(strings.ReplaceAll(j, " ", ""), "y")[1]
+			s = strings.ReplaceAll(s, "\t", "")
 			d := ""
 			for z, m := range s {
 				if (z != 0) && (z != (len(s) - 1)) {
