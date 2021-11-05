@@ -15,7 +15,7 @@ import (
 	path to default image is sent.
 */
 func getAlbumArt(uri string) string {
-	var path string = "/H/code/goMP/default.jpg"
+	var path string = viper.GetString("DEFAULT_IMAGE_PATH")
 	f, err := os.Open(uri)
 	if err != nil {
 		panic(err)
@@ -26,13 +26,13 @@ func getAlbumArt(uri string) string {
 	}
 	albumCover := m.Picture()
 	if albumCover != nil {
-		b, err := os.Create("/H/code/goMP/thumb.jpg")
+		b, err := os.Create(viper.GetString("COVER_IMAGE_PATH"))
 		if err != nil {
 			panic(err)
 		}
 		defer b.Close()
 		b.Write(albumCover.Data)
-		path = "/H/code/goMP/thumb.jpg"
+		path = viper.GetString("COVER_IMAGE_PATH")
 		b.Close()
 	}
 	f.Close()

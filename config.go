@@ -16,6 +16,8 @@ var (
 		"IMAGE_WIDTH_EXTRA_Y":  -3.75,
 		"MUSIC_DIRECTORY":      HOME_DIR + "/Music",
 		"PORT":                 "6600",
+		"DEFAULT_IMAGE_PATH":   "default.jpg",
+		"COVER_IMAGE_PATH":     "cover.jpg",
 	}
 )
 
