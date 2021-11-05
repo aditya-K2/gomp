@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
-	"os"
 	"strconv"
 	"strings"
 	"syscall"
@@ -85,8 +84,7 @@ func formatString(a interface{}) string {
 }
 
 func getMusicDirectory() string {
-	a, _ := os.UserHomeDir()
-	content, err := ioutil.ReadFile(a + "/.config/mpd/mpd.conf")
+	content, err := ioutil.ReadFile(HOME_DIR + "/.config/mpd/mpd.conf")
 	if err != nil {
 		fmt.Println("No Config File for mpd Found")
 		panic(err)

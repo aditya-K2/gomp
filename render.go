@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/spf13/viper"
 	"gitlab.com/diamondburned/ueberzug-go"
 )
 
@@ -43,7 +44,7 @@ func openImage(path string, c chan string) {
 	var im *ueberzug.Image
 	if path != "stop" {
 		img2, _ := getImg(getAlbumArt(path))
-		im, _ = ueberzug.NewImage(img2, int(float32(IMG_X)*fw)+ADDITIONAL_PADDING_X, int(float32(IMG_Y)*fh)+ADDITIONAL_PADDING_Y)
+		im, _ = ueberzug.NewImage(img2, int(float32(IMG_X)*fw)+viper.GetInt("ADDITIONAL_PADDING_X"), int(float32(IMG_Y)*fh)+viper.GetInt("ADDITIONAL_PADDING_Y"))
 	}
 	d := <-c
 	if im != nil {

@@ -6,6 +6,7 @@ import (
 
 	"github.com/dhowden/tag"
 	"github.com/nfnt/resize"
+	"github.com/spf13/viper"
 )
 
 /*
@@ -14,7 +15,7 @@ import (
 	path to default image is sent.
 */
 func getAlbumArt(uri string) string {
-	var path string = "default.jpg"
+	var path string = "/H/code/goMP/default.jpg"
 	f, err := os.Open(uri)
 	if err != nil {
 		panic(err)
@@ -25,13 +26,13 @@ func getAlbumArt(uri string) string {
 	}
 	albumCover := m.Picture()
 	if albumCover != nil {
-		b, err := os.Create("thumb.jpg")
+		b, err := os.Create("/H/code/goMP/thumb.jpg")
 		if err != nil {
 			panic(err)
 		}
 		defer b.Close()
 		b.Write(albumCover.Data)
-		path = "thumb.jpg"
+		path = "/H/code/goMP/thumb.jpg"
 		b.Close()
 	}
 	f.Close()
@@ -53,7 +54,7 @@ func getImg(uri string) (image.Image, error) {
 
 	fw, fh := getFontWidth()
 	img = resize.Resize(
-		uint(float32(IMG_W)*(fw+IMAGE_WIDTH_EXTRA_X)), uint(float32(IMG_H)*(fh+IMAGE_WIDTH_EXTRA_Y)),
+		uint(float32(IMG_W)*(fw+float32(viper.GetFloat64("IMAGE_WIDTH_EXTRA_X")))), uint(float32(IMG_H)*(fh+float32(viper.GetFloat64("IMAGE_WIDTH_EXTRA_Y")))),
 		img,
 		resize.Bilinear,
 	)
