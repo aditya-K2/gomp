@@ -1,4 +1,3 @@
-// Demo code for the TextView primitive.
 package main
 
 import (
