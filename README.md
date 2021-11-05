@@ -19,6 +19,8 @@ https://user-images.githubusercontent.com/51816057/140478368-5b724b2f-2499-4150-
 
 - Music Player Daemon must be setup
 - Go Should Be Installed ( for building )
+- Make a YAML/TOML file in ``$HOME/.config/goMP`` named config.yml / config.toml
+- Read the sample_config.yml for config options
 
 ### For config options see the [config branch](https://github.com/aditya-K2/goMP/tree/config)
 
@@ -26,6 +28,7 @@ https://user-images.githubusercontent.com/51816057/140478368-5b724b2f-2499-4150-
 
 ```bash
 git clone https://github.com/aditya-K2/goMP &&
+git checkout config &&
 cd goMP &&
 go build
 ```
