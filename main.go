@@ -173,10 +173,28 @@ func main() {
 				UI.App.Stop()
 				return nil
 			}
-		case 115:
+		case 115: // s: key
 			{
 				conn.Stop()
 				return nil
+			}
+		case 117: // u : key
+			{
+				_, err = conn.Update("")
+				if err != nil {
+					panic(err)
+				}
+				return nil
+			}
+		case 100: // d : key
+			{
+				if InsidePlaylist {
+					r, _ := UI.expandedView.GetSelection()
+					conn.Delete(r, -1)
+					return nil
+				} else {
+					return e
+				}
 			}
 		default:
 			{
