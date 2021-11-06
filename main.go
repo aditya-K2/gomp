@@ -7,6 +7,7 @@ import (
 
 	"github.com/fhs/gompd/mpd"
 	"github.com/gdamore/tcell/v2"
+	"github.com/spf13/viper"
 )
 
 var Volume int64
@@ -15,9 +16,9 @@ var Repeat bool
 var InsidePlaylist bool = true
 
 func main() {
-
+	readConfig()
 	// Connect to MPD server
-	conn, err := mpd.Dial("tcp", "localhost:6600")
+	conn, err := mpd.Dial("tcp", "localhost:"+viper.GetString("MPD_PORT"))
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -26,7 +27,7 @@ func main() {
 	r := newRenderer()
 	c, _ := conn.CurrentSong()
 	if len(c) != 0 {
-		r.Start(DBDIR + c["file"])
+		r.Start(viper.GetString("MUSIC_DIRECTORY") + c["file"])
 	} else {
 		r.Start("stop")
 	}

@@ -7,6 +7,7 @@ import (
 	"github.com/fhs/gompd/mpd"
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
+	"github.com/spf13/viper"
 )
 
 var CurrentSong string
@@ -56,7 +57,7 @@ func (s *progressBar) updateTitle(conn mpd.Client, r *Renderer) {
 			CurrentSong = ""
 			r.Send("stop")
 		} else if song != CurrentSong && len(_currentAttributes) != 0 {
-			r.Send(DBDIR + _currentAttributes["file"])
+			r.Send(viper.GetString("music_directory") + _currentAttributes["file"])
 			CurrentSong = song
 		}
 		// fmt.Println(len(_currentAttributes))

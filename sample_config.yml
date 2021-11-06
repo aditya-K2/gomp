@@ -1,0 +1,52 @@
+MUSIC_DIRECTORY: "/D/Downloads/AllSongs/"
+  # Your Music Directory (i.e music_directory in mpd.conf)
+
+ADDITIONAL_PADDING_X : 9
+ADDITIONAL_PADDING_Y : 17
+  # Extra padding for the placement of the image
+  # |---------------------------------------------------------|
+  # |          ADDITIONAL_PADDING_Y                           |
+  # |                      |                                  |
+  # |                      v                                  |
+  # |                      |---------------|                  |
+  # |ADDITIONAL_PADDING_X->|               |                  |
+  # |                      |     IMAGE     |                  |
+  # |                      |               |                  |
+  # |                      |---------------|                  |
+  # |                                                         |
+  # |                                                         |
+  # |---------------------------------------------------------|
+  #                              ^
+  #                              |
+  #                      Image Preview Box
+  # Note: Padding can be negative or positive
+  # PADDING_X on decrementing will move the image to right and PADDING_Y on incrementing will move the image to left
+  # similarly PADDING_Y on decrementing will move the image UP and on incrementing will move the image DOWN
+
+IMAGE_WIDTH_EXTRA_X  : -1.1
+IMAGE_WIDTH_EXTRA_Y  : -3.75
+  # Add extra IMAGE_WIDTH to the image so that it fits perfectly in the image preview box
+  #
+  # |-----------------------------------------------------------|
+  # |                      -  IMAGE_WIDTH_EXTRA_Y               |
+  # |                      -         |                          |
+  # |                      -         v                          |
+  # |-----------------------------------------------------------|
+  # |                      -                                    |
+  # |                      -                                    |
+  # | IMAGE_WIDTH_EXTRA_X  -                                    |
+  # |          ->          -                                    |
+  # |                      -      IMAGE                         |
+  # |                      -                                    |
+  # |                      -                                    |
+  # |                      -                                    |
+  # |                      -                                    |
+  # |-----------------------------------------------------------|
+  # Note: IMAGE_WIDTH_EXTRA_X and IMAGE_WIDTH_EXTRA_Y can be positive or negative
+
+MPD_PORT : "6600"
+  # Port on which music player daemon is running
+
+
+DEFAULT_IMAGE_PATH:   "default.jpg"
+COVER_IMAGE_PATH:     "cover.jpg"  # path to store the embedded cover art
