@@ -40,7 +40,7 @@ func GetAsciiValue(s string) (int, error) {
 		if (int(char) >= 65 && int(char) <= 90) || (int(char) >= 97 && int(char) <= 122) {
 			return int(char), nil
 		} else {
-			return -1, errors.New("Not Found")
+			return -1, errors.New("Not Found in the range")
 		}
 	} else if val, ok := SPECIAL_KEYS[s]; ok {
 		return val, nil
