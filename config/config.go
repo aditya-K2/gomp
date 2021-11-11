@@ -35,7 +35,7 @@ func ReadConfig() {
 	}
 }
 
-func ReadMappings(funcMap map[string]func()) {
+func GenerateKeyMap(funcMap map[string]func()) {
 	for k := range funcMap {
 		fmt.Println(k, " : ", viper.GetStringSlice(k))
 	}
