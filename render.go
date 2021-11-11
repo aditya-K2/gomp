@@ -43,7 +43,7 @@ func openImage(path string, c chan string) {
 	fw, fh := getFontWidth()
 	var im *ueberzug.Image
 	if path != "stop" {
-		img2, _ := getImg(getAlbumArt(path))
+		img2, _ := getImg(extractImageFromFile(path))
 		im, _ = ueberzug.NewImage(img2, int(float32(IMG_X)*fw)+viper.GetInt("ADDITIONAL_PADDING_X"), int(float32(IMG_Y)*fh)+viper.GetInt("ADDITIONAL_PADDING_Y"))
 	}
 	d := <-c
