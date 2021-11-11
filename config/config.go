@@ -37,7 +37,15 @@ func ReadConfig() {
 
 func GenerateKeyMap(funcMap map[string]func()) {
 	for k := range funcMap {
-		fmt.Println(k, " : ", viper.GetStringSlice(k))
+		mappingsForFunctionK := viper.GetStringSlice(k)
+		if len(mappingsForFunctionK) != 0 {
+			for _, i := range mappingsForFunctionK {
+				aV, err := GetAsciiValue(i)
+				if err == nil {
+					KEY_MAP[aV] = k
+				}
+			}
+		}
 	}
 }
 
