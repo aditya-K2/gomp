@@ -1,0 +1,66 @@
+package config
+
+import (
+	"fmt"
+	"io/ioutil"
+	"os"
+	"strings"
+
+	"github.com/spf13/viper"
+)
+
+var (
+	HOME_DIR, _ = os.UserHomeDir()
+	defaults    = map[string]interface{}{
+		"ADDITIONAL_PADDING_X": 12,
+		"ADDITIONAL_PADDING_Y": 16,
+		"IMAGE_WIDTH_EXTRA_X":  -1.5,
+		"IMAGE_WIDTH_EXTRA_Y":  -3.75,
+		"MUSIC_DIRECTORY":      getMusicDirectory() + "/",
+		"PORT":                 "6600",
+		"DEFAULT_IMAGE_PATH":   "default.jpg",
+		"COVER_IMAGE_PATH":     "cover.jpg",
+	}
+)
+
+func ReadConfig() {
+	for k, v := range defaults {
+		viper.SetDefault(k, v)
+	}
+	viper.SetConfigName("config")
+	viper.AddConfigPath(HOME_DIR + "/.config/goMP")
+	err := viper.ReadInConfig()
+	if err != nil {
+		fmt.Println("Could Not Read Config file.")
+	}
+}
+
+func ReadMappings(funcMap map[string]func()) {
+	for k := range funcMap {
+		fmt.Println(k, " : ", viper.GetStringSlice(k))
+	}
+}
+
+func getMusicDirectory() string {
+	content, err := ioutil.ReadFile(HOME_DIR + "/.config/mpd/mpd.conf")
+	if err != nil {
+		fmt.Println("No Config File for mpd Found")
+		panic(err)
+	}
+	ab := string(content)
+	maps := strings.Split(ab, "\n")
+	for _, j := range maps {
+		if strings.Contains(j, "music_directory") {
+			s := strings.SplitAfter(strings.ReplaceAll(j, " ", ""), "y")[1]
+			s = strings.ReplaceAll(s, "\t", "")
+			d := ""
+			for z, m := range s {
+				if (z != 0) && (z != (len(s) - 1)) {
+					d += string(m)
+				}
+			}
+			return d
+		}
+	}
+	return ""
+}
