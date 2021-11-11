@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"strconv"
 	"time"
@@ -257,7 +256,6 @@ func main() {
 			}
 		default:
 			{
-				fmt.Println(e.Rune())
 				return e
 			}
 		}
