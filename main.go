@@ -160,104 +160,14 @@ func main() {
 		},
 	}
 
-	config.ReadMappings(kMap)
+	config.GenerateKeyMap(kMap)
 
 	UI.expandedView.SetInputCapture(func(e *tcell.EventKey) *tcell.EventKey {
-		switch e.Rune() {
-		case 108: // L : Key
-			{
-				kMap["showChildrenContent"]()
-				return nil
-			}
-		case 112: // P : Key
-			{
-				kMap["togglePlayBack"]()
-				return nil
-			}
-		case 104: // H : Key
-			{
-				kMap["showParentContent"]()
-				return nil
-			}
-		case 110: // N : Key
-			{
-				kMap["nextSong"]()
-				return nil
-			}
-		case 99: // C : Key
-			{
-				kMap["clearPlaylist"]()
-				return nil
-			}
-		case 78: // Shift - N : Key
-			{
-				kMap["previousSong"]()
-				return nil
-			}
-		case 97: // A : Key
-			{
-				kMap["addToPlaylist"]()
-				return nil
-			}
-		case 122: // Z : Key
-			{
-				kMap["toggleRandom"]()
-				return nil
-			}
-		case 114: // R : Key
-			{
-				kMap["toggleRepeat"]()
-				return nil
-			}
-		case 45: // Minus : Key
-			{
-				kMap["decreaseVolume"]()
-				return nil
-			}
-		case 61: // Plus : Key
-			{
-				kMap["increaseVolume"]()
-				return nil
-			}
-		case 50: // 2 : Key
-			{
-				kMap["navigateToFiles"]()
-				return nil
-			}
-		case 49: // 1 : Key
-			{
-				kMap["navigateToPlaylist"]()
-				return nil
-			}
-		case 51: // 3 : Key
-			{
-				kMap["navigateToMostPlayed"]()
-				return nil
-			}
-		case 113: // q : Key
-			{
-				kMap["quit"]()
-				return nil
-			}
-		case 115: // s: key
-			{
-				kMap["stop"]()
-				return nil
-			}
-		case 117: // u : key
-			{
-				kMap["updateDB"]()
-				return nil
-			}
-		case 100: // d : key
-			{
-				kMap["deleteSongFromPlaylist"]()
-				return nil
-			}
-		default:
-			{
-				return e
-			}
+		if val, ok := config.KEY_MAP[int(e.Rune())]; ok {
+			kMap[val]()
+			return nil
+		} else {
+			return e
 		}
 	})
 
