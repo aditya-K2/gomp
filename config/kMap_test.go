@@ -5,7 +5,7 @@ import (
 )
 
 func TestGetAsciiValue(t *testing.T) {
-	for k, v := range KMAP {
+	for k, v := range SPECIAL_KEYS {
 		result, err := GetAsciiValue(k)
 		if result != v {
 			t.Errorf("Values From KMAP Failed")
