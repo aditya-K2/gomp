@@ -15,7 +15,7 @@ https://user-images.githubusercontent.com/51816057/140478368-5b724b2f-2499-4150-
 - [ ] Visual Mode (like vim) for updating playlists
 - [ ] Music Visualizer
 
-# Prerequisites
+# Setting Up
 
 - Music Player Daemon must be setup
 - Go Should Be Installed ( for building )
@@ -29,6 +29,59 @@ git clone https://github.com/aditya-K2/goMP &&
 cd goMP &&
 go build
 ```
+
+# Configuration
+
+## Key Mappings
+
+Following Keys can be used for Mappings
+
+| Keys            | Using them in Config  |
+|-----------------|-----------------------|
+| a-z             | a-z                   |
+| A-Z             | A-z                   |
+| {,},(,),[,],<,> | {,},(,),[,],<,>       |
+| Enter(Return)   | ENTER/RETURN          |
+| Tab             | TAB                   |
+| Space           | SPACE                 |
+
+See config/kMap.go for more information
+
+For mapping a key to some function use the following format:
+
+
+```yml
+Function: [ firstMapping, secondMapping, thirdMapping]
+```
+for.eg
+
+
+```yml
+togglePlayBack : [ "p", "T" ] # using the quotes is neccessary.
+```
+
+Following functions are provided :
+
+|          Functions                 |
+|------------------------------------|
+|    "showChildrenContent",          |
+|    "togglePlayBack",               |
+|    "showParentContent",            |
+|    "nextSong",                     |
+|    "clearPlaylist",                |
+|    "previousSong",                 |
+|    "addToPlaylist",                |
+|    "toggleRandom",                 |
+|    "toggleRepeat",                 |
+|    "decreaseVolume",               |
+|    "increaseVolume",               |
+|    "navigateToFiles",              |
+|    "navigateToPlaylist",           |
+|    "navigateToMostPlayed",         |
+|    "quit",                         |
+|    "stop",                         |
+|    "updateDB",                     |
+|    "deleteSongFromPlaylist",       |
 
 ### Tested on following terminals:
 
