@@ -57,31 +57,31 @@ for.eg
 
 
 ```yml
-togglePlayBack : [ "p", "T" ] # using the quotes is neccessary.
+togglePlayBack : [ "p", "TAB", "[" ] # using the quotes is neccessary.
 ```
 
 Following functions are provided :
 
 |          Functions                 |
 |------------------------------------|
-|    "showChildrenContent",          |
-|    "togglePlayBack",               |
-|    "showParentContent",            |
-|    "nextSong",                     |
-|    "clearPlaylist",                |
-|    "previousSong",                 |
-|    "addToPlaylist",                |
-|    "toggleRandom",                 |
-|    "toggleRepeat",                 |
-|    "decreaseVolume",               |
-|    "increaseVolume",               |
-|    "navigateToFiles",              |
-|    "navigateToPlaylist",           |
-|    "navigateToMostPlayed",         |
-|    "quit",                         |
-|    "stop",                         |
-|    "updateDB",                     |
-|    "deleteSongFromPlaylist",       |
+|     showChildrenContent            |
+|     togglePlayBack                 |
+|     showParentContent              |
+|     nextSong                       |
+|     clearPlaylist                  |
+|     previousSong                   |
+|     addToPlaylist                  |
+|     toggleRandom                   |
+|     toggleRepeat                   |
+|     decreaseVolume                 |
+|     increaseVolume                 |
+|     navigateToFiles                |
+|     navigateToPlaylist             |
+|     navigateToMostPlayed           |
+|     quit                           |
+|     stop                           |
+|     updateDB                       |
+|     deleteSongFromPlaylist         |
 
 ### Tested on following terminals:
 
