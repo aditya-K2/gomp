@@ -26,6 +26,8 @@ var (
 		"\"":     34,
 	}
 
+	// Generating Default KEY_MAP which will then later be changed by GenerateKeyMap
+
 	KEY_MAP = map[int]string{
 		108: "showChildrenContent",
 		112: "togglePlayBack",
