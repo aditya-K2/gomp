@@ -54,7 +54,7 @@ func main() {
 		return UI.expandedView.GetInnerRect()
 	})
 
-	var kMap = map[string]func(){
+	var FUNC_MAP = map[string]func(){
 		"showChildrenContent": func() {
 			r, _ := UI.expandedView.GetSelection()
 			if !InsidePlaylist {
@@ -160,11 +160,11 @@ func main() {
 		},
 	}
 
-	config.GenerateKeyMap(kMap)
+	config.GenerateKeyMap(FUNC_MAP)
 
 	UI.expandedView.SetInputCapture(func(e *tcell.EventKey) *tcell.EventKey {
 		if val, ok := config.KEY_MAP[int(e.Rune())]; ok {
-			kMap[val]()
+			FUNC_MAP[val]()
 			return nil
 		} else {
 			return e
