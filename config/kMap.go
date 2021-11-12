@@ -10,6 +10,20 @@ var (
 		"RETURN": 13,
 		"ENTER":  13,
 		"SPACE":  32,
+		"[":      91,
+		"]":      93,
+		"(":      40,
+		")":      41,
+		"{":      123,
+		"}":      125,
+		"<":      60,
+		">":      62,
+		"?":      63,
+		"/":      47,
+		";":      59,
+		":":      58,
+		"'":      39,
+		"\"":     34,
 	}
 
 	KEY_MAP = map[int]string{
@@ -39,6 +53,8 @@ func GetAsciiValue(s string) (int, error) {
 		char := []rune(s)[0]
 		if (int(char) >= 65 && int(char) <= 90) || (int(char) >= 97 && int(char) <= 122) {
 			return int(char), nil
+		} else if val, ok := SPECIAL_KEYS[s]; ok {
+			return val, nil
 		} else {
 			return -1, errors.New("Not Found in the range")
 		}
