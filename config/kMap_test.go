@@ -29,4 +29,8 @@ func TestGetAsciiValue(t *testing.T) {
 			t.Errorf("Invalid Value Received for Big alphabets Result Received: %d expecting %d", result, i)
 		}
 	}
+	result, err := GetAsciiValue("")
+	if err == nil || result != -1 {
+		t.Errorf("Wrong Result Received for Control Characters %v %v", result, err)
+	}
 }
