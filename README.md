@@ -11,9 +11,9 @@ https://user-images.githubusercontent.com/51816057/140478368-5b724b2f-2499-4150-
 - [ ] Add Functionality to Sort out most played songs
 - [x] Add a config parser
 - [x] Image Previews
+- [x] User Key Mappings
 - [ ] Fuzzy Searching
 - [ ] Visual Mode (like vim) for updating playlists
-- [ ] Music Visualizer
 
 # Setting Up
 
