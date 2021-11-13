@@ -11,7 +11,7 @@ var (
 	CACHE_LIST map[[2]string]string = make(map[[2]string]string)
 )
 
-func loadCache(path string) {
+func LoadCache(path string) {
 	cacheFileContent, err := ioutil.ReadFile(path)
 	if err != nil {
 		fmt.Println("Could Not Read From Cache File")
@@ -27,7 +27,7 @@ func loadCache(path string) {
 	}
 }
 
-func writeToCache(path string) {
+func WriteToCache(path string) {
 	b, err := os.Create(path)
 	if err == nil {
 		for k, v := range CACHE_LIST {
@@ -36,6 +36,6 @@ func writeToCache(path string) {
 	}
 }
 
-func generateName(artist, album string) string {
+func GenerateName(artist, album string) string {
 	return fmt.Sprintf("%s-%s.jpg", artist, album)
 }
