@@ -89,11 +89,11 @@ func main() {
 			CONN.Next()
 		},
 		"clearPlaylist": func() {
-			notificationServer.Send("PlayList Cleared")
 			CONN.Clear()
 			if InsidePlaylist {
 				UpdatePlaylist(UI.ExpandedView)
 			}
+			notificationServer.Send("PlayList Cleared")
 		},
 		"previousSong": func() {
 			CONN.Previous()
@@ -150,14 +150,15 @@ func main() {
 			UI.App.Stop()
 		},
 		"stop": func() {
-			notificationServer.Send("Playback Stopped")
 			CONN.Stop()
+			notificationServer.Send("Playback Stopped")
 		},
 		"updateDB": func() {
 			_, err = CONN.Update("")
 			if err != nil {
 				panic(err)
 			}
+			notificationServer.Send("Database Updated")
 		},
 		"deleteSongFromPlaylist": func() {
 			if InsidePlaylist {
