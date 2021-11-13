@@ -9,10 +9,10 @@ var IMG_X, IMG_Y, IMG_W, IMG_H int
 
 type Application struct {
 	App          *tview.Application
-	expandedView *tview.Table
+	ExpandedView *tview.Table
 	Navbar       *tview.Table
-	searchBar    *tview.Table
-	pBar         *progressBar
+	SearchBar    *tview.Table
+	ProgressBar  *progressBar
 	Pages        *tview.Pages
 }
 
@@ -60,10 +60,10 @@ func newApplication(r *Renderer) *Application {
 
 	return &Application{
 		App:          App,
-		expandedView: expandedView,
+		ExpandedView: expandedView,
 		Navbar:       Navbar,
-		searchBar:    searchBar,
-		pBar:         pBar,
+		SearchBar:    searchBar,
+		ProgressBar:  pBar,
 		Pages:        rootPages,
 	}
 
