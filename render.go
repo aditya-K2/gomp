@@ -43,7 +43,18 @@ func openImage(path string, c chan string) {
 	fw, fh := getFontWidth()
 	var im *ueberzug.Image
 	if path != "stop" {
-		img2, _ := getImg(extractImageFromFile(path))
+		absPath := viper.GetString("MUSIC_DIRECTORY") + path
+		extractedImage := extractImageFromFile(absPath)
+		if extractedImage == viper.GetString("DEFAULT_IMAGE_PATH") && viper.GetString("GET_COVER_ART_FROM_LAST_FM") == "TRUE" {
+			a, err := CONN.ListInfo(path)
+			if err == nil && len(a) != 0 {
+				downloadedImage, err := getImageFromLastFM(a[0]["artist"], a[0]["album"])
+				if err == nil {
+					extractedImage = downloadedImage
+				}
+			}
+		}
+		img2, _ := getImg(extractedImage)
 		im, _ = ueberzug.NewImage(img2, int(float32(IMG_X)*fw)+viper.GetInt("ADDITIONAL_PADDING_X"), int(float32(IMG_Y)*fh)+viper.GetInt("ADDITIONAL_PADDING_Y"))
 	}
 	d := <-c
