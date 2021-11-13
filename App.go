@@ -13,6 +13,7 @@ type Application struct {
 	Navbar       *tview.Table
 	searchBar    *tview.Table
 	pBar         *progressBar
+	Pages        *tview.Pages
 }
 
 func newApplication(r *Renderer) *Application {
@@ -51,8 +52,11 @@ func newApplication(r *Renderer) *Application {
 	expandedView.SetBorderPadding(1, 1, 1, 1).SetBorder(true)
 	expandedView.SetSelectable(true, false)
 
+	rootPages := tview.NewPages()
+	rootPages.AddPage("Main", mainFlex, true, true)
+
 	App := tview.NewApplication()
-	App.SetRoot(mainFlex, true).SetFocus(expandedView)
+	App.SetRoot(rootPages, true).SetFocus(expandedView)
 
 	return &Application{
 		App:          App,
@@ -60,6 +64,7 @@ func newApplication(r *Renderer) *Application {
 		Navbar:       Navbar,
 		searchBar:    searchBar,
 		pBar:         pBar,
+		Pages:        rootPages,
 	}
 
 }
