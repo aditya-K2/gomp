@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/fhs/gompd/mpd"
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
@@ -16,9 +15,9 @@ type Application struct {
 	pBar         *progressBar
 }
 
-func newApplication(conn mpd.Client, r *Renderer) *Application {
+func newApplication(r *Renderer) *Application {
 
-	var pBar *progressBar = newProgressBar(conn, r)
+	var pBar *progressBar = newProgressBar(r)
 	expandedView := tview.NewTable()
 	Navbar := tview.NewTable()
 	searchBar := tview.NewTable()

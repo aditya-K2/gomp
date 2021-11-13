@@ -3,10 +3,7 @@ package main
 import (
 	"strings"
 
-	"github.com/fhs/gompd/mpd"
-	// "github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
-	// "fmt"
 )
 
 func getFormattedString(s string, width int) string {
@@ -19,18 +16,18 @@ func getFormattedString(s string, width int) string {
 	return s
 }
 
-func togglePlayBack(connection mpd.Client) error {
-	status, err := connection.Status()
+func togglePlayBack() error {
+	status, err := CONN.Status()
 	if status["state"] == "play" && err == nil {
-		connection.Pause(true)
+		CONN.Pause(true)
 	} else if status["state"] == "pause" && err == nil {
-		connection.Play(-1)
+		CONN.Play(-1)
 	}
 	return err
 }
 
-func UpdatePlaylist(conn mpd.Client, inputTable *tview.Table) {
-	_playlistAttr, _ := conn.PlaylistInfo(-1, -1)
+func UpdatePlaylist(inputTable *tview.Table) {
+	_playlistAttr, _ := CONN.PlaylistInfo(-1, -1)
 
 	inputTable.Clear()
 	for i, j := range _playlistAttr {
@@ -55,11 +52,11 @@ func join(stringSlice []string) string {
 	return _s
 }
 
-func Update(conn mpd.Client, f []FileNode, inputTable *tview.Table) {
+func Update(f []FileNode, inputTable *tview.Table) {
 	inputTable.Clear()
 	for i, j := range f {
 		if len(j.children) == 0 {
-			_songAttributes, err := conn.ListAllInfo(j.absolutePath)
+			_songAttributes, err := CONN.ListAllInfo(j.absolutePath)
 			if err == nil && _songAttributes[0]["Title"] != "" {
 				_, _, w, _ := inputTable.GetInnerRect()
 				inputTable.SetCell(i, 0,

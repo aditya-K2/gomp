@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"strconv"
 	"time"
 
@@ -11,6 +10,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+var CONN *mpd.Client
 var Volume int64
 var Random bool
 var Repeat bool
@@ -19,37 +19,38 @@ var InsidePlaylist bool = true
 func main() {
 	config.ReadConfig()
 	// Connect to MPD server
-	conn, err := mpd.Dial("tcp", "localhost:"+viper.GetString("MPD_PORT"))
-	if err != nil {
-		log.Fatalln(err)
+	var mpdConnectionError error
+	CONN, mpdConnectionError = mpd.Dial("tcp", "localhost:"+viper.GetString("MPD_PORT"))
+	if mpdConnectionError != nil {
+		panic(mpdConnectionError)
 	}
-	defer conn.Close()
+	defer CONN.Close()
 
 	r := newRenderer()
-	c, _ := conn.CurrentSong()
+	c, _ := CONN.CurrentSong()
 	if len(c) != 0 {
-		r.Start(viper.GetString("MUSIC_DIRECTORY") + c["file"])
+		r.Start(c["file"])
 	} else {
 		r.Start("stop")
 	}
 
-	UI := newApplication(*conn, r)
+	UI := newApplication(r)
 
-	fileMap, err := conn.GetFiles()
+	fileMap, err := CONN.GetFiles()
 	dirTree := generateDirectoryTree(fileMap)
 
-	UpdatePlaylist(*conn, UI.expandedView)
+	UpdatePlaylist(UI.expandedView)
 
-	_v, _ := conn.Status()
+	_v, _ := CONN.Status()
 	Volume, _ = strconv.ParseInt(_v["volume"], 10, 64)
 	Random, _ = strconv.ParseBool(_v["random"])
 	Repeat, _ = strconv.ParseBool(_v["repeat"])
 
 	UI.expandedView.SetDrawFunc(func(s tcell.Screen, x, y, width, height int) (int, int, int, int) {
 		if InsidePlaylist {
-			UpdatePlaylist(*conn, UI.expandedView)
+			UpdatePlaylist(UI.expandedView)
 		} else {
-			Update(*conn, dirTree.children, UI.expandedView)
+			Update(dirTree.children, UI.expandedView)
 		}
 		return UI.expandedView.GetInnerRect()
 	})
@@ -59,53 +60,53 @@ func main() {
 			r, _ := UI.expandedView.GetSelection()
 			if !InsidePlaylist {
 				if len(dirTree.children[r].children) == 0 {
-					id, _ := conn.AddId(dirTree.children[r].absolutePath, -1)
-					conn.PlayId(id)
+					id, _ := CONN.AddId(dirTree.children[r].absolutePath, -1)
+					CONN.PlayId(id)
 				} else {
-					Update(*conn, dirTree.children[r].children, UI.expandedView)
+					Update(dirTree.children[r].children, UI.expandedView)
 					dirTree = &dirTree.children[r]
 				}
 			} else {
-				conn.Play(r)
+				CONN.Play(r)
 			}
 		},
 		"togglePlayBack": func() {
-			togglePlayBack(*conn)
+			togglePlayBack()
 		},
 		"showParentContent": func() {
 			if !InsidePlaylist {
 				if dirTree.parent != nil {
-					Update(*conn, dirTree.parent.children, UI.expandedView)
+					Update(dirTree.parent.children, UI.expandedView)
 					dirTree = dirTree.parent
 				}
 			}
 		},
 		"nextSong": func() {
-			conn.Next()
+			CONN.Next()
 		},
 		"clearPlaylist": func() {
-			conn.Clear()
+			CONN.Clear()
 			if InsidePlaylist {
-				UpdatePlaylist(*conn, UI.expandedView)
+				UpdatePlaylist(UI.expandedView)
 			}
 		},
 		"previousSong": func() {
-			conn.Previous()
+			CONN.Previous()
 		},
 		"addToPlaylist": func() {
 			if !InsidePlaylist {
 				r, _ := UI.expandedView.GetSelection()
-				conn.Add(dirTree.children[r].absolutePath)
+				CONN.Add(dirTree.children[r].absolutePath)
 			}
 		},
 		"toggleRandom": func() {
-			err := conn.Random(!Random)
+			err := CONN.Random(!Random)
 			if err == nil {
 				Random = !Random
 			}
 		},
 		"toggleRepeat": func() {
-			err := conn.Repeat(!Repeat)
+			err := CONN.Repeat(!Repeat)
 			if err == nil {
 				Repeat = !Repeat
 			}
@@ -116,7 +117,7 @@ func main() {
 			} else {
 				Volume -= 10
 			}
-			conn.SetVolume(int(Volume))
+			CONN.SetVolume(int(Volume))
 		},
 		"increaseVolume": func() {
 			if Volume >= 100 {
@@ -124,17 +125,17 @@ func main() {
 			} else {
 				Volume += 10
 			}
-			conn.SetVolume(int(Volume))
+			CONN.SetVolume(int(Volume))
 		},
 		"navigateToFiles": func() {
 			InsidePlaylist = false
 			UI.Navbar.Select(1, 0)
-			Update(*conn, dirTree.children, UI.expandedView)
+			Update(dirTree.children, UI.expandedView)
 		},
 		"navigateToPlaylist": func() {
 			InsidePlaylist = true
 			UI.Navbar.Select(0, 0)
-			UpdatePlaylist(*conn, UI.expandedView)
+			UpdatePlaylist(UI.expandedView)
 		},
 		"navigateToMostPlayed": func() {
 			InsidePlaylist = false
@@ -144,10 +145,10 @@ func main() {
 			UI.App.Stop()
 		},
 		"stop": func() {
-			conn.Stop()
+			CONN.Stop()
 		},
 		"updateDB": func() {
-			_, err = conn.Update("")
+			_, err = CONN.Update("")
 			if err != nil {
 				panic(err)
 			}
@@ -155,7 +156,7 @@ func main() {
 		"deleteSongFromPlaylist": func() {
 			if InsidePlaylist {
 				r, _ := UI.expandedView.GetSelection()
-				conn.Delete(r, -1)
+				CONN.Delete(r, -1)
 			}
 		},
 	}

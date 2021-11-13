@@ -4,10 +4,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/fhs/gompd/mpd"
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
-	"github.com/spf13/viper"
 )
 
 var CurrentSong string
@@ -26,7 +24,7 @@ type progressBar struct {
 // This Function returns a progressBar with a table of two rows
 // the First row will contain information about the current Song
 // and the Second one will contain the progressBar
-func newProgressBar(conn mpd.Client, r *Renderer) *progressBar {
+func newProgressBar(r *Renderer) *progressBar {
 	p := progressBar{}
 
 	a := tview.NewTable().
@@ -37,8 +35,8 @@ func newProgressBar(conn mpd.Client, r *Renderer) *progressBar {
 	a.SetBorder(true)
 
 	a.SetDrawFunc(func(s tcell.Screen, x, y, width, height int) (int, int, int, int) {
-		p.updateTitle(conn, r)
-		p.updateProgress(conn)
+		p.updateTitle(r)
+		p.updateProgress()
 		return p.t.GetInnerRect()
 	})
 
@@ -48,8 +46,8 @@ func newProgressBar(conn mpd.Client, r *Renderer) *progressBar {
 	return &p
 }
 
-func (s *progressBar) updateTitle(conn mpd.Client, r *Renderer) {
-	_currentAttributes, err := conn.CurrentSong()
+func (s *progressBar) updateTitle(r *Renderer) {
+	_currentAttributes, err := CONN.CurrentSong()
 	if err == nil {
 		song := "[green::bi]" + _currentAttributes["Title"] + "[-:-:-] - " + "[blue::b]" + _currentAttributes["Artist"] + "\n"
 		s.t.GetCell(0, 0).Text = song
@@ -57,15 +55,15 @@ func (s *progressBar) updateTitle(conn mpd.Client, r *Renderer) {
 			CurrentSong = ""
 			r.Send("stop")
 		} else if song != CurrentSong && len(_currentAttributes) != 0 {
-			r.Send(viper.GetString("music_directory") + _currentAttributes["file"])
+			r.Send(_currentAttributes["file"])
 			CurrentSong = song
 		}
 		// fmt.Println(len(_currentAttributes))
 	}
 }
 
-func (s *progressBar) updateProgress(conn mpd.Client) {
-	_status, err := conn.Status()
+func (s *progressBar) updateProgress() {
+	_status, err := CONN.Status()
 	_, _, _width, _ := s.t.GetInnerRect()
 	el, err1 := strconv.ParseFloat(_status["elapsed"], 8)
 	du, err := strconv.ParseFloat(_status["duration"], 8)
