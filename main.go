@@ -11,6 +11,7 @@ import (
 )
 
 var CONN *mpd.Client
+var UI *Application
 var Volume int64
 var Random bool
 var Repeat bool
@@ -34,7 +35,7 @@ func main() {
 		r.Start("stop")
 	}
 
-	UI := newApplication(r)
+	UI = newApplication(r)
 
 	fileMap, err := CONN.GetFiles()
 	dirTree := generateDirectoryTree(fileMap)
@@ -54,6 +55,9 @@ func main() {
 		}
 		return UI.ExpandedView.GetInnerRect()
 	})
+
+	notificationServer := NewNotificationServer()
+	notificationServer.Start()
 
 	var FUNC_MAP = map[string]func(){
 		"showChildrenContent": func() {
@@ -85,6 +89,7 @@ func main() {
 			CONN.Next()
 		},
 		"clearPlaylist": func() {
+			notificationServer.Send("PlayList Cleared")
 			CONN.Clear()
 			if InsidePlaylist {
 				UpdatePlaylist(UI.ExpandedView)
@@ -145,6 +150,7 @@ func main() {
 			UI.App.Stop()
 		},
 		"stop": func() {
+			notificationServer.Send("Playback Stopped")
 			CONN.Stop()
 		},
 		"updateDB": func() {
