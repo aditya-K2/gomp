@@ -4,7 +4,7 @@
 
  MPD client inspired by ncmpcpp written in GO
 
-https://user-images.githubusercontent.com/51816057/140478368-5b724b2f-2499-4150-9569-c54734b3d4c1.mp4
+https://user-images.githubusercontent.com/51816057/141670212-34b62601-19b0-40c0-8797-f21bce2e11f3.mp4
 
 # Roadmap
 
