@@ -50,6 +50,7 @@ func openImage(path string, c chan string) {
 			if err == nil && len(a) != 0 {
 				downloadedImage, err := getImageFromLastFM(a[0]["artist"], a[0]["album"])
 				if err == nil {
+					NOTIFICATION_SERVER.Send("Image From LastFM")
 					extractedImage = downloadedImage
 				}
 			}
