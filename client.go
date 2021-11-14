@@ -1,6 +1,8 @@
 package main
 
 import (
+	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/rivo/tview"
@@ -80,6 +82,58 @@ func Update(f []FileNode, inputTable *tview.Table) {
 			inputTable.SetCell(i, 0,
 				tview.NewTableCell("[yellow::b]"+j.path).
 					SetAlign(tview.AlignLeft))
+		}
+	}
+}
+
+func GenerateArtistTree() (map[string]map[string]map[string]string, error) {
+	ArtistTree := make(map[string]map[string]map[string]string)
+	AllInfo, err := CONN.ListAllInfo("/")
+	if err == nil {
+		for _, i := range AllInfo {
+			if _, ArtistExists := ArtistTree[i["Artist"]]; !ArtistExists {
+				ArtistTree[i["Artist"]] = make(map[string]map[string]string)
+			}
+			if _, AlbumExists := ArtistTree[i["Artist"]][i["Album"]]; !AlbumExists {
+				ArtistTree[i["Artist"]][i["Album"]] = make(map[string]string)
+			}
+			if _, TitleExists := ArtistTree[i["Artist"]][i["Album"]][i["Title"]]; !TitleExists {
+				ArtistTree[i["Artist"]][i["Album"]][i["Title"]] = i["file"]
+			}
+		}
+		return ArtistTree, nil
+	} else {
+		return nil, errors.New("Could Not Generate Artist Tree")
+	}
+}
+
+func GetAlbumTree(a map[string]map[string]map[string]string) map[string]map[string]string {
+	AlbumTree := make(map[string]map[string]string)
+	for _, AlbumMap := range a {
+		for AlbumName, AlbumContent := range AlbumMap {
+			AlbumTree[AlbumName] = AlbumContent
+		}
+	}
+	return AlbumTree
+}
+
+func PrintAlbumTree(a map[string]map[string]string) {
+	for k, v := range a {
+		fmt.Println(k)
+		for k1 := range v {
+			fmt.Println("\t|---", k1)
+		}
+	}
+}
+
+func PrintArtistTree(a map[string]map[string]map[string]string) {
+	for k, v := range a {
+		fmt.Println(k, " : ")
+		for k1, v1 := range v {
+			fmt.Println("\t|---", k1, " : ")
+			for k2 := range v1 {
+				fmt.Println("\t\t|---", k2)
+			}
 		}
 	}
 }
