@@ -12,6 +12,7 @@ import (
 
 var CONN *mpd.Client
 var UI *Application
+var NOTIFICATION_SERVER *NotificationServer
 var Volume int64
 var Random bool
 var Repeat bool
@@ -56,8 +57,8 @@ func main() {
 		return UI.ExpandedView.GetInnerRect()
 	})
 
-	notificationServer := NewNotificationServer()
-	notificationServer.Start()
+	NOTIFICATION_SERVER = NewNotificationServer()
+	NOTIFICATION_SERVER.Start()
 
 	var FUNC_MAP = map[string]func(){
 		"showChildrenContent": func() {
@@ -93,7 +94,7 @@ func main() {
 			if InsidePlaylist {
 				UpdatePlaylist(UI.ExpandedView)
 			}
-			notificationServer.Send("PlayList Cleared")
+			NOTIFICATION_SERVER.Send("PlayList Cleared")
 		},
 		"previousSong": func() {
 			CONN.Previous()
@@ -151,14 +152,14 @@ func main() {
 		},
 		"stop": func() {
 			CONN.Stop()
-			notificationServer.Send("Playback Stopped")
+			NOTIFICATION_SERVER.Send("Playback Stopped")
 		},
 		"updateDB": func() {
 			_, err = CONN.Update("")
 			if err != nil {
 				panic(err)
 			}
-			notificationServer.Send("Database Updated")
+			NOTIFICATION_SERVER.Send("Database Updated")
 		},
 		"deleteSongFromPlaylist": func() {
 			if InsidePlaylist {
