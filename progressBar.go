@@ -58,7 +58,6 @@ func (s *progressBar) updateTitle(r *Renderer) {
 			r.Send(_currentAttributes["file"])
 			CurrentSong = song
 		}
-		// fmt.Println(len(_currentAttributes))
 	}
 }
 
