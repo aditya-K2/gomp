@@ -11,6 +11,7 @@ import (
 )
 
 var CONN *mpd.Client
+var UI *Application
 var Volume int64
 var Random bool
 var Repeat bool
@@ -34,36 +35,39 @@ func main() {
 		r.Start("stop")
 	}
 
-	UI := newApplication(r)
+	UI = newApplication(r)
 
 	fileMap, err := CONN.GetFiles()
 	dirTree := generateDirectoryTree(fileMap)
 
-	UpdatePlaylist(UI.expandedView)
+	UpdatePlaylist(UI.ExpandedView)
 
 	_v, _ := CONN.Status()
 	Volume, _ = strconv.ParseInt(_v["volume"], 10, 64)
 	Random, _ = strconv.ParseBool(_v["random"])
 	Repeat, _ = strconv.ParseBool(_v["repeat"])
 
-	UI.expandedView.SetDrawFunc(func(s tcell.Screen, x, y, width, height int) (int, int, int, int) {
+	UI.ExpandedView.SetDrawFunc(func(s tcell.Screen, x, y, width, height int) (int, int, int, int) {
 		if InsidePlaylist {
-			UpdatePlaylist(UI.expandedView)
+			UpdatePlaylist(UI.ExpandedView)
 		} else {
-			Update(dirTree.children, UI.expandedView)
+			Update(dirTree.children, UI.ExpandedView)
 		}
-		return UI.expandedView.GetInnerRect()
+		return UI.ExpandedView.GetInnerRect()
 	})
+
+	notificationServer := NewNotificationServer()
+	notificationServer.Start()
 
 	var FUNC_MAP = map[string]func(){
 		"showChildrenContent": func() {
-			r, _ := UI.expandedView.GetSelection()
+			r, _ := UI.ExpandedView.GetSelection()
 			if !InsidePlaylist {
 				if len(dirTree.children[r].children) == 0 {
 					id, _ := CONN.AddId(dirTree.children[r].absolutePath, -1)
 					CONN.PlayId(id)
 				} else {
-					Update(dirTree.children[r].children, UI.expandedView)
+					Update(dirTree.children[r].children, UI.ExpandedView)
 					dirTree = &dirTree.children[r]
 				}
 			} else {
@@ -76,7 +80,7 @@ func main() {
 		"showParentContent": func() {
 			if !InsidePlaylist {
 				if dirTree.parent != nil {
-					Update(dirTree.parent.children, UI.expandedView)
+					Update(dirTree.parent.children, UI.ExpandedView)
 					dirTree = dirTree.parent
 				}
 			}
@@ -87,15 +91,16 @@ func main() {
 		"clearPlaylist": func() {
 			CONN.Clear()
 			if InsidePlaylist {
-				UpdatePlaylist(UI.expandedView)
+				UpdatePlaylist(UI.ExpandedView)
 			}
+			notificationServer.Send("PlayList Cleared")
 		},
 		"previousSong": func() {
 			CONN.Previous()
 		},
 		"addToPlaylist": func() {
 			if !InsidePlaylist {
-				r, _ := UI.expandedView.GetSelection()
+				r, _ := UI.ExpandedView.GetSelection()
 				CONN.Add(dirTree.children[r].absolutePath)
 			}
 		},
@@ -130,12 +135,12 @@ func main() {
 		"navigateToFiles": func() {
 			InsidePlaylist = false
 			UI.Navbar.Select(1, 0)
-			Update(dirTree.children, UI.expandedView)
+			Update(dirTree.children, UI.ExpandedView)
 		},
 		"navigateToPlaylist": func() {
 			InsidePlaylist = true
 			UI.Navbar.Select(0, 0)
-			UpdatePlaylist(UI.expandedView)
+			UpdatePlaylist(UI.ExpandedView)
 		},
 		"navigateToMostPlayed": func() {
 			InsidePlaylist = false
@@ -146,16 +151,18 @@ func main() {
 		},
 		"stop": func() {
 			CONN.Stop()
+			notificationServer.Send("Playback Stopped")
 		},
 		"updateDB": func() {
 			_, err = CONN.Update("")
 			if err != nil {
 				panic(err)
 			}
+			notificationServer.Send("Database Updated")
 		},
 		"deleteSongFromPlaylist": func() {
 			if InsidePlaylist {
-				r, _ := UI.expandedView.GetSelection()
+				r, _ := UI.ExpandedView.GetSelection()
 				CONN.Delete(r, -1)
 			}
 		},
@@ -163,7 +170,7 @@ func main() {
 
 	config.GenerateKeyMap(FUNC_MAP)
 
-	UI.expandedView.SetInputCapture(func(e *tcell.EventKey) *tcell.EventKey {
+	UI.ExpandedView.SetInputCapture(func(e *tcell.EventKey) *tcell.EventKey {
 		if val, ok := config.KEY_MAP[int(e.Rune())]; ok {
 			FUNC_MAP[val]()
 			return nil
