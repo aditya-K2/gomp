@@ -1,8 +1,8 @@
 package main
 
 import (
+	"github.com/aditya-K2/tview"
 	"github.com/gdamore/tcell/v2"
-	"github.com/rivo/tview"
 )
 
 var IMG_X, IMG_Y, IMG_W, IMG_H int
@@ -31,6 +31,10 @@ func newApplication(r *Renderer) *Application {
 	})
 
 	searchBar.SetTitle("Search").SetTitleAlign(tview.AlignLeft)
+	searchBar.SetAutocompleteBackgroundColor(tcell.GetColor("#15191a"))
+	searchBar.SetAutocompleteSelectBackgroundColor(tcell.GetColor("#e5e5e5"))
+	searchBar.SetAutocompleteMainTextColor(tcell.GetColor("#7f7f7f"))
+	searchBar.SetAutocompleteSelectedTextColor(tcell.GetColor("#111111"))
 	Navbar.SetBorder(true)
 	Navbar.SetSelectable(true, false)
 	Navbar.SetCell(0, 0, tview.NewTableCell("PlayList"))
@@ -62,6 +66,15 @@ func newApplication(r *Renderer) *Application {
 
 	App := tview.NewApplication()
 	App.SetRoot(rootPages, true).SetFocus(expandedView)
+
+	searchBar.SetDoneFunc(func(k tcell.Key) {
+		switch k {
+		case tcell.KeyEscape:
+			{
+				App.SetFocus(expandedView)
+			}
+		}
+	})
 
 	return &Application{
 		App:          App,
