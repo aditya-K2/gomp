@@ -1,10 +1,12 @@
 package main
 
 import (
+	"sort"
 	"strconv"
 	"time"
 
 	"github.com/aditya-K2/goMP/config"
+	"github.com/aditya-K2/goMP/search"
 	"github.com/fhs/gompd/mpd"
 	"github.com/gdamore/tcell/v2"
 	"github.com/spf13/viper"
@@ -167,10 +169,42 @@ func main() {
 				CONN.Delete(r, -1)
 			}
 		},
+		"FocusSearch": func() {
+			UI.App.SetFocus(UI.SearchBar)
+		},
 	}
 
 	config.GenerateKeyMap(FUNC_MAP)
+	a, _ := GenerateArtistTree()
+	UI.SearchBar.SetAutocompleteFunc(func(c string) []string {
+		if c != "" && c != " " && c != "  " {
+			var p search.PairList
+			for k2, v := range a {
+				p = append(p, search.Pair{k2, search.GetLevenshteinDistance(c, k2)})
+				for k1, v1 := range v {
+					p = append(p, search.Pair{k1, search.GetLevenshteinDistance(c, k1)})
+					for k := range v1 {
+						p = append(p, search.Pair{k, search.GetLevenshteinDistance(c, k)})
+					}
+				}
+			}
 
+			sort.Sort(p)
+			var suggestions []string
+			i := 0
+			for _, k := range p {
+				if i == 10 {
+					break
+				}
+				_, _, w, _ := UI.SearchBar.GetRect()
+				suggestions = append(suggestions, getFormattedString(k.Key, w-2))
+				i++
+			}
+			return suggestions
+		} else {
+			return make([]string, 0)
+		}
+	})
 	UI.ExpandedView.SetInputCapture(func(e *tcell.EventKey) *tcell.EventKey {
 		if val, ok := config.KEY_MAP[int(e.Rune())]; ok {
 			FUNC_MAP[val]()
