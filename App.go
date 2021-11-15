@@ -22,7 +22,7 @@ func newApplication(r *Renderer) *Application {
 	expandedView := tview.NewTable()
 	Navbar := tview.NewTable()
 	searchBar := tview.NewInputField()
-	searchBar.SetFieldBackgroundColor(tcell.GetColor("#000000"))
+	searchBar.SetFieldBackgroundColor(tcell.ColorDefault)
 	imagePreviewer := tview.NewBox()
 	imagePreviewer.SetBorder(true)
 	imagePreviewer.SetDrawFunc(func(s tcell.Screen, x, y, width, height int) (int, int, int, int) {
