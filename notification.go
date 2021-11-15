@@ -3,8 +3,8 @@ package main
 import (
 	"time"
 
+	"github.com/aditya-K2/tview"
 	"github.com/gdamore/tcell/v2"
-	"github.com/rivo/tview"
 )
 
 /* Notification Primitive */

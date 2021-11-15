@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/rivo/tview"
+	"github.com/aditya-K2/tview"
 )
 
 func getFormattedString(s string, width int) string {
