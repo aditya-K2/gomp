@@ -11,7 +11,7 @@ type Application struct {
 	App          *tview.Application
 	ExpandedView *tview.Table
 	Navbar       *tview.Table
-	SearchBar    *tview.Table
+	SearchBar    *tview.InputField
 	ProgressBar  *progressBar
 	Pages        *tview.Pages
 }
@@ -21,7 +21,8 @@ func newApplication(r *Renderer) *Application {
 	var pBar *progressBar = newProgressBar(r)
 	expandedView := tview.NewTable()
 	Navbar := tview.NewTable()
-	searchBar := tview.NewTable()
+	searchBar := tview.NewInputField()
+	searchBar.SetFieldBackgroundColor(tcell.GetColor("#000000"))
 	imagePreviewer := tview.NewBox()
 	imagePreviewer.SetBorder(true)
 	imagePreviewer.SetDrawFunc(func(s tcell.Screen, x, y, width, height int) (int, int, int, int) {
@@ -29,7 +30,7 @@ func newApplication(r *Renderer) *Application {
 		return imagePreviewer.GetInnerRect()
 	})
 
-	searchBar.SetBorder(true).SetTitle("Search").SetTitleAlign(tview.AlignLeft)
+	searchBar.SetTitle("Search").SetTitleAlign(tview.AlignLeft)
 	Navbar.SetBorder(true)
 	Navbar.SetSelectable(true, false)
 	Navbar.SetCell(0, 0, tview.NewTableCell("PlayList"))
@@ -37,7 +38,6 @@ func newApplication(r *Renderer) *Application {
 	Navbar.SetCell(2, 0, tview.NewTableCell("Most Played"))
 
 	searchNavFlex := tview.NewFlex().SetDirection(tview.FlexRow).
-		AddItem(searchBar, 3, 1, false).
 		AddItem(Navbar, 0, 4, false).
 		AddItem(imagePreviewer, 9, 3, false)
 
@@ -45,8 +45,13 @@ func newApplication(r *Renderer) *Application {
 		AddItem(searchNavFlex, 17, 1, false).
 		AddItem(expandedView, 0, 4, false)
 
+	searchBar.SetBorder(true)
+	searchBarFlex := tview.NewFlex().SetDirection(tview.FlexRow).
+		AddItem(searchBar, 3, 1, false).
+		AddItem(sNavExpViewFlex, 0, 1, false)
+
 	mainFlex := tview.NewFlex().SetDirection(tview.FlexRow).
-		AddItem(sNavExpViewFlex, 0, 8, false).
+		AddItem(searchBarFlex, 0, 8, false).
 		AddItem(pBar.t, 5, 1, false)
 
 	expandedView.SetBorderPadding(1, 1, 1, 1).SetBorder(true)
