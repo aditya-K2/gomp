@@ -12,13 +12,15 @@ import (
 	"github.com/spf13/viper"
 )
 
-var CONN *mpd.Client
-var UI *Application
-var NOTIFICATION_SERVER *NotificationServer
-var Volume int64
-var Random bool
-var Repeat bool
-var InsidePlaylist bool = true
+var (
+	CONN                *mpd.Client
+	UI                  *Application
+	NOTIFICATION_SERVER *NotificationServer
+	Volume              int64
+	Random              bool
+	Repeat              bool
+	InsidePlaylist      bool = true
+)
 
 func main() {
 	config.ReadConfig()
@@ -175,20 +177,19 @@ func main() {
 	}
 
 	config.GenerateKeyMap(FUNC_MAP)
-	a, _ := GenerateArtistTree()
+	ARTIST_TREE, _ := GenerateArtistTree()
 	UI.SearchBar.SetAutocompleteFunc(func(c string) []string {
 		if c != "" && c != " " && c != "  " {
 			var p search.PairList
-			for k2, v := range a {
-				p = append(p, search.Pair{k2, search.GetLevenshteinDistance(c, k2)})
+			for k2, v := range ARTIST_TREE {
+				p = append(p, search.Pair{Key: k2, Value: search.GetLevenshteinDistance(c, k2)})
 				for k1, v1 := range v {
-					p = append(p, search.Pair{k1, search.GetLevenshteinDistance(c, k1)})
+					p = append(p, search.Pair{Key: k1, Value: search.GetLevenshteinDistance(c, k1)})
 					for k := range v1 {
-						p = append(p, search.Pair{k, search.GetLevenshteinDistance(c, k)})
+						p = append(p, search.Pair{Key: k, Value: search.GetLevenshteinDistance(c, k)})
 					}
 				}
 			}
-
 			sort.Sort(p)
 			var suggestions []string
 			i := 0
