@@ -137,3 +137,35 @@ func PrintArtistTree(a map[string]map[string]map[string]string) {
 		}
 	}
 }
+
+func AddAlbum(a map[string]map[string]string, alb string) {
+	if val, ok := a[alb]; ok {
+		for _, path := range val {
+			CONN.Add(path)
+		}
+	}
+}
+
+func AddArtist(a map[string]map[string]map[string]string, artist string) {
+	if val, ok := a[artist]; ok {
+		for _, v := range val {
+			for _, path := range v {
+				CONN.Add(path)
+			}
+		}
+	}
+}
+
+func QueryArtistTree(a map[string]map[string]map[string]string, track string) map[[3]string]string {
+	TrackMap := make(map[[3]string]string)
+	for artistName, albumMap := range a {
+		for albumNam, trackList := range albumMap {
+			for trackName, path := range trackList {
+				if trackName == track {
+					TrackMap[[3]string{artistName, albumNam, trackName}] = path
+				}
+			}
+		}
+	}
+	return TrackMap
+}
