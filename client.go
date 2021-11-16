@@ -8,6 +8,10 @@ import (
 	"github.com/aditya-K2/tview"
 )
 
+var (
+	WHITE_AND_BOLD string = "[#ffffff::b]"
+)
+
 func getFormattedString(s string, width int) string {
 	if len(s) < width {
 		s += strings.Repeat(" ", (width - len(s)))
@@ -56,13 +60,13 @@ func GenerateContentSlice(selectedSuggestion string) ([]interface{}, error) {
 		return nil, errors.New("empty Search String Provided")
 	}
 	if _, ok := ARTIST_TREE[selectedSuggestion]; ok {
-		ContentSlice = append(ContentSlice, "[#ffffff::b]Artists :")
+		ContentSlice = append(ContentSlice, WHITE_AND_BOLD+"Artists :")
 		ContentSlice = append(ContentSlice, selectedSuggestion)
-		ContentSlice = append(ContentSlice, "[#ffffff::b]Artist Albums :")
+		ContentSlice = append(ContentSlice, WHITE_AND_BOLD+"Artist Albums :")
 		for albumName := range ARTIST_TREE[selectedSuggestion] {
 			ContentSlice = append(ContentSlice, [2]string{albumName, selectedSuggestion})
 		}
-		ContentSlice = append(ContentSlice, "[#ffffff::b]Artist Tracks :")
+		ContentSlice = append(ContentSlice, WHITE_AND_BOLD+"Artist Tracks :")
 		for albumName, trackList := range ARTIST_TREE[selectedSuggestion] {
 			for track := range trackList {
 				ContentSlice = append(ContentSlice, [3]string{track, selectedSuggestion, albumName})
@@ -70,11 +74,11 @@ func GenerateContentSlice(selectedSuggestion string) ([]interface{}, error) {
 		}
 	}
 	if aMap := QueryArtistTreeForAlbums(ARTIST_TREE, selectedSuggestion); len(aMap) != 0 {
-		ContentSlice = append(ContentSlice, "[#ffffff::b]Albums :")
+		ContentSlice = append(ContentSlice, WHITE_AND_BOLD+"Albums :")
 		for mSlice := range aMap {
 			ContentSlice = append(ContentSlice, mSlice)
 		}
-		ContentSlice = append(ContentSlice, "[#ffffff::b]Album Tracks :")
+		ContentSlice = append(ContentSlice, WHITE_AND_BOLD+"Album Tracks :")
 		for a, pathSlice := range aMap {
 			for _, path := range pathSlice {
 				ContentSlice = append(ContentSlice, [3]string{path[0], a[0], a[1]})
@@ -82,7 +86,7 @@ func GenerateContentSlice(selectedSuggestion string) ([]interface{}, error) {
 		}
 	}
 	if tMap := QueryArtistTreeForTracks(ARTIST_TREE, selectedSuggestion); len(tMap) != 0 {
-		ContentSlice = append(ContentSlice, "[#ffffff::b]Tracks :")
+		ContentSlice = append(ContentSlice, WHITE_AND_BOLD+"Tracks :")
 		for mSlice := range tMap {
 			ContentSlice = append(ContentSlice, mSlice)
 		}
@@ -114,9 +118,7 @@ func UpdateSearchView(inputTable *tview.Table, c []interface{}) {
 		case string:
 			{
 				b := content.(string)
-				if b != "[#ffffff::b]Artists :" && b != "[#ffffff::b]Artist Albums :" &&
-					b != "[#ffffff::b]Artist Tracks :" && b != "[#ffffff::b]Albums :" &&
-					b != "[#ffffff::b]Album Tracks :" && b != "[#ffffff::b]Tracks :" {
+				if !strings.HasPrefix(b, WHITE_AND_BOLD) {
 					inputTable.SetCell(i, 0, tview.NewTableCell("[green]"+content.(string)))
 				} else {
 					inputTable.SetCell(i, 0, tview.NewTableCell(content.(string)).SetSelectable(false))
