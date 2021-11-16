@@ -43,6 +43,7 @@ var (
 		50:  "navigateToFiles",
 		49:  "navigateToPlaylist",
 		51:  "navigateToMostPlayed",
+		52:  "navigateToSearch",
 		113: "quit",
 		115: "stop",
 		117: "updateDB",
