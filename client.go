@@ -113,7 +113,14 @@ func UpdateSearchView(inputTable *tview.Table, c []interface{}) {
 			}
 		case string:
 			{
-				inputTable.SetCell(i, 0, tview.NewTableCell("[green]"+content.(string)))
+				b := content.(string)
+				if b != "[#ffffff::b]Artists :" && b != "[#ffffff::b]Artist Albums :" &&
+					b != "[#ffffff::b]Artist Tracks :" && b != "[#ffffff::b]Albums :" &&
+					b != "[#ffffff::b]Album Tracks :" && b != "[#ffffff::b]Tracks :" {
+					inputTable.SetCell(i, 0, tview.NewTableCell("[green]"+content.(string)))
+				} else {
+					inputTable.SetCell(i, 0, tview.NewTableCell(content.(string)).SetSelectable(false))
+				}
 			}
 		}
 	}
