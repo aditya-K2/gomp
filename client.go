@@ -227,19 +227,27 @@ func AddArtist(a map[string]map[string]map[string]string, artist string) {
 				if err != nil {
 					NOTIFICATION_SERVER.Send("Could Not Add Song : " + path)
 				}
-				NOTIFICATION_SERVER.Send("Artist Added : " + artist)
 			}
 		}
+		NOTIFICATION_SERVER.Send("Artist Added : " + artist)
 	}
 }
 
 /*
 	Adds Specified Track to the Playlist
 */
-func AddTitle(a map[string]map[string]map[string]string, artist, alb, track string) {
-	err := CONN.Add(a[artist][alb][track])
-	if err != nil {
-		NOTIFICATION_SERVER.Send("Could Not Add Track : " + track)
+func AddTitle(a map[string]map[string]map[string]string, artist, alb, track string, addAndPlay bool) {
+	if addAndPlay {
+		id, err := CONN.AddId(a[artist][alb][track], -1)
+		CONN.PlayId(id)
+		if err != nil {
+			NOTIFICATION_SERVER.Send("Could Not Add Track : " + track)
+		}
+	} else {
+		err := CONN.Add(a[artist][alb][track])
+		if err != nil {
+			NOTIFICATION_SERVER.Send("Could Not Add Track : " + track)
+		}
 	}
 	NOTIFICATION_SERVER.Send("Track Added : " + track)
 }
@@ -278,12 +286,12 @@ func QueryArtistTreeForAlbums(a map[string]map[string]map[string]string, album s
 	return AlbumMap
 }
 
-func AddToPlaylist(a interface{}) {
+func AddToPlaylist(a interface{}, addAndPlay bool) {
 	switch a.(type) {
 	case [3]string:
 		{
 			b := a.([3]string)
-			AddTitle(ARTIST_TREE, b[1], b[2], b[0])
+			AddTitle(ARTIST_TREE, b[1], b[2], b[0], addAndPlay)
 		}
 	case [2]string:
 		{
