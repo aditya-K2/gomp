@@ -97,23 +97,23 @@ func GenerateContentSlice(selectedSuggestion string) ([]interface{}, error) {
 */
 func UpdateSearchView(inputTable *tview.Table, c []interface{}) {
 	inputTable.Clear()
+	_, _, width, _ := inputTable.GetInnerRect()
 	for i, content := range c {
 		switch content.(type) {
 		case [3]string:
 			{
-				for j, column := range content.([3]string) {
-					inputTable.SetCell(i, j, tview.NewTableCell(column))
-				}
+				inputTable.SetCell(i, 0, tview.NewTableCell(getFormattedString("[green]"+content.([3]string)[0], width/3)))
+				inputTable.SetCell(i, 1, tview.NewTableCell(getFormattedString("[magenta]"+content.([3]string)[1], width/3)))
+				inputTable.SetCell(i, 2, tview.NewTableCell(getFormattedString("[yellow]"+content.([3]string)[2], width/3)))
 			}
 		case [2]string:
 			{
-				for j, column := range content.([2]string) {
-					inputTable.SetCell(i, j, tview.NewTableCell(column))
-				}
+				inputTable.SetCell(i, 0, tview.NewTableCell(getFormattedString("[green]"+content.([2]string)[0], width/3)))
+				inputTable.SetCell(i, 1, tview.NewTableCell(getFormattedString("[magenta]"+content.([2]string)[1], width/3)))
 			}
 		case string:
 			{
-				inputTable.SetCell(i, 0, tview.NewTableCell(content.(string)))
+				inputTable.SetCell(i, 0, tview.NewTableCell("[green]"+content.(string)))
 			}
 		}
 	}
@@ -197,16 +197,14 @@ func PrintArtistTree(a map[string]map[string]map[string]string) {
 /*
 	Adds All tracks from a specified album to a playlist
 */
-func AddAlbum(a map[[2]string][]string, alb string, artist string) {
-	if val, ok := a[[2]string{artist, alb}]; ok {
-		for _, v := range val {
-			err := CONN.Add(v)
-			if err != nil {
-				NOTIFICATION_SERVER.Send("Could Not Add: " + v)
-			}
-			NOTIFICATION_SERVER.Send("Album Added : " + alb)
+func AddAlbum(a map[string]map[string]map[string]string, alb string, artist string) {
+	for _, v := range a[artist][alb] {
+		err := CONN.Add(v)
+		if err != nil {
+			NOTIFICATION_SERVER.Send("Could Not Add Song : " + v)
 		}
 	}
+	NOTIFICATION_SERVER.Send("Album Added : " + alb)
 }
 
 /*
@@ -218,7 +216,7 @@ func AddArtist(a map[string]map[string]map[string]string, artist string) {
 			for _, path := range v {
 				err := CONN.Add(path)
 				if err != nil {
-					NOTIFICATION_SERVER.Send("Could Not Add Artist : " + artist)
+					NOTIFICATION_SERVER.Send("Could Not Add Song : " + path)
 				}
 				NOTIFICATION_SERVER.Send("Artist Added : " + artist)
 			}
@@ -269,4 +267,24 @@ func QueryArtistTreeForAlbums(a map[string]map[string]map[string]string, album s
 		}
 	}
 	return AlbumMap
+}
+
+func AddToPlaylist(a interface{}) {
+	switch a.(type) {
+	case [3]string:
+		{
+			b := a.([3]string)
+			AddTitle(ARTIST_TREE, b[1], b[2], b[0])
+		}
+	case [2]string:
+		{
+			b := a.([2]string)
+			AddAlbum(ARTIST_TREE, b[0], b[1])
+		}
+	case string:
+		{
+			b := a.(string)
+			AddArtist(ARTIST_TREE, b)
+		}
+	}
 }
