@@ -4,16 +4,29 @@
 
  MPD client inspired by ncmpcpp written in GO
 
+
 https://user-images.githubusercontent.com/51816057/141670212-34b62601-19b0-40c0-8797-f21bce2e11f3.mp4
 
+
+- [goMP](#gomp)
+- [Roadmap](#roadmap)
+- [Setting Up](#setting-up)
+- [Installing / Building](#installing--building)
+- [Configuration](#configuration)
+  - [Image Rendering :](#image-rendering-)
+  - [Key Mappings](#key-mappings)
+  - [Getting Album Art from LastFm API](#getting-album-art-from-lastfm-api)
+    - [Tested on following terminals:](#tested-on-following-terminals)
+
 # Roadmap
+
 
 - [ ] Add Functionality to Sort out most played songs
 - [x] Add a config parser
 - [x] Image Previews
 - [x] User Key Mappings
 - [x] Querying LastFM API for getting Album Art
-- [ ] Fuzzy Searching
+- [x] Fuzzy Searching [ checkout [this pull request](https://github.com/aditya-K2/goMP/pull/8) ]
 - [ ] Visual Mode (like vim) for updating playlists
 
 # Setting Up
@@ -32,6 +45,14 @@ go build
 ```
 
 # Configuration
+
+## Image Rendering :
+
+The Default Position of the Image without any configuration assumes that you have no padding or margin so Image will
+be rendered at different places in different terminals, Also the TUI calculates positions with the help of rows and columns
+and the image is rendered at pixel positions so the exact position can't be defined [ the app tries its best by calculating
+the font width and then predicting the position but it is best that you define extra padding and own image width ratio
+in config.yml. Please Read more about it in the [sample_config](https://github.com/aditya-K2/goMP/blob/master/sample_config.yml)
 
 ## Key Mappings
 
@@ -79,18 +100,20 @@ Following functions are provided :
 |     navigateToFiles                |
 |     navigateToPlaylist             |
 |     navigateToMostPlayed           |
+|     navigateToSearch               |
 |     quit                           |
 |     stop                           |
 |     updateDB                       |
 |     deleteSongFromPlaylist         |
+|     FocusSearch                    |
 
 ## Getting Album Art from [LastFm API](https://www.last.fm/api)
 
 1. Generate API Key [here](https://www.last.fm/login?next=%2Fapi%2Faccount%2Fcreate%3F_pjax%3D%2523content)
-   
+
    ![Screenshot from 2021-11-13 21-54-54](https://user-images.githubusercontent.com/51816057/141651276-f76a5c7f-65fe-4a1a-b130-18cdf67dd471.png)
-   
-2. Add the api key and api secret to config.yml 
+
+2. Add the api key and api secret to config.yml
 
 ```yml
 
@@ -101,7 +124,7 @@ LASTFM_API_SECRET: "YOUR API SECRET HERE"
 3. Auto correct
 
 ![Screenshot from 2021-11-13 21-59-46](https://user-images.githubusercontent.com/51816057/141651414-1586577a-cab2-48e2-a24b-1053f8634fbe.png)
-: 
+:
 
 ```yml
 
@@ -113,4 +136,4 @@ LASTFM_AUTO_CORRECT: 1  # 0 means it is turned off
 
 - Alacritty
 - ST
-- URXVT
+- URXVT ( URXVT sometimes crashes when downloading coverart from lastfm )
