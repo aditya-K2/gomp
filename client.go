@@ -249,10 +249,10 @@ to add tracks to the playlist */
 func QueryArtistTreeForTracks(a map[string]map[string]map[string]string, track string) map[[3]string]string {
 	TrackMap := make(map[[3]string]string)
 	for artistName, albumMap := range a {
-		for albumNam, trackList := range albumMap {
+		for albumName, trackList := range albumMap {
 			for trackName, path := range trackList {
 				if trackName == track {
-					TrackMap[[3]string{artistName, albumNam, trackName}] = path
+					TrackMap[[3]string{trackName, artistName, albumName}] = path
 				}
 			}
 		}
