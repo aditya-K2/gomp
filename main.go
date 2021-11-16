@@ -20,6 +20,8 @@ var (
 	Random              bool
 	Repeat              bool
 	InsidePlaylist      bool = true
+	InsideSearchView    bool = false
+	ARTIST_TREE         map[string]map[string]map[string]string
 )
 
 func main() {
@@ -52,22 +54,27 @@ func main() {
 	Random, _ = strconv.ParseBool(_v["random"])
 	Repeat, _ = strconv.ParseBool(_v["repeat"])
 
+	ARTIST_TREE, err = GenerateArtistTree()
+	NOTIFICATION_SERVER = NewNotificationServer()
+	NOTIFICATION_SERVER.Start()
+
+	var SEARCH_CONTENT_SLICE []interface{}
+
 	UI.ExpandedView.SetDrawFunc(func(s tcell.Screen, x, y, width, height int) (int, int, int, int) {
 		if InsidePlaylist {
 			UpdatePlaylist(UI.ExpandedView)
+		} else if InsideSearchView {
+			UpdateSearchView(UI.ExpandedView, SEARCH_CONTENT_SLICE)
 		} else {
 			Update(dirTree.children, UI.ExpandedView)
 		}
 		return UI.ExpandedView.GetInnerRect()
 	})
 
-	NOTIFICATION_SERVER = NewNotificationServer()
-	NOTIFICATION_SERVER.Start()
-
 	var FUNC_MAP = map[string]func(){
 		"showChildrenContent": func() {
 			r, _ := UI.ExpandedView.GetSelection()
-			if !InsidePlaylist {
+			if !InsidePlaylist && !InsideSearchView {
 				if len(dirTree.children[r].children) == 0 {
 					id, _ := CONN.AddId(dirTree.children[r].absolutePath, -1)
 					CONN.PlayId(id)
@@ -75,15 +82,18 @@ func main() {
 					Update(dirTree.children[r].children, UI.ExpandedView)
 					dirTree = &dirTree.children[r]
 				}
-			} else {
+			} else if InsidePlaylist {
 				CONN.Play(r)
+			} else if InsideSearchView {
+				r, _ := UI.ExpandedView.GetSelection()
+				AddToPlaylist(SEARCH_CONTENT_SLICE[r], true)
 			}
 		},
 		"togglePlayBack": func() {
 			togglePlayBack()
 		},
 		"showParentContent": func() {
-			if !InsidePlaylist {
+			if !InsidePlaylist && !InsideSearchView {
 				if dirTree.parent != nil {
 					Update(dirTree.parent.children, UI.ExpandedView)
 					dirTree = dirTree.parent
@@ -95,18 +105,18 @@ func main() {
 		},
 		"clearPlaylist": func() {
 			CONN.Clear()
-			if InsidePlaylist {
-				UpdatePlaylist(UI.ExpandedView)
-			}
 			NOTIFICATION_SERVER.Send("PlayList Cleared")
 		},
 		"previousSong": func() {
 			CONN.Previous()
 		},
 		"addToPlaylist": func() {
-			if !InsidePlaylist {
+			if !InsidePlaylist && !InsideSearchView {
 				r, _ := UI.ExpandedView.GetSelection()
 				CONN.Add(dirTree.children[r].absolutePath)
+			} else if InsideSearchView {
+				r, _ := UI.ExpandedView.GetSelection()
+				AddToPlaylist(SEARCH_CONTENT_SLICE[r], false)
 			}
 		},
 		"toggleRandom": func() {
@@ -139,17 +149,25 @@ func main() {
 		},
 		"navigateToFiles": func() {
 			InsidePlaylist = false
+			InsideSearchView = false
 			UI.Navbar.Select(1, 0)
 			Update(dirTree.children, UI.ExpandedView)
 		},
 		"navigateToPlaylist": func() {
 			InsidePlaylist = true
+			InsideSearchView = false
 			UI.Navbar.Select(0, 0)
 			UpdatePlaylist(UI.ExpandedView)
 		},
 		"navigateToMostPlayed": func() {
+			InsideSearchView = false
 			InsidePlaylist = false
 			UI.Navbar.Select(2, 0)
+		},
+		"navigateToSearch": func() {
+			InsideSearchView = true
+			InsidePlaylist = false
+			UI.Navbar.Select(3, 0)
 		},
 		"quit": func() {
 			UI.App.Stop()
@@ -177,7 +195,7 @@ func main() {
 	}
 
 	config.GenerateKeyMap(FUNC_MAP)
-	ARTIST_TREE, _ := GenerateArtistTree()
+
 	UI.SearchBar.SetAutocompleteFunc(func(c string) []string {
 		if c != "" && c != " " && c != "  " {
 			var p search.PairList
@@ -206,12 +224,34 @@ func main() {
 			return make([]string, 0)
 		}
 	})
+
 	UI.ExpandedView.SetInputCapture(func(e *tcell.EventKey) *tcell.EventKey {
 		if val, ok := config.KEY_MAP[int(e.Rune())]; ok {
 			FUNC_MAP[val]()
 			return nil
 		} else {
 			return e
+		}
+	})
+
+	UI.SearchBar.SetDoneFunc(func(e tcell.Key) {
+		if e == tcell.KeyEnter {
+			UI.ExpandedView.Select(0, 0)
+			InsideSearchView = true
+			InsidePlaylist = false
+			SEARCH_CONTENT_SLICE = nil
+			SEARCH_CONTENT_SLICE, err = GenerateContentSlice(UI.SearchBar.GetText())
+			if err != nil {
+				NOTIFICATION_SERVER.Send("Could Not Retrieve the Results")
+			} else {
+				UI.SearchBar.SetText("")
+				UI.App.SetFocus(UI.ExpandedView)
+				UI.Navbar.Select(3, 0)
+			}
+		}
+		if e == tcell.KeyEscape {
+			InsideSearchView = false
+			UI.App.SetFocus(UI.ExpandedView)
 		}
 	})
 
