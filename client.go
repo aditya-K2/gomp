@@ -81,7 +81,7 @@ func GenerateContentSlice(selectedSuggestion string) ([]interface{}, error) {
 		ContentSlice = append(ContentSlice, WHITE_AND_BOLD+"Album Tracks :")
 		for a, pathSlice := range aMap {
 			for _, path := range pathSlice {
-				ContentSlice = append(ContentSlice, [3]string{path[0], a[0], a[1]})
+				ContentSlice = append(ContentSlice, [3]string{path[0], a[1], a[0]})
 			}
 		}
 	}
@@ -279,7 +279,7 @@ func QueryArtistTreeForAlbums(a map[string]map[string]map[string]string, album s
 				for trackName, path := range trackList {
 					pathSlice = append(pathSlice, [2]string{trackName, path})
 				}
-				AlbumMap[[2]string{artistName, albumName}] = pathSlice
+				AlbumMap[[2]string{albumName, artistName}] = pathSlice
 			}
 		}
 	}
