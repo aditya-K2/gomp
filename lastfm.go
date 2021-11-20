@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-func getImageFromLastFM(artist, album string) (string, error) {
+func getImageFromLastFM(artist, album, imagePath string) (string, error) {
 	api := lastfm.New(viper.GetString("LASTFM_API_KEY"), viper.GetString("LASTFM_API_SECRET"))
 	v, err := api.Album.GetInfo(map[string]interface{}{
 		"artist":      artist,
@@ -22,11 +22,11 @@ func getImageFromLastFM(artist, album string) (string, error) {
 	if err != nil {
 		return "", err
 	} else {
-		return downloadImage(v.Images[len(v.Images)-1].Url)
+		return downloadImage(v.Images[len(v.Images)-1].Url, imagePath)
 	}
 }
 
-func downloadImage(url string) (string, error) {
+func downloadImage(url string, imagePath string) (string, error) {
 	var reader io.Reader
 	if strings.HasPrefix(url, "http") {
 		r, err := http.Get(url)
@@ -37,10 +37,10 @@ func downloadImage(url string) (string, error) {
 		reader = r.Body
 		v, err := io.ReadAll(reader)
 		if err == nil {
-			b, err := os.Create(viper.GetString("COVER_IMAGE_PATH"))
+			b, err := os.Create(imagePath)
 			if err == nil {
 				b.Write(v)
-				return viper.GetString("COVER_IMAGE_PATH"), nil
+				return imagePath, nil
 			} else {
 				b.Close()
 				return "", err

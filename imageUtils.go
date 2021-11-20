@@ -64,16 +64,16 @@ func GetFlacImage(songPath, imagePath string) string {
 	return ""
 }
 
-func extractImageFromFile(uri string) string {
+func extractImageFromFile(uri string, imagePath string) string {
 	if strings.HasSuffix(uri, ".mp3") {
-		imagePath := GetMp3Image(uri, viper.GetString("COVER_IMAGE_PATH"))
+		imagePath := GetMp3Image(uri, imagePath)
 		if imagePath == "" {
 			return viper.GetString("DEFAULT_IMAGE_PATH")
 		} else {
 			return imagePath
 		}
 	} else if strings.HasSuffix(uri, ".flac") {
-		imagePath := GetFlacImage(uri, viper.GetString("COVER_IMAGE_PATH"))
+		imagePath := GetFlacImage(uri, imagePath)
 		if imagePath == "" {
 			return viper.GetString("DEFAULT_IMAGE_PATH")
 		} else {
