@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -11,10 +12,10 @@ var (
 	CACHE_LIST map[[2]string]string = make(map[[2]string]string)
 )
 
-func LoadCache(path string) {
+func LoadCache(path string) error {
 	cacheFileContent, err := ioutil.ReadFile(path)
 	if err != nil {
-		fmt.Println("Could Not Read From Cache File")
+		return errors.New("Could Not Read From Cache File")
 	}
 	lineSlice := strings.Split(string(cacheFileContent), "\n")
 	for _, line := range lineSlice {
@@ -25,9 +26,22 @@ func LoadCache(path string) {
 			}
 		}
 	}
+	return nil
 }
 
-func WriteToCache(path string) {
+func GetFromCache(artist, album string) (string, error) {
+	if val, ok := CACHE_LIST[[2]string{artist, album}]; ok {
+		return val, nil
+	} else {
+		return "", errors.New("Element Not In Cache")
+	}
+}
+
+func AddToCache(artist, album string) {
+	CACHE_LIST[[2]string{artist, album}] = GenerateName(artist, album)
+}
+
+func WriteCache(path string) {
 	b, err := os.Create(path)
 	if err == nil {
 		for k, v := range CACHE_LIST {
@@ -37,5 +51,5 @@ func WriteToCache(path string) {
 }
 
 func GenerateName(artist, album string) string {
-	return fmt.Sprintf("%s-%s.jpg", artist, album)
+	return strings.Replace(fmt.Sprintf("%s-%s.jpg", artist, album), " ", "_", -1)
 }
