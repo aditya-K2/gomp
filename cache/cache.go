@@ -9,8 +9,14 @@ import (
 )
 
 var (
-	CACHE_LIST map[[2]string]string = make(map[[2]string]string)
+	USER_CACHE_DIR, err                      = os.UserCacheDir()
+	CACHE_LIST          map[[2]string]string = make(map[[2]string]string)
+	CACHE_DIR           string               = USER_CACHE_DIR
 )
+
+func SetCacheDir(path string) {
+	CACHE_DIR = path
+}
 
 func LoadCache(path string) error {
 	cacheFileContent, err := ioutil.ReadFile(path)
@@ -37,8 +43,10 @@ func GetFromCache(artist, album string) (string, error) {
 	}
 }
 
-func AddToCache(artist, album string) {
-	CACHE_LIST[[2]string{artist, album}] = GenerateName(artist, album)
+func AddToCache(artist, album string) string {
+	fileName := CACHE_DIR + GenerateName(artist, album)
+	CACHE_LIST[[2]string{artist, album}] = fileName
+	return fileName
 }
 
 func WriteCache(path string) {
