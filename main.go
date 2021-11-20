@@ -1,22 +1,28 @@
 package main
 
 import (
+	"sort"
 	"strconv"
 	"time"
 
 	"github.com/aditya-K2/goMP/config"
+	"github.com/aditya-K2/goMP/search"
 	"github.com/fhs/gompd/mpd"
 	"github.com/gdamore/tcell/v2"
 	"github.com/spf13/viper"
 )
 
-var CONN *mpd.Client
-var UI *Application
-var NOTIFICATION_SERVER *NotificationServer
-var Volume int64
-var Random bool
-var Repeat bool
-var InsidePlaylist bool = true
+var (
+	CONN                *mpd.Client
+	UI                  *Application
+	NOTIFICATION_SERVER *NotificationServer
+	Volume              int64
+	Random              bool
+	Repeat              bool
+	InsidePlaylist      bool = true
+	InsideSearchView    bool = false
+	ARTIST_TREE         map[string]map[string]map[string]string
+)
 
 func main() {
 	config.ReadConfig()
@@ -48,22 +54,27 @@ func main() {
 	Random, _ = strconv.ParseBool(_v["random"])
 	Repeat, _ = strconv.ParseBool(_v["repeat"])
 
+	ARTIST_TREE, err = GenerateArtistTree()
+	NOTIFICATION_SERVER = NewNotificationServer()
+	NOTIFICATION_SERVER.Start()
+
+	var SEARCH_CONTENT_SLICE []interface{}
+
 	UI.ExpandedView.SetDrawFunc(func(s tcell.Screen, x, y, width, height int) (int, int, int, int) {
 		if InsidePlaylist {
 			UpdatePlaylist(UI.ExpandedView)
+		} else if InsideSearchView {
+			UpdateSearchView(UI.ExpandedView, SEARCH_CONTENT_SLICE)
 		} else {
 			Update(dirTree.children, UI.ExpandedView)
 		}
 		return UI.ExpandedView.GetInnerRect()
 	})
 
-	NOTIFICATION_SERVER = NewNotificationServer()
-	NOTIFICATION_SERVER.Start()
-
 	var FUNC_MAP = map[string]func(){
 		"showChildrenContent": func() {
 			r, _ := UI.ExpandedView.GetSelection()
-			if !InsidePlaylist {
+			if !InsidePlaylist && !InsideSearchView {
 				if len(dirTree.children[r].children) == 0 {
 					id, _ := CONN.AddId(dirTree.children[r].absolutePath, -1)
 					CONN.PlayId(id)
@@ -71,15 +82,18 @@ func main() {
 					Update(dirTree.children[r].children, UI.ExpandedView)
 					dirTree = &dirTree.children[r]
 				}
-			} else {
+			} else if InsidePlaylist {
 				CONN.Play(r)
+			} else if InsideSearchView {
+				r, _ := UI.ExpandedView.GetSelection()
+				AddToPlaylist(SEARCH_CONTENT_SLICE[r], true)
 			}
 		},
 		"togglePlayBack": func() {
 			togglePlayBack()
 		},
 		"showParentContent": func() {
-			if !InsidePlaylist {
+			if !InsidePlaylist && !InsideSearchView {
 				if dirTree.parent != nil {
 					Update(dirTree.parent.children, UI.ExpandedView)
 					dirTree = dirTree.parent
@@ -91,18 +105,18 @@ func main() {
 		},
 		"clearPlaylist": func() {
 			CONN.Clear()
-			if InsidePlaylist {
-				UpdatePlaylist(UI.ExpandedView)
-			}
 			NOTIFICATION_SERVER.Send("PlayList Cleared")
 		},
 		"previousSong": func() {
 			CONN.Previous()
 		},
 		"addToPlaylist": func() {
-			if !InsidePlaylist {
+			if !InsidePlaylist && !InsideSearchView {
 				r, _ := UI.ExpandedView.GetSelection()
 				CONN.Add(dirTree.children[r].absolutePath)
+			} else if InsideSearchView {
+				r, _ := UI.ExpandedView.GetSelection()
+				AddToPlaylist(SEARCH_CONTENT_SLICE[r], false)
 			}
 		},
 		"toggleRandom": func() {
@@ -135,17 +149,25 @@ func main() {
 		},
 		"navigateToFiles": func() {
 			InsidePlaylist = false
+			InsideSearchView = false
 			UI.Navbar.Select(1, 0)
 			Update(dirTree.children, UI.ExpandedView)
 		},
 		"navigateToPlaylist": func() {
 			InsidePlaylist = true
+			InsideSearchView = false
 			UI.Navbar.Select(0, 0)
 			UpdatePlaylist(UI.ExpandedView)
 		},
 		"navigateToMostPlayed": func() {
+			InsideSearchView = false
 			InsidePlaylist = false
 			UI.Navbar.Select(2, 0)
+		},
+		"navigateToSearch": func() {
+			InsideSearchView = true
+			InsidePlaylist = false
+			UI.Navbar.Select(3, 0)
 		},
 		"quit": func() {
 			UI.App.Stop()
@@ -167,9 +189,41 @@ func main() {
 				CONN.Delete(r, -1)
 			}
 		},
+		"FocusSearch": func() {
+			UI.App.SetFocus(UI.SearchBar)
+		},
 	}
 
 	config.GenerateKeyMap(FUNC_MAP)
+
+	UI.SearchBar.SetAutocompleteFunc(func(c string) []string {
+		if c != "" && c != " " && c != "  " {
+			var p search.PairList
+			for k2, v := range ARTIST_TREE {
+				p = append(p, search.Pair{Key: k2, Value: search.GetLevenshteinDistance(c, k2)})
+				for k1, v1 := range v {
+					p = append(p, search.Pair{Key: k1, Value: search.GetLevenshteinDistance(c, k1)})
+					for k := range v1 {
+						p = append(p, search.Pair{Key: k, Value: search.GetLevenshteinDistance(c, k)})
+					}
+				}
+			}
+			sort.Sort(p)
+			var suggestions []string
+			i := 0
+			for _, k := range p {
+				if i == 10 {
+					break
+				}
+				_, _, w, _ := UI.SearchBar.GetRect()
+				suggestions = append(suggestions, getFormattedString(k.Key, w-2))
+				i++
+			}
+			return suggestions
+		} else {
+			return make([]string, 0)
+		}
+	})
 
 	UI.ExpandedView.SetInputCapture(func(e *tcell.EventKey) *tcell.EventKey {
 		if val, ok := config.KEY_MAP[int(e.Rune())]; ok {
@@ -177,6 +231,27 @@ func main() {
 			return nil
 		} else {
 			return e
+		}
+	})
+
+	UI.SearchBar.SetDoneFunc(func(e tcell.Key) {
+		if e == tcell.KeyEnter {
+			UI.ExpandedView.Select(0, 0)
+			InsideSearchView = true
+			InsidePlaylist = false
+			SEARCH_CONTENT_SLICE = nil
+			SEARCH_CONTENT_SLICE, err = GenerateContentSlice(UI.SearchBar.GetText())
+			if err != nil {
+				NOTIFICATION_SERVER.Send("Could Not Retrieve the Results")
+			} else {
+				UI.SearchBar.SetText("")
+				UI.App.SetFocus(UI.ExpandedView)
+				UI.Navbar.Select(3, 0)
+			}
+		}
+		if e == tcell.KeyEscape {
+			InsideSearchView = false
+			UI.App.SetFocus(UI.ExpandedView)
 		}
 	})
 
