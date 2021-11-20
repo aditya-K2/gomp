@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/aditya-K2/goMP/cache"
 	"github.com/spf13/viper"
 	"gitlab.com/diamondburned/ueberzug-go"
 )
@@ -43,15 +44,21 @@ func openImage(path string, c chan string) {
 	fw, fh := getFontWidth()
 	var im *ueberzug.Image
 	if path != "stop" {
-		absPath := viper.GetString("MUSIC_DIRECTORY") + path
-		extractedImage := extractImageFromFile(absPath)
-		if extractedImage == viper.GetString("DEFAULT_IMAGE_PATH") && viper.GetString("GET_COVER_ART_FROM_LAST_FM") == "TRUE" {
-			a, err := CONN.ListInfo(path)
-			if err == nil && len(a) != 0 {
-				downloadedImage, err := getImageFromLastFM(a[0]["artist"], a[0]["album"])
-				if err == nil {
-					NOTIFICATION_SERVER.Send("Image From LastFM")
-					extractedImage = downloadedImage
+		a, err := CONN.ListInfo(path)
+		var extractedImage string
+		if err == nil && len(a) != 0 {
+			if val, err := cache.GetFromCache(a[0]["artist"], a[0]["album"]); err == nil {
+				extractedImage = val
+			} else {
+				imagePath := cache.AddToCache(a[0]["artist"], a[0]["album"])
+				absPath := viper.GetString("MUSIC_DIRECTORY") + path
+				extractedImage = extractImageFromFile(absPath, imagePath)
+				if extractedImage == viper.GetString("DEFAULT_IMAGE_PATH") && viper.GetString("GET_COVER_ART_FROM_LAST_FM") == "TRUE" {
+					downloadedImage, err := getImageFromLastFM(a[0]["artist"], a[0]["album"], imagePath)
+					if err == nil {
+						NOTIFICATION_SERVER.Send("Image From LastFM")
+						extractedImage = downloadedImage
+					}
 				}
 			}
 		}
