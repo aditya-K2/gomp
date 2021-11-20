@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/aditya-K2/goMP/cache"
 	"github.com/aditya-K2/goMP/config"
 	"github.com/aditya-K2/goMP/search"
 	"github.com/fhs/gompd/mpd"
@@ -33,7 +34,8 @@ func main() {
 		panic(mpdConnectionError)
 	}
 	defer CONN.Close()
-
+	cache.SetCacheDir(viper.GetString("CACHE_DIR"))
+	cache.LoadCache(viper.GetString("CACHE_FILE"))
 	r := newRenderer()
 	c, _ := CONN.CurrentSong()
 	if len(c) != 0 {
@@ -265,4 +267,5 @@ func main() {
 	if err := UI.App.Run(); err != nil {
 		panic(err)
 	}
+	cache.WriteCache(viper.GetString("CACHE_FILE"))
 }
