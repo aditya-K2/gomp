@@ -4,9 +4,7 @@
 
  MPD client inspired by ncmpcpp written in GO
 
-
-https://user-images.githubusercontent.com/51816057/141670212-34b62601-19b0-40c0-8797-f21bce2e11f3.mp4
-
+https://user-images.githubusercontent.com/51816057/142734222-c211eae5-e497-4f1a-8f3f-9288f5375a8e.mp4
 
 # Table Of Contents
 
@@ -28,7 +26,7 @@ https://user-images.githubusercontent.com/51816057/141670212-34b62601-19b0-40c0-
 - [x] Image Previews
 - [x] User Key Mappings
 - [x] Querying LastFM API for getting Album Art
-- [x] Fuzzy Searching [ checkout [this pull request](https://github.com/aditya-K2/goMP/pull/8) ]
+- [x] Fuzzy Searching
 - [ ] Visual Mode (like vim) for updating playlists
 
 # Setting Up
