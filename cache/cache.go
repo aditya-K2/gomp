@@ -59,5 +59,5 @@ func WriteCache(path string) {
 }
 
 func GenerateName(artist, album string) string {
-	return strings.Replace(fmt.Sprintf("%s-%s.jpg", artist, album), " ", "_", -1)
+	return strings.Replace(strings.Replace(fmt.Sprintf("%s-%s.jpg", artist, album), " ", "_", -1), "/", "_", -1)
 }
