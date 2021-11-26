@@ -86,6 +86,8 @@ func getImagePath(path string) string {
 				if err == nil {
 					NOTIFICATION_SERVER.Send("Image From LastFM")
 					extractedImage = downloadedImage
+				} else {
+					cache.PointToDefault(a[0]["artist"], a[0]["album"])
 				}
 			}
 		}
