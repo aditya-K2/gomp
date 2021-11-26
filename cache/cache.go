@@ -12,10 +12,15 @@ var (
 	USER_CACHE_DIR, err                      = os.UserCacheDir()
 	CACHE_LIST          map[[2]string]string = make(map[[2]string]string)
 	CACHE_DIR           string               = USER_CACHE_DIR
+	DEFAULT_IMG         string
 )
 
 func SetCacheDir(path string) {
 	CACHE_DIR = path
+}
+
+func SetDefaultPath(path string) {
+	DEFAULT_IMG = path
 }
 
 func LoadCache(path string) error {
@@ -41,6 +46,10 @@ func GetFromCache(artist, album string) (string, error) {
 	} else {
 		return "", errors.New("Element Not In Cache")
 	}
+}
+
+func PointToDefault(artist, album string) {
+	CACHE_LIST[[2]string{artist, album}] = DEFAULT_IMG
 }
 
 func AddToCache(artist, album string) string {
