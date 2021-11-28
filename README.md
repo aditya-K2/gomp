@@ -59,7 +59,7 @@ in config.yml. Please Read more about it in the [sample_config](https://github.c
 The Images that are extracted are cached.
 In the `config.yml` file add the following
 
-```
+```yml
 CACHE_DIR : "/path/to/the/cache/Directory"
 CACHE_FILE : "/path/to/the/cache/file" # Cache file stores the path to all the images ( think of it like a database. )
 ```
