@@ -67,6 +67,20 @@ func getText(width, percentage float64, eta string) string {
 	return q
 }
 
+func ConvertToArray() []string {
+	var p []string
+	for k2, v := range ARTIST_TREE {
+		p = append(p, k2)
+		for k1, v1 := range v {
+			p = append(p, k1)
+			for k := range v1 {
+				p = append(p, k)
+			}
+		}
+	}
+	return p
+}
+
 func formatString(a interface{}) string {
 	if a == "play" {
 		return "Playing"
