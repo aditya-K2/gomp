@@ -54,6 +54,16 @@ and the image is rendered at pixel positions so the exact position can't be defi
 the font width and then predicting the position but it is best that you define extra padding and own image width ratio
 in config.yml. Please Read more about it in the [sample_config](https://github.com/aditya-K2/goMP/blob/master/sample_config.yml)
 
+# Setting Up Cache Directory and Cache File
+
+The Images that are extracted are cached.
+In the `config.yml` file add the following
+
+```
+CACHE_DIR : "/path/to/the/cache/Directory"
+CACHE_FILE : "/path/to/the/cache/file" # Cache file stores the path to all the images ( think of it like a database. )
+```
+
 ## Key Mappings
 
 Following Keys can be used for Mappings
