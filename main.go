@@ -1,13 +1,12 @@
 package main
 
 import (
-	"sort"
 	"strconv"
 	"time"
 
+	"github.com/aditya-K2/fuzzy"
 	"github.com/aditya-K2/goMP/cache"
 	"github.com/aditya-K2/goMP/config"
-	"github.com/aditya-K2/goMP/search"
 	"github.com/fhs/gompd/mpd"
 	"github.com/gdamore/tcell/v2"
 	"github.com/spf13/viper"
@@ -58,6 +57,7 @@ func main() {
 	Repeat, _ = strconv.ParseBool(_v["repeat"])
 
 	ARTIST_TREE, err = GenerateArtistTree()
+	ARTIST_TREE_CONTENT := ConvertToArray()
 	NOTIFICATION_SERVER = NewNotificationServer()
 	NOTIFICATION_SERVER.Start()
 
@@ -201,26 +201,14 @@ func main() {
 
 	UI.SearchBar.SetAutocompleteFunc(func(c string) []string {
 		if c != "" && c != " " && c != "  " {
-			var p search.PairList
-			for k2, v := range ARTIST_TREE {
-				p = append(p, search.Pair{Key: k2, Value: search.GetLevenshteinDistance(c, k2)})
-				for k1, v1 := range v {
-					p = append(p, search.Pair{Key: k1, Value: search.GetLevenshteinDistance(c, k1)})
-					for k := range v1 {
-						p = append(p, search.Pair{Key: k, Value: search.GetLevenshteinDistance(c, k)})
-					}
-				}
-			}
-			sort.Sort(p)
+			_, _, w, _ := UI.SearchBar.GetRect()
+			matches := fuzzy.Find(c, ARTIST_TREE_CONTENT)
 			var suggestions []string
-			i := 0
-			for _, k := range p {
+			for i, match := range matches {
 				if i == 10 {
 					break
 				}
-				_, _, w, _ := UI.SearchBar.GetRect()
-				suggestions = append(suggestions, getFormattedString(k.Key, w-2))
-				i++
+				suggestions = append(suggestions, getFormattedString(match.Str, w-2))
 			}
 			return suggestions
 		} else {

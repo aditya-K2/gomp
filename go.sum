@@ -52,6 +52,8 @@ github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym
 github.com/BurntSushi/xgbutil v0.0.0-20160919175755-f7c97cef3b4e h1:4ZrkT/RzpnROylmoQL57iVUL57wGKTR5O6KpVnbm2tA=
 github.com/BurntSushi/xgbutil v0.0.0-20160919175755-f7c97cef3b4e/go.mod h1:uw9h2sd4WWHOPdJ13MQpwK5qYWKYDumDqxWWIknEQ+k=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
+github.com/aditya-K2/fuzzy v0.1.1-0.20211128173834-d0023b66cdd4 h1:GEy4yHiudZCZyhwhP/2IWkcHCSkuUv/A4vKgktkIRYE=
+github.com/aditya-K2/fuzzy v0.1.1-0.20211128173834-d0023b66cdd4/go.mod h1:82s+GWKOo176xBYRWstoAM6Fl5jpXNuZ1syuJvRwVN8=
 github.com/aditya-K2/tview v0.0.0-20211115155623-217bcbdc952c h1:HE/P4zSd5GE7wdCicacdo5m2vZk6E7BSS5NOY00gaPM=
 github.com/aditya-K2/tview v0.0.0-20211115155623-217bcbdc952c/go.mod h1:nPfBlFYx4SBcLlONif45KWw2mvEbRgP/nNCkH/dMhIQ=
 github.com/aditya-K2/tview v0.0.0-20211115161300-6b99c2c2658c h1:UG9OxyXccanOiC83FEonB3+iLYvA3aAYgiX1N7Vurm0=
@@ -217,6 +219,7 @@ github.com/kr/pretty v0.2.0/go.mod h1:ipq/a2n7PKx3OHsz4KJII5eveXtPO4qwEXGdVfWzfn
 github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=
 github.com/kr/text v0.1.0 h1:45sCR5RtlFHMR4UwH9sdQ5TC8v0qDQCHnXt+kaKSTVE=
 github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=
+github.com/kylelemons/godebug v1.1.0/go.mod h1:9/0rRGxNHcop5bhtWyNeEfOS8JIWk580+fNqagV/RAw=
 github.com/lucasb-eyer/go-colorful v1.2.0 h1:1nnpGOrhyZZuNyfu1QjKiUICQ74+3FNCN69Aj6K7nkY=
 github.com/lucasb-eyer/go-colorful v1.2.0/go.mod h1:R4dSotOR9KMtayYi1e77YzuveK+i7ruzyGqttikkLy0=
 github.com/magiconair/properties v1.8.5 h1:b6kJs+EmPFMYGkow9GiUyCyOvIwYetYJ3fSaWak/Gls=

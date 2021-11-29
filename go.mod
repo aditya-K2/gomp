@@ -3,6 +3,7 @@ module github.com/aditya-K2/goMP
 go 1.16
 
 require (
+	github.com/aditya-K2/fuzzy v0.1.1-0.20211128173834-d0023b66cdd4 // indirect
 	github.com/aditya-K2/tview v0.0.0-20211115161300-6b99c2c2658c
 	github.com/bogem/id3v2 v1.2.0
 	github.com/fhs/gompd v1.0.1
