@@ -66,12 +66,17 @@ func (s *progressBar) updateProgress() {
 	_, _, _width, _ := s.t.GetInnerRect()
 	el, err1 := strconv.ParseFloat(_status["elapsed"], 8)
 	du, err := strconv.ParseFloat(_status["duration"], 8)
-	percentage := el / du * 100
-	if err == nil && err1 == nil {
-		s.t.SetTitle(fmt.Sprintf("[[::i] %s [-:-:-]Shuffle: %s Repeat: %s Volume: %s ]", formatString(_status["state"]), formatString(_status["random"]), formatString(_status["repeat"]), _status["volume"])).SetTitleAlign(tview.AlignRight)
-		s.t.GetCell(2, 0).Text = getText(float64(_width), percentage, strTime(el)+"/"+strTime(du)+"("+strconv.FormatFloat(percentage, 'f', 2, 32)+"%"+")")
+	if du != 0 {
+		percentage := el / du * 100
+		if err == nil && err1 == nil {
+			s.t.SetTitle(fmt.Sprintf("[[::i] %s [-:-:-]Shuffle: %s Repeat: %s Volume: %s ]", formatString(_status["state"]), formatString(_status["random"]), formatString(_status["repeat"]), _status["volume"])).SetTitleAlign(tview.AlignRight)
+			s.t.GetCell(2, 0).Text = getText(float64(_width), percentage, strTime(el)+"/"+strTime(du)+"("+strconv.FormatFloat(percentage, 'f', 2, 32)+"%"+")")
+		} else {
+			s.t.SetTitle(fmt.Sprintf("[[::i] %s [-:-:-]Shuffle: %s Repeat: %s]", formatString(_status["state"]), formatString(_status["random"]), formatString(_status["repeat"]))).SetTitleAlign(tview.AlignRight)
+			s.t.GetCell(2, 0).Text = ""
+		}
 	} else {
-		s.t.SetTitle(fmt.Sprintf("[[::i] %s [-:-:-]Shuffle: %s Repeat: %s]", formatString(_status["state"]), formatString(_status["random"]), formatString(_status["repeat"]))).SetTitleAlign(tview.AlignRight)
-		s.t.GetCell(2, 0).Text = ""
+		s.t.SetTitle(fmt.Sprintf("[[::i] %s [-:-:-]Shuffle: %s Repeat: %s Volume: %s ]", formatString(_status["state"]), formatString(_status["random"]), formatString(_status["repeat"]), _status["volume"])).SetTitleAlign(tview.AlignRight)
+		s.t.GetCell(2, 0).Text = getText(float64(_width), 0, "   ---:---")
 	}
 }
