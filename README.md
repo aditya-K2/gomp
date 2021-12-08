@@ -19,10 +19,10 @@ https://user-images.githubusercontent.com/51816057/144759799-b9eecf9e-93ad-43a7-
 - [Installing / Building](#installing--building)
 - [Configuration](#configuration)
   - [Image Rendering :](#image-rendering-)
-- [Setting Up Cache Directory and Cache File](#setting-up-cache-directory-and-cache-file)
+  - [Setting Up Cache Directory and Cache File](#setting-up-cache-directory-and-cache-file)
   - [Key Mappings](#key-mappings)
   - [Getting Album Art from LastFm API](#getting-album-art-from-lastfm-api)
-    - [Tested on following terminals:](#tested-on-following-terminals)
+- [Tested on following terminals:](#tested-on-following-terminals)
 
 # Roadmap
 
@@ -60,7 +60,7 @@ and the image is rendered at pixel positions so the exact position can't be defi
 the font width and then predicting the position but it is best that you define extra padding and own image width ratio
 in config.yml. Please Read more about it in the [sample_config](https://github.com/aditya-K2/goMP/blob/master/sample_config.yml)
 
-# Setting Up Cache Directory and Cache File
+## Setting Up Cache Directory and Cache File
 
 The Images that are extracted are cached.
 In the `config.yml` file add the following
@@ -148,7 +148,7 @@ LASTFM_AUTO_CORRECT: 1  # 0 means it is turned off
 
 ```
 
-### Tested on following terminals:
+# Tested on following terminals:
 
 - Alacritty
 - ST
