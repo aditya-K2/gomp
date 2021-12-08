@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io/ioutil"
 	"strconv"
 	"strings"
 	"syscall"
@@ -92,5 +93,18 @@ func formatString(a interface{}) string {
 		return "Stopped"
 	} else {
 		return "Paused"
+	}
+}
+
+func Copy(sourceImage, destinationImage string) error {
+	source, err := ioutil.ReadFile(sourceImage)
+	if err != nil {
+		return err
+	} else {
+		err = ioutil.WriteFile(destinationImage, source, 0644)
+		if err != nil {
+			return err
+		}
+		return nil
 	}
 }
