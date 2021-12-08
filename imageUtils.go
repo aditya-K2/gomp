@@ -65,23 +65,24 @@ func GetFlacImage(songPath, imagePath string) string {
 }
 
 func extractImageFromFile(uri string, imagePath string) string {
+	_i := imagePath
 	if strings.HasSuffix(uri, ".mp3") {
 		imagePath := GetMp3Image(uri, imagePath)
 		if imagePath == "" {
+			Copy(viper.GetString("DEFAULT_IMAGE_PATH"), _i)
 			return viper.GetString("DEFAULT_IMAGE_PATH")
-		} else {
-			return imagePath
 		}
 	} else if strings.HasSuffix(uri, ".flac") {
 		imagePath := GetFlacImage(uri, imagePath)
 		if imagePath == "" {
+			Copy(viper.GetString("DEFAULT_IMAGE_PATH"), _i)
 			return viper.GetString("DEFAULT_IMAGE_PATH")
-		} else {
-			return imagePath
 		}
 	} else {
+		Copy(viper.GetString("DEFAULT_IMAGE_PATH"), _i)
 		return viper.GetString("DEFAULT_IMAGE_PATH")
 	}
+	return imagePath
 }
 
 func getImg(uri string) (image.Image, error) {
