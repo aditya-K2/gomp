@@ -9,11 +9,13 @@ https://user-images.githubusercontent.com/51816057/142734222-c211eae5-e497-4f1a-
 # Table Of Contents
 
 - [goMP](#gomp)
+- [Table Of Contents](#table-of-contents)
 - [Roadmap](#roadmap)
 - [Setting Up](#setting-up)
 - [Installing / Building](#installing--building)
 - [Configuration](#configuration)
   - [Image Rendering :](#image-rendering-)
+- [Setting Up Cache Directory and Cache File](#setting-up-cache-directory-and-cache-file)
   - [Key Mappings](#key-mappings)
   - [Getting Album Art from LastFm API](#getting-album-art-from-lastfm-api)
     - [Tested on following terminals:](#tested-on-following-terminals)
