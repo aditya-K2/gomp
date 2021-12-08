@@ -75,10 +75,10 @@ func getImagePath(path string) string {
 	a, err := CONN.ListInfo(path)
 	var extractedImage string
 	if err == nil && len(a) != 0 {
-		if val, err := cache.GetFromCache(a[0]["artist"], a[0]["album"]); err == nil {
-			extractedImage = val
+		if cache.Exists(a[0]["artist"], a[0]["album"]) {
+			extractedImage = cache.GenerateName(a[0]["artist"], a[0]["album"])
 		} else {
-			imagePath := cache.AddToCache(a[0]["artist"], a[0]["album"])
+			imagePath := cache.GenerateName(a[0]["artist"], a[0]["album"])
 			absPath := viper.GetString("MUSIC_DIRECTORY") + path
 			extractedImage = extractImageFromFile(absPath, imagePath)
 			if extractedImage == viper.GetString("DEFAULT_IMAGE_PATH") && viper.GetString("GET_COVER_ART_FROM_LAST_FM") == "TRUE" {
@@ -88,7 +88,6 @@ func getImagePath(path string) string {
 					extractedImage = downloadedImage
 				} else {
 					NOTIFICATION_SERVER.Send("Falling Back to Default Image.")
-					cache.PointToDefault(a[0]["artist"], a[0]["album"])
 				}
 			} else {
 				NOTIFICATION_SERVER.Send("Extracted Image Successfully")
