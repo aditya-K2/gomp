@@ -119,7 +119,7 @@ Please change the configuration according to your needs.
 By Default Images are cached to avoid re-extracting images and making redundant API Calls. The Extracted Images are copied to the `CACHE_DIR` and a reference is added to the `CACHE_FILE`
 
 ```yml
-CACHE_DIR : "/path/to/the/cache/Directory"
+CACHE_DIR : "/path/to/the/cache/Directory/" # Adding the / at the end is neccessary
 CACHE_FILE : "/path/to/the/cache/file" # Cache file stores the path to all the images ( think of it like a database. )
 ```
 
