@@ -5,6 +5,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/aditya-K2/goMP/utils"
+
 	"github.com/bogem/id3v2"
 	"github.com/mewkiz/flac"
 	"github.com/mewkiz/flac/meta"
@@ -69,17 +71,17 @@ func extractImageFromFile(uri string, imagePath string) string {
 	if strings.HasSuffix(uri, ".mp3") {
 		imagePath := GetMp3Image(uri, imagePath)
 		if imagePath == "" {
-			Copy(viper.GetString("DEFAULT_IMAGE_PATH"), _i)
+			utils.Copy(viper.GetString("DEFAULT_IMAGE_PATH"), _i)
 			return viper.GetString("DEFAULT_IMAGE_PATH")
 		}
 	} else if strings.HasSuffix(uri, ".flac") {
 		imagePath := GetFlacImage(uri, imagePath)
 		if imagePath == "" {
-			Copy(viper.GetString("DEFAULT_IMAGE_PATH"), _i)
+			utils.Copy(viper.GetString("DEFAULT_IMAGE_PATH"), _i)
 			return viper.GetString("DEFAULT_IMAGE_PATH")
 		}
 	} else {
-		Copy(viper.GetString("DEFAULT_IMAGE_PATH"), _i)
+		utils.Copy(viper.GetString("DEFAULT_IMAGE_PATH"), _i)
 		return viper.GetString("DEFAULT_IMAGE_PATH")
 	}
 	return imagePath
@@ -95,7 +97,7 @@ func getImg(uri string) (image.Image, error) {
 	if err != nil {
 		return nil, err
 	}
-	fw, fh := getFontWidth()
+	fw, fh := utils.GetFontWidth()
 	img = resize.Resize(
 		uint(float32(IMG_W)*(fw+float32(viper.GetFloat64("IMAGE_WIDTH_EXTRA_X")))), uint(float32(IMG_H)*(fh+float32(viper.GetFloat64("IMAGE_WIDTH_EXTRA_Y")))),
 		img,

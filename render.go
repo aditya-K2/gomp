@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/aditya-K2/goMP/cache"
-	"github.com/aditya-K2/goMP/config"
+	"github.com/aditya-K2/goMP/utils"
 	"github.com/spf13/viper"
 	"gitlab.com/diamondburned/ueberzug-go"
 )
@@ -42,7 +42,7 @@ func (self *Renderer) Send(path string) {
 
 */
 func openImage(path string, c chan string) {
-	fw, fh := getFontWidth()
+	fw, fh := utils.GetFontWidth()
 	var im *ueberzug.Image
 	if path != "stop" {
 		extractedImage := getImagePath(path)
@@ -80,7 +80,7 @@ func getImagePath(path string) string {
 			extractedImage = cache.GenerateName(a[0]["artist"], a[0]["album"])
 		} else {
 			imagePath := cache.GenerateName(a[0]["artist"], a[0]["album"])
-			absPath := config.CheckDirectoryFmt(viper.GetString("MUSIC_DIRECTORY")) + path
+			absPath := utils.CheckDirectoryFmt(viper.GetString("MUSIC_DIRECTORY")) + path
 			extractedImage = extractImageFromFile(absPath, imagePath)
 			if extractedImage == viper.GetString("DEFAULT_IMAGE_PATH") && viper.GetString("GET_COVER_ART_FROM_LAST_FM") == "TRUE" {
 				downloadedImage, err := getImageFromLastFM(a[0]["artist"], a[0]["album"], imagePath)
