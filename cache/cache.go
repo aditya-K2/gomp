@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/aditya-K2/goMP/config"
 )
 
 var (
@@ -13,7 +15,7 @@ var (
 )
 
 func SetCacheDir(path string) {
-	CACHE_DIR = path
+	CACHE_DIR = config.CheckDirectoryFmt(path)
 }
 
 func Exists(artist, album string) bool {
