@@ -1,8 +1,12 @@
 package main
 
 import (
+	"image"
+	"os"
+
 	"github.com/aditya-K2/goMP/cache"
 	"github.com/aditya-K2/goMP/utils"
+	"github.com/nfnt/resize"
 	"github.com/spf13/viper"
 	"gitlab.com/diamondburned/ueberzug-go"
 )
@@ -46,7 +50,7 @@ func openImage(path string, c chan string) {
 	var im *ueberzug.Image
 	if path != "stop" {
 		extractedImage := getImagePath(path)
-		img2, _ := getImg(extractedImage)
+		img2, _ := GetImg(extractedImage)
 		im, _ = ueberzug.NewImage(img2, int(float32(IMG_X)*fw)+viper.GetInt("ADDITIONAL_PADDING_X"), int(float32(IMG_Y)*fh)+viper.GetInt("ADDITIONAL_PADDING_Y"))
 	}
 	d := <-c
@@ -81,7 +85,7 @@ func getImagePath(path string) string {
 		} else {
 			imagePath := cache.GenerateName(a[0]["artist"], a[0]["album"])
 			absPath := utils.CheckDirectoryFmt(viper.GetString("MUSIC_DIRECTORY")) + path
-			extractedImage = extractImageFromFile(absPath, imagePath)
+			extractedImage = utils.ExtractImageFromFile(absPath, imagePath)
 			if extractedImage == viper.GetString("DEFAULT_IMAGE_PATH") && viper.GetString("GET_COVER_ART_FROM_LAST_FM") == "TRUE" {
 				downloadedImage, err := getImageFromLastFM(a[0]["artist"], a[0]["album"], imagePath)
 				if err == nil {
@@ -96,4 +100,23 @@ func getImagePath(path string) string {
 		}
 	}
 	return extractedImage
+}
+
+func GetImg(uri string) (image.Image, error) {
+	f, err := os.Open(uri)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	img, _, err := image.Decode(f)
+	if err != nil {
+		return nil, err
+	}
+	fw, fh := utils.GetFontWidth()
+	img = resize.Resize(
+		uint(float32(IMG_W)*(fw+float32(viper.GetFloat64("IMAGE_WIDTH_EXTRA_X")))), uint(float32(IMG_H)*(fh+float32(viper.GetFloat64("IMAGE_WIDTH_EXTRA_Y")))),
+		img,
+		resize.Bilinear,
+	)
+	return img, nil
 }
