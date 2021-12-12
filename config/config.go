@@ -17,10 +17,10 @@ var (
 		"ADDITIONAL_PADDING_Y": 16,
 		"IMAGE_WIDTH_EXTRA_X":  -1.5,
 		"IMAGE_WIDTH_EXTRA_Y":  -3.75,
-		"MUSIC_DIRECTORY":      getMusicDirectory() + "/",
+		"MUSIC_DIRECTORY":      CheckDirectoryFmt(getMusicDirectory()),
 		"PORT":                 "6600",
 		"DEFAULT_IMAGE_PATH":   "default.jpg",
-		"CACHE_DIR":            USER_CACHE_DIR + "/",
+		"CACHE_DIR":            CheckDirectoryFmt(USER_CACHE_DIR),
 	}
 )
 
@@ -72,4 +72,12 @@ func getMusicDirectory() string {
 		}
 	}
 	return ""
+}
+
+func CheckDirectoryFmt(path string) string {
+	if strings.HasSuffix(path, "/") {
+		return path
+	} else {
+		return path + "/"
+	}
 }
