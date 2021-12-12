@@ -46,7 +46,7 @@ the `music_directory` option ( It is to be noted that goMP assumes that your mpd
 `$HOME/.config/mpd/mpd.conf`
 
 ```yml
-MUSIC_DIRECTORY : "~/Music" # Adding the / at the end is neccessary
+MUSIC_DIRECTORY : "~/Music"
 ```
 
 The reason why you need to setup `MUSIC_DIRECTORY` manually because the paths to the songs received from mpd are relative the `MUSIC_DIRECTORY`.
@@ -119,7 +119,7 @@ Please change the configuration according to your needs.
 By Default Images are cached to avoid re-extracting images and making redundant API Calls. The Extracted Images are copied to the `CACHE_DIR` and a reference is added to the `CACHE_FILE`
 
 ```yml
-CACHE_DIR : "/path/to/the/cache/Directory/" # Adding the / at the end is neccessary
+CACHE_DIR : "/path/to/the/cache/Directory/"
 CACHE_FILE : "/path/to/the/cache/file" # Cache file stores the path to all the images ( think of it like a database. )
 ```
 
