@@ -19,4 +19,4 @@ https://user-images.githubusercontent.com/51816057/144759799-b9eecf9e-93ad-43a7-
 
 # Setting Up
 
-Read how to setup goMP in the Setting-Up Guide [here](https://github.com/aditya-K2/goMP/blob/master/docs/settingup.md)
+Read how to setup goMP in the Setting-Up Guide [here](https://github.com/aditya-K2/goMP/blob/master/docs/index.md)
