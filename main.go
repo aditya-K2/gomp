@@ -4,6 +4,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/aditya-K2/goMP/utils"
+
 	"github.com/aditya-K2/fuzzy"
 	"github.com/aditya-K2/goMP/cache"
 	"github.com/aditya-K2/goMP/config"
@@ -34,8 +36,6 @@ func main() {
 	}
 	defer CONN.Close()
 	cache.SetCacheDir(viper.GetString("CACHE_DIR"))
-	cache.SetDefaultPath(viper.GetString("DEFAULT_IMAGE_PATH"))
-	cache.LoadCache(viper.GetString("CACHE_FILE"))
 	r := newRenderer()
 	c, _ := CONN.CurrentSong()
 	if len(c) != 0 {
@@ -57,7 +57,7 @@ func main() {
 	Repeat, _ = strconv.ParseBool(_v["repeat"])
 
 	ARTIST_TREE, err = GenerateArtistTree()
-	ARTIST_TREE_CONTENT := ConvertToArray()
+	ARTIST_TREE_CONTENT := utils.ConvertToArray(ARTIST_TREE)
 	NOTIFICATION_SERVER = NewNotificationServer()
 	NOTIFICATION_SERVER.Start()
 
@@ -208,7 +208,7 @@ func main() {
 				if i == 10 {
 					break
 				}
-				suggestions = append(suggestions, getFormattedString(match.Str, w-2))
+				suggestions = append(suggestions, utils.GetFormattedString(match.Str, w-2))
 			}
 			return suggestions
 		} else {
@@ -256,5 +256,4 @@ func main() {
 	if err := UI.App.Run(); err != nil {
 		panic(err)
 	}
-	cache.WriteCache(viper.GetString("CACHE_FILE"))
 }

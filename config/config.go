@@ -6,20 +6,22 @@ import (
 	"os"
 	"strings"
 
+	"github.com/aditya-K2/goMP/utils"
 	"github.com/spf13/viper"
 )
 
 var (
-	HOME_DIR, _ = os.UserHomeDir()
-	defaults    = map[string]interface{}{
+	HOME_DIR, _       = os.UserHomeDir()
+	USER_CACHE_DIR, _ = os.UserCacheDir()
+	defaults          = map[string]interface{}{
 		"ADDITIONAL_PADDING_X": 12,
 		"ADDITIONAL_PADDING_Y": 16,
 		"IMAGE_WIDTH_EXTRA_X":  -1.5,
 		"IMAGE_WIDTH_EXTRA_Y":  -3.75,
-		"MUSIC_DIRECTORY":      getMusicDirectory() + "/",
+		"MUSIC_DIRECTORY":      utils.CheckDirectoryFmt(getMusicDirectory()),
 		"PORT":                 "6600",
 		"DEFAULT_IMAGE_PATH":   "default.jpg",
-		"COVER_IMAGE_PATH":     "cover.jpg",
+		"CACHE_DIR":            utils.CheckDirectoryFmt(USER_CACHE_DIR),
 	}
 )
 

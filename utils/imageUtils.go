@@ -1,14 +1,12 @@
-package main
+package utils
 
 import (
-	"image"
 	"os"
 	"strings"
 
 	"github.com/bogem/id3v2"
 	"github.com/mewkiz/flac"
 	"github.com/mewkiz/flac/meta"
-	"github.com/nfnt/resize"
 	"github.com/spf13/viper"
 )
 
@@ -64,41 +62,23 @@ func GetFlacImage(songPath, imagePath string) string {
 	return ""
 }
 
-func extractImageFromFile(uri string, imagePath string) string {
+func ExtractImageFromFile(uri string, imagePath string) string {
+	_i := imagePath
 	if strings.HasSuffix(uri, ".mp3") {
 		imagePath := GetMp3Image(uri, imagePath)
 		if imagePath == "" {
+			Copy(viper.GetString("DEFAULT_IMAGE_PATH"), _i)
 			return viper.GetString("DEFAULT_IMAGE_PATH")
-		} else {
-			return imagePath
 		}
 	} else if strings.HasSuffix(uri, ".flac") {
 		imagePath := GetFlacImage(uri, imagePath)
 		if imagePath == "" {
+			Copy(viper.GetString("DEFAULT_IMAGE_PATH"), _i)
 			return viper.GetString("DEFAULT_IMAGE_PATH")
-		} else {
-			return imagePath
 		}
 	} else {
+		Copy(viper.GetString("DEFAULT_IMAGE_PATH"), _i)
 		return viper.GetString("DEFAULT_IMAGE_PATH")
 	}
-}
-
-func getImg(uri string) (image.Image, error) {
-	f, err := os.Open(uri)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-	img, _, err := image.Decode(f)
-	if err != nil {
-		return nil, err
-	}
-	fw, fh := getFontWidth()
-	img = resize.Resize(
-		uint(float32(IMG_W)*(fw+float32(viper.GetFloat64("IMAGE_WIDTH_EXTRA_X")))), uint(float32(IMG_H)*(fh+float32(viper.GetFloat64("IMAGE_WIDTH_EXTRA_Y")))),
-		img,
-		resize.Bilinear,
-	)
-	return img, nil
+	return imagePath
 }

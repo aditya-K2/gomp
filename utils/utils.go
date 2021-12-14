@@ -1,6 +1,7 @@
-package main
+package utils
 
 import (
+	"io/ioutil"
 	"strconv"
 	"strings"
 	"syscall"
@@ -14,7 +15,7 @@ type winsize struct {
 	Ypixel uint16
 }
 
-func getWidth() *winsize {
+func GetWidth() *winsize {
 	ws := &winsize{}
 	retCode, _, errno := syscall.Syscall(syscall.SYS_IOCTL,
 		uintptr(syscall.Stdin),
@@ -27,14 +28,14 @@ func getWidth() *winsize {
 	return ws
 }
 
-func getFontWidth() (float32, float32) {
-	g := getWidth()
+func GetFontWidth() (float32, float32) {
+	g := GetWidth()
 	fw := (float32(g.Xpixel) / float32(g.Col))
 	fh := (float32(g.Ypixel) / float32(g.Row))
 	return fw, fh
 }
 
-func strTime(e float64) string {
+func StrTime(e float64) string {
 	a := int(e)
 	var min, seconds string
 	if a/60 < 10 {
@@ -52,24 +53,24 @@ func strTime(e float64) string {
 	return min + ":" + seconds
 }
 
-func insertAt(inputString, stringTobeInserted string, index int) string {
+func InsertAt(inputString, stringTobeInserted string, index int) string {
 	s := inputString[:index] + stringTobeInserted + inputString[index:]
 	return s
 }
 
-func getText(width, percentage float64, eta string) string {
+func GetText(width, percentage float64, eta string) string {
 	q := "[#000000:#ffffff:b]"
 	var a string
 	a += strings.Repeat(" ", int(width)-len(eta))
-	a = insertAt(a, eta, int(width/2)-10)
-	a = insertAt(a, "[-:-:-]", int(width*percentage/100))
+	a = InsertAt(a, eta, int(width/2)-10)
+	a = InsertAt(a, "[-:-:-]", int(width*percentage/100))
 	q += a
 	return q
 }
 
-func ConvertToArray() []string {
+func ConvertToArray(ArtistTree map[string]map[string]map[string]string) []string {
 	var p []string
-	for k2, v := range ARTIST_TREE {
+	for k2, v := range ArtistTree {
 		p = append(p, k2)
 		for k1, v1 := range v {
 			p = append(p, k1)
@@ -81,7 +82,7 @@ func ConvertToArray() []string {
 	return p
 }
 
-func formatString(a interface{}) string {
+func FormatString(a interface{}) string {
 	if a == "play" {
 		return "Playing"
 	} else if a == "1" {
@@ -92,5 +93,46 @@ func formatString(a interface{}) string {
 		return "Stopped"
 	} else {
 		return "Paused"
+	}
+}
+
+func Copy(sourceImage, destinationImage string) error {
+	source, err := ioutil.ReadFile(sourceImage)
+	if err != nil {
+		return err
+	} else {
+		err = ioutil.WriteFile(destinationImage, source, 0644)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+}
+
+func Join(stringSlice []string) string {
+	var _s string = stringSlice[0]
+	for i := 1; i < len(stringSlice); i++ {
+		if _s != "" {
+			_s += ("/" + stringSlice[i])
+		}
+	}
+	return _s
+}
+
+func GetFormattedString(s string, width int) string {
+	if len(s) < width {
+		s += strings.Repeat(" ", (width - len(s)))
+	} else {
+		s = s[:(width - 2)]
+		s += "  "
+	}
+	return s
+}
+
+func CheckDirectoryFmt(path string) string {
+	if strings.HasSuffix(path, "/") {
+		return path
+	} else {
+		return path + "/"
 	}
 }

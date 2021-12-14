@@ -3,6 +3,8 @@ package main
 import (
 	"time"
 
+	"github.com/aditya-K2/goMP/utils"
+
 	"github.com/aditya-K2/tview"
 	"github.com/gdamore/tcell/v2"
 )
@@ -23,7 +25,7 @@ func NewNotification(s string) *Notification {
 
 /* Draw Function for the Notification Primitive */
 func (self *Notification) Draw(screen tcell.Screen) {
-	termDetails := getWidth()
+	termDetails := utils.GetWidth()
 
 	var (
 		COL          int = int(termDetails.Col)

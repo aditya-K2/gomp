@@ -5,22 +5,13 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/aditya-K2/goMP/utils"
 	"github.com/aditya-K2/tview"
 )
 
 var (
 	WHITE_AND_BOLD string = "[#ffffff::b]"
 )
-
-func getFormattedString(s string, width int) string {
-	if len(s) < width {
-		s += strings.Repeat(" ", (width - len(s)))
-	} else {
-		s = s[:(width - 2)]
-		s += "  "
-	}
-	return s
-}
 
 func togglePlayBack() error {
 	status, err := CONN.Status()
@@ -39,10 +30,10 @@ func UpdatePlaylist(inputTable *tview.Table) {
 	for i, j := range _playlistAttr {
 		_, _, w, _ := inputTable.GetInnerRect()
 		if j["Title"] == "" || j["Artist"] == "" || j["Album"] == "" {
-			inputTable.SetCell(i, 0, tview.NewTableCell(getFormattedString(j["file"], w/3)))
+			inputTable.SetCell(i, 0, tview.NewTableCell(utils.GetFormattedString(j["file"], w/3)))
 		} else {
-			inputTable.SetCell(i, 0, tview.NewTableCell(getFormattedString("[green]"+j["Title"], w/3)))
-			inputTable.SetCell(i, 1, tview.NewTableCell(getFormattedString("[magenta]"+j["Artist"], w/3)))
+			inputTable.SetCell(i, 0, tview.NewTableCell(utils.GetFormattedString("[green]"+j["Title"], w/3)))
+			inputTable.SetCell(i, 1, tview.NewTableCell(utils.GetFormattedString("[magenta]"+j["Artist"], w/3)))
 			inputTable.SetCell(i, 2, tview.NewTableCell("[yellow]"+j["Album"]))
 		}
 	}
@@ -106,14 +97,14 @@ func UpdateSearchView(inputTable *tview.Table, c []interface{}) {
 		switch content.(type) {
 		case [3]string:
 			{
-				inputTable.SetCell(i, 0, tview.NewTableCell(getFormattedString("[green]"+content.([3]string)[0], width/3)))
-				inputTable.SetCell(i, 1, tview.NewTableCell(getFormattedString("[magenta]"+content.([3]string)[1], width/3)))
-				inputTable.SetCell(i, 2, tview.NewTableCell(getFormattedString("[yellow]"+content.([3]string)[2], width/3)))
+				inputTable.SetCell(i, 0, tview.NewTableCell(utils.GetFormattedString("[green]"+content.([3]string)[0], width/3)))
+				inputTable.SetCell(i, 1, tview.NewTableCell(utils.GetFormattedString("[magenta]"+content.([3]string)[1], width/3)))
+				inputTable.SetCell(i, 2, tview.NewTableCell(utils.GetFormattedString("[yellow]"+content.([3]string)[2], width/3)))
 			}
 		case [2]string:
 			{
-				inputTable.SetCell(i, 0, tview.NewTableCell(getFormattedString("[green]"+content.([2]string)[0], width/3)))
-				inputTable.SetCell(i, 1, tview.NewTableCell(getFormattedString("[magenta]"+content.([2]string)[1], width/3)))
+				inputTable.SetCell(i, 0, tview.NewTableCell(utils.GetFormattedString("[green]"+content.([2]string)[0], width/3)))
+				inputTable.SetCell(i, 1, tview.NewTableCell(utils.GetFormattedString("[magenta]"+content.([2]string)[1], width/3)))
 			}
 		case string:
 			{
@@ -128,16 +119,6 @@ func UpdateSearchView(inputTable *tview.Table, c []interface{}) {
 	}
 }
 
-func join(stringSlice []string) string {
-	var _s string = stringSlice[0]
-	for i := 1; i < len(stringSlice); i++ {
-		if _s != "" {
-			_s += ("/" + stringSlice[i])
-		}
-	}
-	return _s
-}
-
 func Update(f []FileNode, inputTable *tview.Table) {
 	inputTable.Clear()
 	for i, j := range f {
@@ -146,11 +127,11 @@ func Update(f []FileNode, inputTable *tview.Table) {
 			if err == nil && _songAttributes[0]["Title"] != "" {
 				_, _, w, _ := inputTable.GetInnerRect()
 				inputTable.SetCell(i, 0,
-					tview.NewTableCell("[green]"+getFormattedString(_songAttributes[0]["Title"], w/3)).
+					tview.NewTableCell("[green]"+utils.GetFormattedString(_songAttributes[0]["Title"], w/3)).
 						SetAlign(tview.AlignLeft))
 
 				inputTable.SetCell(i, 1,
-					tview.NewTableCell("[magenta]"+getFormattedString(_songAttributes[0]["Artist"], w/3)).
+					tview.NewTableCell("[magenta]"+utils.GetFormattedString(_songAttributes[0]["Artist"], w/3)).
 						SetAlign(tview.AlignLeft))
 
 				inputTable.SetCell(i, 2,

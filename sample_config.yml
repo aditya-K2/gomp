@@ -76,7 +76,7 @@ togglePlayBack : [ "p", "SPACE", "]" ] # using the quotes is neccessary.
 # 3. Fallback to the default image.
 #
 #
-CACHE_DIR : "/path/to/the/cache/Directory" # for e.g "~/.config/goMP/cache/" Please Note that adding a / at the end is neccessary.
+CACHE_DIR : "/path/to/the/cache/Directory" # for e.g "~/.config/goMP/cache/"
   # You will have to manually create this directory.
 CACHE_FILE : "/path/to/the/cache/file" # Cache file stores the path to all the images ( think of it like a database. )
   # Soon will be deprecated.
