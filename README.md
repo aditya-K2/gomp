@@ -17,6 +17,6 @@ https://user-images.githubusercontent.com/51816057/144759799-b9eecf9e-93ad-43a7-
 - [x] Fuzzy Searching
 - [ ] Visual Mode (like vim) for updating playlists
 
-# Setting Up
+# Documentation
 
-Read how to setup goMP in the Setting-Up Guide [here](https://github.com/aditya-K2/goMP/blob/master/docs/settingup.md)
+The Documentation is hosted [here](https://aditya-K2.github.io/goMP/)
