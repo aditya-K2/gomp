@@ -30,6 +30,11 @@ func newApplication(r *Renderer) *Application {
 		return imagePreviewer.GetInnerRect()
 	})
 
+	expandedView.SetBackgroundColor(tcell.ColorDefault)
+	Navbar.SetBackgroundColor(tcell.ColorDefault)
+	searchBar.SetBackgroundColor(tcell.ColorDefault)
+	imagePreviewer.SetBackgroundColor(tcell.ColorDefault)
+
 	searchBar.SetTitle("Search").SetTitleAlign(tview.AlignLeft)
 	searchBar.SetAutocompleteBackgroundColor(tcell.GetColor("#15191a"))
 	searchBar.SetAutocompleteSelectBackgroundColor(tcell.GetColor("#e5e5e5"))

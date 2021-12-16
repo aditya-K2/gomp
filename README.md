@@ -1,4 +1,4 @@
-# goMP
+# gomp
 
 ![](https://img.shields.io/badge/status-alpha-red)
 
@@ -19,4 +19,4 @@ https://user-images.githubusercontent.com/51816057/144759799-b9eecf9e-93ad-43a7-
 
 # Documentation
 
-The Documentation is hosted [here](https://aditya-K2.github.io/goMP/)
+The Documentation is hosted [here](https://aditya-K2.github.io/gomp/)

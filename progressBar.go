@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/aditya-K2/goMP/utils"
+	"github.com/aditya-K2/gomp/utils"
 
 	"github.com/aditya-K2/tview"
 	"github.com/gdamore/tcell/v2"
@@ -34,6 +34,7 @@ func newProgressBar(r *Renderer) *progressBar {
 		SetCell(1, 0, tview.NewTableCell("")).
 		SetCell(2, 0, tview.NewTableCell(""))
 
+	a.SetBackgroundColor(tcell.ColorDefault)
 	a.SetBorder(true)
 
 	a.SetDrawFunc(func(s tcell.Screen, x, y, width, height int) (int, int, int, int) {

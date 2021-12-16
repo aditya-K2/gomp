@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/aditya-K2/goMP/utils"
+	"github.com/aditya-K2/gomp/utils"
 	"github.com/spf13/viper"
 )
 

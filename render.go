@@ -4,8 +4,8 @@ import (
 	"image"
 	"os"
 
-	"github.com/aditya-K2/goMP/cache"
-	"github.com/aditya-K2/goMP/utils"
+	"github.com/aditya-K2/gomp/cache"
+	"github.com/aditya-K2/gomp/utils"
 	"github.com/nfnt/resize"
 	"github.com/spf13/viper"
 	"gitlab.com/diamondburned/ueberzug-go"

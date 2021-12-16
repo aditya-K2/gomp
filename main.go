@@ -4,11 +4,11 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/aditya-K2/goMP/utils"
+	"github.com/aditya-K2/gomp/utils"
 
 	"github.com/aditya-K2/fuzzy"
-	"github.com/aditya-K2/goMP/cache"
-	"github.com/aditya-K2/goMP/config"
+	"github.com/aditya-K2/gomp/cache"
+	"github.com/aditya-K2/gomp/config"
 	"github.com/fhs/gompd/mpd"
 	"github.com/gdamore/tcell/v2"
 	"github.com/spf13/viper"

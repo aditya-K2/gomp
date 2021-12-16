@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/aditya-K2/goMP/utils"
+	"github.com/aditya-K2/gomp/utils"
 	"github.com/aditya-K2/tview"
 )
 

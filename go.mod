@@ -1,4 +1,4 @@
-module github.com/aditya-K2/goMP
+module github.com/aditya-K2/gomp
 
 go 1.16
 

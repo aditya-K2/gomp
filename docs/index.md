@@ -14,19 +14,19 @@
 
 - Music Player Daemon must be setup and Running
 - Go Should Be Installed ( For Building )
-- After Reading this it is highly recommended to read the [sample_config](https://github.com/aditya-K2/goMP/blob/master/sample_config.yml)
+- After Reading this it is highly recommended to read the [sample_config](https://github.com/aditya-K2/gomp/blob/master/sample_config.yml)
 
 # Installing / Building
 
 ```bash
-git clone https://github.com/aditya-K2/goMP &&
-cd goMP &&
+git clone https://github.com/aditya-K2/gomp &&
+cd gomp &&
 go build
 ```
 
 # Configuration
 
-Configuration of goMP is done through a `config.yml` file in `$HOME/config/goMP/`
+Configuration of gomp is done through a `config.yml` file in `$HOME/config/gomp/`
 
 It is essential to have some config options defined in order to have a smooth experience.
 
@@ -41,8 +41,8 @@ MPD_PORT : "6600"
 ## Music Directory
 
 The Most Essential config option is `MUSIC_DIRECTORY` It is the path to your Music Folder that you have provided to mpd
-in the `mpd.conf` file. If you do not provide the path to the `MUSIC_DIRECTORY` then goMP parses the mpd.conf file for
-the `music_directory` option ( It is to be noted that goMP assumes that your mpd.conf file is at
+in the `mpd.conf` file. If you do not provide the path to the `MUSIC_DIRECTORY` then gomp parses the mpd.conf file for
+the `music_directory` option ( It is to be noted that gomp assumes that your mpd.conf file is at
 `$HOME/.config/mpd/mpd.conf`
 
 ```yml
@@ -53,7 +53,7 @@ The reason why you need to setup `MUSIC_DIRECTORY` manually because the paths to
 
 ## Default Image Path
 
-This is the Fallback Image that will be rendered if goMP doesn't find the embedded cover art or LastFM Cover Art.
+This is the Fallback Image that will be rendered if gomp doesn't find the embedded cover art or LastFM Cover Art.
 
 ```yml
 DEFAULT_IMAGE_PATH : "/path/to/default/image"
@@ -67,7 +67,7 @@ The Default Position of the Image without any configuration assumes that you hav
 be rendered at different places in different terminals, Also the TUIs calculates positions with the according to rows and columns
 and the image is rendered at pixel positions so the exact position can't be defined [ the app tries its best by calculating
 the font width and then predicting the position but it is best that you define some extra padding and your own image width ratio
-in config.yml. Please Read more about it in the [sample_config](https://github.com/aditya-K2/goMP/blob/master/sample_config.yml)
+in config.yml. Please Read more about it in the [sample_config](https://github.com/aditya-K2/gomp/blob/master/sample_config.yml)
 
 for e.g
 
@@ -81,7 +81,7 @@ IMAGE_WIDTH_EXTRA_Y  : -2.6
 ```
 ![Cover Art Position](./assets/default.png)
 
-Let's say upon opening goMP for the first time and your image is rendered this way.
+Let's say upon opening gomp for the first time and your image is rendered this way.
 
 Here the `Y` Position is too low hence we have to decrease the `ADDITIONAL_PADDING_Y` so that image will be rendered
 in a better position so we decrement the  `ADDITIONAL_PADDING_Y` by `9`
@@ -110,7 +110,7 @@ and the image appears like this:
 
 Which looks perfect. 🎉
 
-Read More about Additional Padding and Image Width in the [sample_config](https://github.com/aditya-K2/goMP/blob/master/sample_config.yml)
+Read More about Additional Padding and Image Width in the [sample_config](https://github.com/aditya-K2/gomp/blob/master/sample_config.yml)
 
 Please change the configuration according to your needs.
 
@@ -122,7 +122,7 @@ By Default Images are cached to avoid re-extracting images and making redundant 
 CACHE_DIR : "/path/to/the/cache/Directory/"
 ```
 
-Read More about Caching in the [sample_config](https://github.com/aditya-K2/goMP/blob/master/sample_config.yml)
+Read More about Caching in the [sample_config](https://github.com/aditya-K2/gomp/blob/master/sample_config.yml)
 
 ## Key Mappings
 
