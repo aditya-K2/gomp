@@ -6,6 +6,14 @@
 
 https://user-images.githubusercontent.com/51816057/144759799-b9eecf9e-93ad-43a7-a076-0ae47f03d03c.mp4
 
+## Table of Contents
+
+* [Roadmap](#roadmap)
+* [Installing / Building](#installing--building)
+	* [AUR Package](#aur-package)
+	* [Manually](#manually)
+* [Documentation](#documentation)
+
 # Roadmap
 
 
@@ -17,6 +25,23 @@ https://user-images.githubusercontent.com/51816057/144759799-b9eecf9e-93ad-43a7-
 - [x] Fuzzy Searching
 - [ ] Visual Mode (like vim) for updating playlists
 
+# Installing / Building
+
+## AUR Package
+
+```bash
+yay -S gomp-git
+```
+
+## Manually
+
+```bash
+git clone https://github.com/aditya-K2/gomp &&
+cd gomp &&
+go build
+```
+
 # Documentation
 
 The Documentation is hosted [here](https://aditya-K2.github.io/gomp/)
+

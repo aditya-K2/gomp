@@ -1,3 +1,5 @@
+## Table Of Contents
+
 * [Prerequisites](#prerequisites)
 * [Installing / Building](#installing--building)
 * [Configuration](#configuration)
@@ -15,14 +17,6 @@
 - Music Player Daemon must be setup and Running
 - Go Should Be Installed ( For Building )
 - After Reading this it is highly recommended to read the [sample_config](https://github.com/aditya-K2/gomp/blob/master/sample_config.yml)
-
-# Installing / Building
-
-```bash
-git clone https://github.com/aditya-K2/gomp &&
-cd gomp &&
-go build
-```
 
 # Configuration
 
