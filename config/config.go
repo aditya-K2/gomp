@@ -30,7 +30,7 @@ func ReadConfig() {
 		viper.SetDefault(k, v)
 	}
 	viper.SetConfigName("config")
-	viper.AddConfigPath(HOME_DIR + "/.config/goMP")
+	viper.AddConfigPath(HOME_DIR + "/.config/gomp")
 	err := viper.ReadInConfig()
 	if err != nil {
 		fmt.Println("Could Not Read Config file.")
