@@ -1,8 +1,8 @@
 # gomp
 
-![](https://img.shields.io/badge/status-alpha-red)
+![](https://img.shields.io/badge/status-beta-yellow) &nbsp;&nbsp;  [<img src="https://img.shields.io/aur/version/gomp-git">](https://aur.archlinux.org/packages/gomp-git/)
 
- MPD client inspired by ncmpcpp written in GO
+ MPD client inspired by ncmpcpp with builtin cover-art view and LastFM integration.
 
 https://user-images.githubusercontent.com/51816057/144759799-b9eecf9e-93ad-43a7-a076-0ae47f03d03c.mp4
 
