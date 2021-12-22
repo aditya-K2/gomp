@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/aditya-K2/gomp/ui"
 	"image"
 	"os"
 
@@ -51,7 +52,7 @@ func openImage(path string, c chan string) {
 	if path != "stop" {
 		extractedImage := getImagePath(path)
 		img2, _ := GetImg(extractedImage)
-		im, _ = ueberzug.NewImage(img2, int(float32(IMG_X)*fw)+viper.GetInt("ADDITIONAL_PADDING_X"), int(float32(IMG_Y)*fh)+viper.GetInt("ADDITIONAL_PADDING_Y"))
+		im, _ = ueberzug.NewImage(img2, int(float32(ui.IMG_X)*fw)+viper.GetInt("ADDITIONAL_PADDING_X"), int(float32(ui.IMG_Y)*fh)+viper.GetInt("ADDITIONAL_PADDING_Y"))
 	}
 	d := <-c
 	if im != nil {
@@ -114,7 +115,7 @@ func GetImg(uri string) (image.Image, error) {
 	}
 	fw, fh := utils.GetFontWidth()
 	img = resize.Resize(
-		uint(float32(IMG_W)*(fw+float32(viper.GetFloat64("IMAGE_WIDTH_EXTRA_X")))), uint(float32(IMG_H)*(fh+float32(viper.GetFloat64("IMAGE_WIDTH_EXTRA_Y")))),
+		uint(float32(ui.IMG_W)*(fw+float32(viper.GetFloat64("IMAGE_WIDTH_EXTRA_X")))), uint(float32(ui.IMG_H)*(fh+float32(viper.GetFloat64("IMAGE_WIDTH_EXTRA_Y")))),
 		img,
 		resize.Bilinear,
 	)

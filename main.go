@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/aditya-K2/gomp/ui"
 	"strconv"
 	"time"
 
@@ -17,7 +18,7 @@ import (
 
 var (
 	CONN                *mpd.Client
-	UI                  *Application
+	UI                  *ui.Application
 	NOTIFICATION_SERVER *NotificationServer
 	RENDERER            *Renderer
 	Volume              int64
@@ -39,6 +40,7 @@ func main() {
 	defer CONN.Close()
 	cache.SetCacheDir(viper.GetString("CACHE_DIR"))
 	RENDERER = newRenderer()
+	ui.SetRenderer(RENDERER)
 	c, _ := CONN.CurrentSong()
 	if len(c) != 0 {
 		RENDERER.Start(c["file"])
@@ -46,12 +48,13 @@ func main() {
 		RENDERER.Start("stop")
 	}
 
-	UI = newApplication()
+	UI = ui.NewApplication()
 
 	fileMap, err := CONN.GetFiles()
 	dirTree := client.GenerateDirectoryTree(fileMap)
 
 	client.SetConnection(CONN)
+	ui.SetConnection(CONN)
 	client.UpdatePlaylist(UI.ExpandedView)
 
 	_v, _ := CONN.Status()

@@ -1,7 +1,8 @@
-package main
+package ui
 
 import (
 	"fmt"
+	"github.com/fhs/gompd/mpd"
 	"strconv"
 
 	"github.com/aditya-K2/gomp/utils"
@@ -10,7 +11,19 @@ import (
 	"github.com/gdamore/tcell/v2"
 )
 
-var CurrentSong string
+var (
+	CurrentSong string
+	CONN        *mpd.Client
+	RENDERER    interface{ Send(string) }
+)
+
+func SetConnection(c *mpd.Client) {
+	CONN = c
+}
+
+func SetRenderer(r interface{ Send(string) }) {
+	RENDERER = r
+}
 
 // The progressBar is just a string which is separated by the color formatting String
 // for e.g

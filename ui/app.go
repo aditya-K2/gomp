@@ -1,4 +1,4 @@
-package main
+package ui
 
 import (
 	"github.com/aditya-K2/tview"
@@ -16,7 +16,7 @@ type Application struct {
 	Pages        *tview.Pages
 }
 
-func newApplication() *Application {
+func NewApplication() *Application {
 
 	var pBar *progressBar = newProgressBar()
 	expandedView := tview.NewTable()
@@ -60,7 +60,7 @@ func newApplication() *Application {
 		AddItem(searchBar, 3, 1, false).
 		AddItem(sNavExpViewFlex, 0, 1, false)
 
-	mainFlex := tview.NewFlex().SetDirection(tview.FlexRow).
+	lex := tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(searchBarFlex, 0, 8, false).
 		AddItem(pBar.t, 5, 1, false)
 
@@ -68,7 +68,7 @@ func newApplication() *Application {
 	expandedView.SetSelectable(true, false)
 
 	rootPages := tview.NewPages()
-	rootPages.AddPage("Main", mainFlex, true, true)
+	rootPages.AddPage("Main", lex, true, true)
 
 	App := tview.NewApplication()
 	App.SetRoot(rootPages, true).SetFocus(expandedView)
