@@ -1,9 +1,11 @@
 package main
 
 import (
-	"github.com/aditya-K2/gomp/ui"
 	"strconv"
 	"time"
+
+	"github.com/aditya-K2/gomp/render"
+	"github.com/aditya-K2/gomp/ui"
 
 	"github.com/aditya-K2/gomp/client"
 	"github.com/aditya-K2/gomp/utils"
@@ -19,8 +21,8 @@ import (
 var (
 	CONN             *mpd.Client
 	UI               *ui.Application
-	Notify           *NotificationServer
-	RENDERER         *Renderer
+	Notify           *ui.NotificationServer
+	RENDERER         *render.Renderer
 	Volume           int64
 	Random           bool
 	Repeat           bool
@@ -38,8 +40,13 @@ func main() {
 		panic(mpdConnectionError)
 	}
 	defer CONN.Close()
+
+	client.SetConnection(CONN)
+	ui.SetConnection(CONN)
+	render.SetConnection(CONN)
+
 	cache.SetCacheDir(viper.GetString("CACHE_DIR"))
-	RENDERER = newRenderer()
+	RENDERER = render.NewRenderer()
 	ui.SetRenderer(RENDERER)
 	c, _ := CONN.CurrentSong()
 	if len(c) != 0 {
@@ -49,12 +56,11 @@ func main() {
 	}
 
 	UI = ui.NewApplication()
+	ui.ConnectUI(UI)
 
 	fileMap, err := CONN.GetFiles()
 	dirTree := client.GenerateDirectoryTree(fileMap)
 
-	client.SetConnection(CONN)
-	ui.SetConnection(CONN)
 	client.UpdatePlaylist(UI.ExpandedView)
 
 	_v, _ := CONN.Status()
@@ -64,9 +70,10 @@ func main() {
 
 	ArtistTree, err = client.GenerateArtistTree()
 	ArtistTreeContent := utils.ConvertToArray(ArtistTree)
-	Notify = NewNotificationServer()
+	Notify = ui.NewNotificationServer()
 	Notify.Start()
 	client.SetNotificationServer(Notify)
+	render.SetNotificationServer(Notify)
 
 	var SearchContentSlice []interface{}
 
