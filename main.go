@@ -17,16 +17,16 @@ import (
 )
 
 var (
-	CONN                *mpd.Client
-	UI                  *ui.Application
-	NOTIFICATION_SERVER *NotificationServer
-	RENDERER            *Renderer
-	Volume              int64
-	Random              bool
-	Repeat              bool
-	InsidePlaylist      bool = true
-	InsideSearchView    bool = false
-	ARTIST_TREE         map[string]map[string]map[string]string
+	CONN             *mpd.Client
+	UI               *ui.Application
+	Notify           *NotificationServer
+	RENDERER         *Renderer
+	Volume           int64
+	Random           bool
+	Repeat           bool
+	InsidePlaylist   = true
+	InsideSearchView = false
+	ArtistTree       map[string]map[string]map[string]string
 )
 
 func main() {
@@ -62,26 +62,26 @@ func main() {
 	Random, _ = strconv.ParseBool(_v["random"])
 	Repeat, _ = strconv.ParseBool(_v["repeat"])
 
-	ARTIST_TREE, err = client.GenerateArtistTree()
-	ARTIST_TREE_CONTENT := utils.ConvertToArray(ARTIST_TREE)
-	NOTIFICATION_SERVER = NewNotificationServer()
-	NOTIFICATION_SERVER.Start()
-	client.SetNotificationServer(NOTIFICATION_SERVER)
+	ArtistTree, err = client.GenerateArtistTree()
+	ArtistTreeContent := utils.ConvertToArray(ArtistTree)
+	Notify = NewNotificationServer()
+	Notify.Start()
+	client.SetNotificationServer(Notify)
 
-	var SEARCH_CONTENT_SLICE []interface{}
+	var SearchContentSlice []interface{}
 
 	UI.ExpandedView.SetDrawFunc(func(s tcell.Screen, x, y, width, height int) (int, int, int, int) {
 		if InsidePlaylist {
 			client.UpdatePlaylist(UI.ExpandedView)
 		} else if InsideSearchView {
-			client.UpdateSearchView(UI.ExpandedView, SEARCH_CONTENT_SLICE)
+			client.UpdateSearchView(UI.ExpandedView, SearchContentSlice)
 		} else {
 			client.Update(dirTree.Children, UI.ExpandedView)
 		}
 		return UI.ExpandedView.GetInnerRect()
 	})
 
-	var FUNC_MAP = map[string]func(){
+	var FuncMap = map[string]func(){
 		"showChildrenContent": func() {
 			r, _ := UI.ExpandedView.GetSelection()
 			if !InsidePlaylist && !InsideSearchView {
@@ -96,7 +96,7 @@ func main() {
 				CONN.Play(r)
 			} else if InsideSearchView {
 				r, _ := UI.ExpandedView.GetSelection()
-				client.AddToPlaylist(SEARCH_CONTENT_SLICE[r], true)
+				client.AddToPlaylist(SearchContentSlice[r], true)
 			}
 		},
 		"togglePlayBack": func() {
@@ -115,7 +115,7 @@ func main() {
 		},
 		"clearPlaylist": func() {
 			CONN.Clear()
-			NOTIFICATION_SERVER.Send("PlayList Cleared")
+			Notify.Send("PlayList Cleared")
 		},
 		"previousSong": func() {
 			CONN.Previous()
@@ -126,7 +126,7 @@ func main() {
 				CONN.Add(dirTree.Children[r].AbsolutePath)
 			} else if InsideSearchView {
 				r, _ := UI.ExpandedView.GetSelection()
-				client.AddToPlaylist(SEARCH_CONTENT_SLICE[r], false)
+				client.AddToPlaylist(SearchContentSlice[r], false)
 			}
 		},
 		"toggleRandom": func() {
@@ -184,14 +184,14 @@ func main() {
 		},
 		"stop": func() {
 			CONN.Stop()
-			NOTIFICATION_SERVER.Send("Playback Stopped")
+			Notify.Send("Playback Stopped")
 		},
 		"updateDB": func() {
 			_, err = CONN.Update("")
 			if err != nil {
 				panic(err)
 			}
-			NOTIFICATION_SERVER.Send("Database Updated")
+			Notify.Send("Database Updated")
 		},
 		"deleteSongFromPlaylist": func() {
 			if InsidePlaylist {
@@ -204,12 +204,12 @@ func main() {
 		},
 	}
 
-	config.GenerateKeyMap(FUNC_MAP)
+	config.GenerateKeyMap(FuncMap)
 
 	UI.SearchBar.SetAutocompleteFunc(func(c string) []string {
 		if c != "" && c != " " && c != "  " {
 			_, _, w, _ := UI.SearchBar.GetRect()
-			matches := fuzzy.Find(c, ARTIST_TREE_CONTENT)
+			matches := fuzzy.Find(c, ArtistTreeContent)
 			var suggestions []string
 			for i, match := range matches {
 				if i == 10 {
@@ -225,7 +225,7 @@ func main() {
 
 	UI.ExpandedView.SetInputCapture(func(e *tcell.EventKey) *tcell.EventKey {
 		if val, ok := config.KEY_MAP[int(e.Rune())]; ok {
-			FUNC_MAP[val]()
+			FuncMap[val]()
 			return nil
 		} else {
 			return e
@@ -237,10 +237,10 @@ func main() {
 			UI.ExpandedView.Select(0, 0)
 			InsideSearchView = true
 			InsidePlaylist = false
-			SEARCH_CONTENT_SLICE = nil
-			SEARCH_CONTENT_SLICE, err = client.GenerateContentSlice(UI.SearchBar.GetText())
+			SearchContentSlice = nil
+			SearchContentSlice, err = client.GenerateContentSlice(UI.SearchBar.GetText())
 			if err != nil {
-				NOTIFICATION_SERVER.Send("Could Not Retrieve the Results")
+				Notify.Send("Could Not Retrieve the Results")
 			} else {
 				UI.SearchBar.SetText("")
 				UI.App.SetFocus(UI.ExpandedView)

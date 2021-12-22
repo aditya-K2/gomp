@@ -90,13 +90,13 @@ func getImagePath(path string) string {
 			if extractedImage == viper.GetString("DEFAULT_IMAGE_PATH") && viper.GetString("GET_COVER_ART_FROM_LAST_FM") == "TRUE" {
 				downloadedImage, err := getImageFromLastFM(a[0]["artist"], a[0]["album"], imagePath)
 				if err == nil {
-					NOTIFICATION_SERVER.Send("Image From LastFM")
+					Notify.Send("Image From LastFM")
 					extractedImage = downloadedImage
 				} else {
-					NOTIFICATION_SERVER.Send("Falling Back to Default Image.")
+					Notify.Send("Falling Back to Default Image.")
 				}
 			} else {
-				NOTIFICATION_SERVER.Send("Extracted Image Successfully")
+				Notify.Send("Extracted Image Successfully")
 			}
 		}
 	}
