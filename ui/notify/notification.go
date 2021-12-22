@@ -1,6 +1,7 @@
-package ui
+package notify
 
 import (
+	"github.com/aditya-K2/gomp/ui"
 	"time"
 
 	"github.com/aditya-K2/gomp/utils"
@@ -10,10 +11,10 @@ import (
 )
 
 var (
-	UI *Application
+	UI *ui.Application
 )
 
-func ConnectUI(a *Application) {
+func ConnectUI(a *ui.Application) {
 	UI = a
 }
 

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/aditya-K2/gomp/ui/notify"
 	"strconv"
 	"time"
 
@@ -21,7 +22,7 @@ import (
 var (
 	CONN       *mpd.Client
 	UI         *ui.Application
-	Notify     *ui.NotificationServer
+	Notify     *notify.NotificationServer
 	RENDERER   *render.Renderer
 	Volume     int64
 	Random     bool
@@ -56,7 +57,7 @@ func main() {
 	}
 
 	UI = ui.NewApplication()
-	ui.ConnectUI(UI)
+	notify.ConnectUI(UI)
 
 	fileMap, err := CONN.GetFiles()
 	dirTree := client.GenerateDirectoryTree(fileMap)
@@ -70,7 +71,7 @@ func main() {
 
 	ArtistTree, err = client.GenerateArtistTree()
 	ArtistTreeContent := utils.ConvertToArray(ArtistTree)
-	Notify = ui.NewNotificationServer()
+	Notify = notify.NewNotificationServer()
 	Notify.Start()
 	client.SetNotificationServer(Notify)
 	render.SetNotificationServer(Notify)
