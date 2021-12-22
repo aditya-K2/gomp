@@ -18,6 +18,7 @@ var (
 	CONN                *mpd.Client
 	UI                  *Application
 	NOTIFICATION_SERVER *NotificationServer
+	RENDERER            *Renderer
 	Volume              int64
 	Random              bool
 	Repeat              bool
@@ -36,15 +37,15 @@ func main() {
 	}
 	defer CONN.Close()
 	cache.SetCacheDir(viper.GetString("CACHE_DIR"))
-	r := newRenderer()
+	RENDERER = newRenderer()
 	c, _ := CONN.CurrentSong()
 	if len(c) != 0 {
-		r.Start(c["file"])
+		RENDERER.Start(c["file"])
 	} else {
-		r.Start("stop")
+		RENDERER.Start("stop")
 	}
 
-	UI = newApplication(r)
+	UI = newApplication()
 
 	fileMap, err := CONN.GetFiles()
 	dirTree := generateDirectoryTree(fileMap)

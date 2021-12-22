@@ -16,9 +16,9 @@ type Application struct {
 	Pages        *tview.Pages
 }
 
-func newApplication(r *Renderer) *Application {
+func newApplication() *Application {
 
-	var pBar *progressBar = newProgressBar(r)
+	var pBar *progressBar = newProgressBar()
 	expandedView := tview.NewTable()
 	Navbar := tview.NewTable()
 	searchBar := tview.NewInputField()

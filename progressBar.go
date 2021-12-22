@@ -26,7 +26,7 @@ type progressBar struct {
 // This Function returns a progressBar with a table of two rows
 // the First row will contain information about the current Song
 // and the Second one will contain the progressBar
-func newProgressBar(r *Renderer) *progressBar {
+func newProgressBar() *progressBar {
 	p := progressBar{}
 
 	a := tview.NewTable().
@@ -38,7 +38,7 @@ func newProgressBar(r *Renderer) *progressBar {
 	a.SetBorder(true)
 
 	a.SetDrawFunc(func(s tcell.Screen, x, y, width, height int) (int, int, int, int) {
-		p.updateTitle(r)
+		p.updateTitle()
 		p.updateProgress()
 		return p.t.GetInnerRect()
 	})
@@ -49,16 +49,16 @@ func newProgressBar(r *Renderer) *progressBar {
 	return &p
 }
 
-func (s *progressBar) updateTitle(r *Renderer) {
+func (s *progressBar) updateTitle() {
 	_currentAttributes, err := CONN.CurrentSong()
 	if err == nil {
 		song := "[green::bi]" + _currentAttributes["Title"] + "[-:-:-] - " + "[blue::b]" + _currentAttributes["Artist"] + "\n"
 		s.t.GetCell(0, 0).Text = song
 		if len(_currentAttributes) == 0 && CurrentSong != "" {
 			CurrentSong = ""
-			r.Send("stop")
+			RENDERER.Send("stop")
 		} else if song != CurrentSong && len(_currentAttributes) != 0 {
-			r.Send(_currentAttributes["file"])
+			RENDERER.Send(_currentAttributes["file"])
 			CurrentSong = song
 		}
 	}
