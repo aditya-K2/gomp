@@ -4,6 +4,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/aditya-K2/gomp/client"
 	"github.com/aditya-K2/gomp/utils"
 
 	"github.com/aditya-K2/fuzzy"
@@ -48,29 +49,31 @@ func main() {
 	UI = newApplication()
 
 	fileMap, err := CONN.GetFiles()
-	dirTree := generateDirectoryTree(fileMap)
+	dirTree := client.GenerateDirectoryTree(fileMap)
 
-	UpdatePlaylist(UI.ExpandedView)
+	client.SetConnection(CONN)
+	client.UpdatePlaylist(UI.ExpandedView)
 
 	_v, _ := CONN.Status()
 	Volume, _ = strconv.ParseInt(_v["volume"], 10, 64)
 	Random, _ = strconv.ParseBool(_v["random"])
 	Repeat, _ = strconv.ParseBool(_v["repeat"])
 
-	ARTIST_TREE, err = GenerateArtistTree()
+	ARTIST_TREE, err = client.GenerateArtistTree()
 	ARTIST_TREE_CONTENT := utils.ConvertToArray(ARTIST_TREE)
 	NOTIFICATION_SERVER = NewNotificationServer()
 	NOTIFICATION_SERVER.Start()
+	client.SetNotificationServer(NOTIFICATION_SERVER)
 
 	var SEARCH_CONTENT_SLICE []interface{}
 
 	UI.ExpandedView.SetDrawFunc(func(s tcell.Screen, x, y, width, height int) (int, int, int, int) {
 		if InsidePlaylist {
-			UpdatePlaylist(UI.ExpandedView)
+			client.UpdatePlaylist(UI.ExpandedView)
 		} else if InsideSearchView {
-			UpdateSearchView(UI.ExpandedView, SEARCH_CONTENT_SLICE)
+			client.UpdateSearchView(UI.ExpandedView, SEARCH_CONTENT_SLICE)
 		} else {
-			Update(dirTree.children, UI.ExpandedView)
+			client.Update(dirTree.Children, UI.ExpandedView)
 		}
 		return UI.ExpandedView.GetInnerRect()
 	})
@@ -79,28 +82,28 @@ func main() {
 		"showChildrenContent": func() {
 			r, _ := UI.ExpandedView.GetSelection()
 			if !InsidePlaylist && !InsideSearchView {
-				if len(dirTree.children[r].children) == 0 {
-					id, _ := CONN.AddId(dirTree.children[r].absolutePath, -1)
+				if len(dirTree.Children[r].Children) == 0 {
+					id, _ := CONN.AddId(dirTree.Children[r].AbsolutePath, -1)
 					CONN.PlayId(id)
 				} else {
-					Update(dirTree.children[r].children, UI.ExpandedView)
-					dirTree = &dirTree.children[r]
+					client.Update(dirTree.Children[r].Children, UI.ExpandedView)
+					dirTree = &dirTree.Children[r]
 				}
 			} else if InsidePlaylist {
 				CONN.Play(r)
 			} else if InsideSearchView {
 				r, _ := UI.ExpandedView.GetSelection()
-				AddToPlaylist(SEARCH_CONTENT_SLICE[r], true)
+				client.AddToPlaylist(SEARCH_CONTENT_SLICE[r], true)
 			}
 		},
 		"togglePlayBack": func() {
-			togglePlayBack()
+			client.TogglePlayBack()
 		},
 		"showParentContent": func() {
 			if !InsidePlaylist && !InsideSearchView {
-				if dirTree.parent != nil {
-					Update(dirTree.parent.children, UI.ExpandedView)
-					dirTree = dirTree.parent
+				if dirTree.Parent != nil {
+					client.Update(dirTree.Parent.Children, UI.ExpandedView)
+					dirTree = dirTree.Parent
 				}
 			}
 		},
@@ -117,10 +120,10 @@ func main() {
 		"addToPlaylist": func() {
 			if !InsidePlaylist && !InsideSearchView {
 				r, _ := UI.ExpandedView.GetSelection()
-				CONN.Add(dirTree.children[r].absolutePath)
+				CONN.Add(dirTree.Children[r].AbsolutePath)
 			} else if InsideSearchView {
 				r, _ := UI.ExpandedView.GetSelection()
-				AddToPlaylist(SEARCH_CONTENT_SLICE[r], false)
+				client.AddToPlaylist(SEARCH_CONTENT_SLICE[r], false)
 			}
 		},
 		"toggleRandom": func() {
@@ -155,13 +158,13 @@ func main() {
 			InsidePlaylist = false
 			InsideSearchView = false
 			UI.Navbar.Select(1, 0)
-			Update(dirTree.children, UI.ExpandedView)
+			client.Update(dirTree.Children, UI.ExpandedView)
 		},
 		"navigateToPlaylist": func() {
 			InsidePlaylist = true
 			InsideSearchView = false
 			UI.Navbar.Select(0, 0)
-			UpdatePlaylist(UI.ExpandedView)
+			client.UpdatePlaylist(UI.ExpandedView)
 		},
 		"navigateToMostPlayed": func() {
 			InsideSearchView = false
@@ -232,7 +235,7 @@ func main() {
 			InsideSearchView = true
 			InsidePlaylist = false
 			SEARCH_CONTENT_SLICE = nil
-			SEARCH_CONTENT_SLICE, err = GenerateContentSlice(UI.SearchBar.GetText())
+			SEARCH_CONTENT_SLICE, err = client.GenerateContentSlice(UI.SearchBar.GetText())
 			if err != nil {
 				NOTIFICATION_SERVER.Send("Could Not Retrieve the Results")
 			} else {
