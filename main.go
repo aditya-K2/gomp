@@ -19,16 +19,14 @@ import (
 )
 
 var (
-	CONN             *mpd.Client
-	UI               *ui.Application
-	Notify           *ui.NotificationServer
-	RENDERER         *render.Renderer
-	Volume           int64
-	Random           bool
-	Repeat           bool
-	InsidePlaylist   = true
-	InsideSearchView = false
-	ArtistTree       map[string]map[string]map[string]string
+	CONN       *mpd.Client
+	UI         *ui.Application
+	Notify     *ui.NotificationServer
+	RENDERER   *render.Renderer
+	Volume     int64
+	Random     bool
+	Repeat     bool
+	ArtistTree map[string]map[string]map[string]string
 )
 
 func main() {
@@ -40,6 +38,8 @@ func main() {
 		panic(mpdConnectionError)
 	}
 	defer CONN.Close()
+
+	ui.GenerateFocusMap()
 
 	client.SetConnection(CONN)
 	ui.SetConnection(CONN)
@@ -78,11 +78,11 @@ func main() {
 	var SearchContentSlice []interface{}
 
 	UI.ExpandedView.SetDrawFunc(func(s tcell.Screen, x, y, width, height int) (int, int, int, int) {
-		if InsidePlaylist {
+		if ui.HasFocus("Playlist") {
 			client.UpdatePlaylist(UI.ExpandedView)
-		} else if InsideSearchView {
+		} else if ui.HasFocus("SearchView") {
 			client.UpdateSearchView(UI.ExpandedView, SearchContentSlice)
-		} else {
+		} else if ui.HasFocus("FileBrowser") {
 			client.Update(dirTree.Children, UI.ExpandedView)
 		}
 		return UI.ExpandedView.GetInnerRect()
@@ -91,7 +91,7 @@ func main() {
 	var FuncMap = map[string]func(){
 		"showChildrenContent": func() {
 			r, _ := UI.ExpandedView.GetSelection()
-			if !InsidePlaylist && !InsideSearchView {
+			if ui.HasFocus("FileBrowser") {
 				if len(dirTree.Children[r].Children) == 0 {
 					id, _ := CONN.AddId(dirTree.Children[r].AbsolutePath, -1)
 					CONN.PlayId(id)
@@ -99,9 +99,9 @@ func main() {
 					client.Update(dirTree.Children[r].Children, UI.ExpandedView)
 					dirTree = &dirTree.Children[r]
 				}
-			} else if InsidePlaylist {
+			} else if ui.HasFocus("Playlist") {
 				CONN.Play(r)
-			} else if InsideSearchView {
+			} else if ui.HasFocus("SearchView") {
 				r, _ := UI.ExpandedView.GetSelection()
 				client.AddToPlaylist(SearchContentSlice[r], true)
 			}
@@ -110,7 +110,7 @@ func main() {
 			client.TogglePlayBack()
 		},
 		"showParentContent": func() {
-			if !InsidePlaylist && !InsideSearchView {
+			if ui.HasFocus("FileBrowser") {
 				if dirTree.Parent != nil {
 					client.Update(dirTree.Parent.Children, UI.ExpandedView)
 					dirTree = dirTree.Parent
@@ -122,16 +122,16 @@ func main() {
 		},
 		"clearPlaylist": func() {
 			CONN.Clear()
-			Notify.Send("PlayList Cleared")
+			Notify.Send("Playlist Cleared")
 		},
 		"previousSong": func() {
 			CONN.Previous()
 		},
 		"addToPlaylist": func() {
-			if !InsidePlaylist && !InsideSearchView {
+			if ui.HasFocus("FileBrowser") {
 				r, _ := UI.ExpandedView.GetSelection()
 				CONN.Add(dirTree.Children[r].AbsolutePath)
-			} else if InsideSearchView {
+			} else if ui.HasFocus("SearchView") {
 				r, _ := UI.ExpandedView.GetSelection()
 				client.AddToPlaylist(SearchContentSlice[r], false)
 			}
@@ -165,25 +165,20 @@ func main() {
 			CONN.SetVolume(int(Volume))
 		},
 		"navigateToFiles": func() {
-			InsidePlaylist = false
-			InsideSearchView = false
+			ui.SetFocus("FileBrowser")
 			UI.Navbar.Select(1, 0)
 			client.Update(dirTree.Children, UI.ExpandedView)
 		},
 		"navigateToPlaylist": func() {
-			InsidePlaylist = true
-			InsideSearchView = false
+			ui.SetFocus("Playlist")
 			UI.Navbar.Select(0, 0)
 			client.UpdatePlaylist(UI.ExpandedView)
 		},
 		"navigateToMostPlayed": func() {
-			InsideSearchView = false
-			InsidePlaylist = false
 			UI.Navbar.Select(2, 0)
 		},
 		"navigateToSearch": func() {
-			InsideSearchView = true
-			InsidePlaylist = false
+			ui.SetFocus("SearchView")
 			UI.Navbar.Select(3, 0)
 		},
 		"quit": func() {
@@ -201,7 +196,7 @@ func main() {
 			Notify.Send("Database Updated")
 		},
 		"deleteSongFromPlaylist": func() {
-			if InsidePlaylist {
+			if ui.HasFocus("Playlist") {
 				r, _ := UI.ExpandedView.GetSelection()
 				CONN.Delete(r, -1)
 			}
@@ -242,8 +237,7 @@ func main() {
 	UI.SearchBar.SetDoneFunc(func(e tcell.Key) {
 		if e == tcell.KeyEnter {
 			UI.ExpandedView.Select(0, 0)
-			InsideSearchView = true
-			InsidePlaylist = false
+			ui.SetFocus("SearchView")
 			SearchContentSlice = nil
 			SearchContentSlice, err = client.GenerateContentSlice(UI.SearchBar.GetText())
 			if err != nil {
@@ -255,7 +249,7 @@ func main() {
 			}
 		}
 		if e == tcell.KeyEscape {
-			InsideSearchView = false
+			ui.FocusMap["SearchView"] = false
 			UI.App.SetFocus(UI.ExpandedView)
 		}
 	})
