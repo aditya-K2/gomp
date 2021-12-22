@@ -1,4 +1,4 @@
-package main
+package ui
 
 import (
 	"time"
@@ -8,6 +8,14 @@ import (
 	"github.com/aditya-K2/tview"
 	"github.com/gdamore/tcell/v2"
 )
+
+var (
+	UI *Application
+)
+
+func ConnectUI(a *Application) {
+	UI = a
+}
 
 /* Notification Primitive */
 type Notification struct {
