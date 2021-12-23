@@ -1,7 +1,6 @@
 ## Table Of Contents
 
 * [Prerequisites](#prerequisites)
-* [Installing / Building](#installing--building)
 * [Configuration](#configuration)
 	* [MPD Port](#mpd-port)
 	* [Music Directory](#music-directory)
@@ -58,7 +57,7 @@ DEFAULT_IMAGE_PATH : "/path/to/default/image"
 ### Image Rendering
 
 The Default Position of the Image without any configuration assumes that you have no font or terminal padding or margin so Image will
-be rendered at different places in different terminals, Also the TUIs calculates positions with the according to rows and columns
+be rendered at different places in different terminals, Also the TUIs calculates positions with the respect to rows and columns
 and the image is rendered at pixel positions so the exact position can't be defined [ the app tries its best by calculating
 the font width and then predicting the position but it is best that you define some extra padding and your own image width ratio
 in config.yml. Please Read more about it in the [sample_config](https://github.com/aditya-K2/gomp/blob/master/sample_config.yml)
