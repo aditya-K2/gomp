@@ -2,8 +2,9 @@ package ui
 
 import (
 	"fmt"
-	"github.com/fhs/gompd/mpd"
 	"strconv"
+
+	"github.com/fhs/gompd/mpd"
 
 	"github.com/aditya-K2/gomp/utils"
 
@@ -21,7 +22,7 @@ func SetConnection(c *mpd.Client) {
 	CONN = c
 }
 
-func SetRenderer(r interface{ Send(string) }) {
+func ConnectRenderer(r interface{ Send(string) }) {
 	RENDERER = r
 }
 

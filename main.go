@@ -1,9 +1,10 @@
 package main
 
 import (
-	"github.com/aditya-K2/gomp/ui/notify"
 	"strconv"
 	"time"
+
+	"github.com/aditya-K2/gomp/ui/notify"
 
 	"github.com/aditya-K2/gomp/render"
 	"github.com/aditya-K2/gomp/ui"
@@ -19,22 +20,11 @@ import (
 	"github.com/spf13/viper"
 )
 
-var (
-	CONN       *mpd.Client
-	UI         *ui.Application
-	Notify     *notify.NotificationServer
-	RENDERER   *render.Renderer
-	Volume     int64
-	Random     bool
-	Repeat     bool
-	ArtistTree map[string]map[string]map[string]string
-)
-
 func main() {
 	config.ReadConfig()
 	// Connect to MPD server
 	var mpdConnectionError error
-	CONN, mpdConnectionError = mpd.Dial("tcp", "localhost:"+viper.GetString("MPD_PORT"))
+	CONN, mpdConnectionError := mpd.Dial("tcp", "localhost:"+viper.GetString("MPD_PORT"))
 	if mpdConnectionError != nil {
 		panic(mpdConnectionError)
 	}
@@ -47,16 +37,16 @@ func main() {
 	render.SetConnection(CONN)
 
 	cache.SetCacheDir(viper.GetString("CACHE_DIR"))
-	RENDERER = render.NewRenderer()
-	ui.SetRenderer(RENDERER)
+	Renderer := render.NewRenderer()
+	ui.ConnectRenderer(Renderer)
 	c, _ := CONN.CurrentSong()
 	if len(c) != 0 {
-		RENDERER.Start(c["file"])
+		Renderer.Start(c["file"])
 	} else {
-		RENDERER.Start("stop")
+		Renderer.Start("stop")
 	}
 
-	UI = ui.NewApplication()
+	UI := ui.NewApplication()
 	notify.ConnectUI(UI)
 
 	fileMap, err := CONN.GetFiles()
@@ -65,13 +55,13 @@ func main() {
 	client.UpdatePlaylist(UI.ExpandedView)
 
 	_v, _ := CONN.Status()
-	Volume, _ = strconv.ParseInt(_v["volume"], 10, 64)
-	Random, _ = strconv.ParseBool(_v["random"])
-	Repeat, _ = strconv.ParseBool(_v["repeat"])
+	Volume, _ := strconv.ParseInt(_v["volume"], 10, 64)
+	Random, _ := strconv.ParseBool(_v["random"])
+	Repeat, _ := strconv.ParseBool(_v["repeat"])
 
-	ArtistTree, err = client.GenerateArtistTree()
+	ArtistTree, err := client.GenerateArtistTree()
 	ArtistTreeContent := utils.ConvertToArray(ArtistTree)
-	Notify = notify.NewNotificationServer()
+	Notify := notify.NewNotificationServer()
 	Notify.Start()
 	client.SetNotificationServer(Notify)
 	render.SetNotificationServer(Notify)
