@@ -1,6 +1,7 @@
-package main
+package notify
 
 import (
+	"github.com/aditya-K2/gomp/ui"
 	"time"
 
 	"github.com/aditya-K2/gomp/utils"
@@ -8,6 +9,14 @@ import (
 	"github.com/aditya-K2/tview"
 	"github.com/gdamore/tcell/v2"
 )
+
+var (
+	UI *ui.Application
+)
+
+func ConnectUI(a *ui.Application) {
+	UI = a
+}
 
 /* Notification Primitive */
 type Notification struct {

@@ -4,6 +4,12 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/aditya-K2/gomp/ui/notify"
+
+	"github.com/aditya-K2/gomp/render"
+	"github.com/aditya-K2/gomp/ui"
+
+	"github.com/aditya-K2/gomp/client"
 	"github.com/aditya-K2/gomp/utils"
 
 	"github.com/aditya-K2/fuzzy"
@@ -14,92 +20,110 @@ import (
 	"github.com/spf13/viper"
 )
 
-var (
-	CONN                *mpd.Client
-	UI                  *Application
-	NOTIFICATION_SERVER *NotificationServer
-	Volume              int64
-	Random              bool
-	Repeat              bool
-	InsidePlaylist      bool = true
-	InsideSearchView    bool = false
-	ARTIST_TREE         map[string]map[string]map[string]string
-)
-
 func main() {
 	config.ReadConfig()
-	// Connect to MPD server
 	var mpdConnectionError error
-	CONN, mpdConnectionError = mpd.Dial("tcp", "localhost:"+viper.GetString("MPD_PORT"))
+	CONN, mpdConnectionError := mpd.Dial("tcp", "localhost:"+viper.GetString("MPD_PORT"))
 	if mpdConnectionError != nil {
 		panic(mpdConnectionError)
 	}
 	defer CONN.Close()
+
+	ui.GenerateFocusMap()
+
+	client.SetConnection(CONN)
+	ui.SetConnection(CONN)
+	render.SetConnection(CONN)
+
 	cache.SetCacheDir(viper.GetString("CACHE_DIR"))
-	r := newRenderer()
+
+	Renderer := render.NewRenderer()
+	// Connecting the Renderer to the Main UI
+	ui.ConnectRenderer(Renderer)
+
 	c, _ := CONN.CurrentSong()
 	if len(c) != 0 {
-		r.Start(c["file"])
+		Renderer.Start(c["file"])
 	} else {
-		r.Start("stop")
+		Renderer.Start("stop")
 	}
 
-	UI = newApplication(r)
+	UI := ui.NewApplication()
+
+	// Connecting the Notification Server to the Main UI
+	notify.ConnectUI(UI)
 
 	fileMap, err := CONN.GetFiles()
-	dirTree := generateDirectoryTree(fileMap)
 
-	UpdatePlaylist(UI.ExpandedView)
+	// Generating the Directory Tree for File Navigation.
+	dirTree := client.GenerateDirectoryTree(fileMap)
+
+	// Default View upon Opening is of Playlist.
+	client.UpdatePlaylist(UI.ExpandedView)
 
 	_v, _ := CONN.Status()
-	Volume, _ = strconv.ParseInt(_v["volume"], 10, 64)
-	Random, _ = strconv.ParseBool(_v["random"])
-	Repeat, _ = strconv.ParseBool(_v["repeat"])
+	// Setting Volume, Random and Repeat Values
+	Volume, _ := strconv.ParseInt(_v["volume"], 10, 64)
+	Random, _ := strconv.ParseBool(_v["random"])
+	Repeat, _ := strconv.ParseBool(_v["repeat"])
 
-	ARTIST_TREE, err = GenerateArtistTree()
-	ARTIST_TREE_CONTENT := utils.ConvertToArray(ARTIST_TREE)
-	NOTIFICATION_SERVER = NewNotificationServer()
-	NOTIFICATION_SERVER.Start()
+	ArtistTree, err := client.GenerateArtistTree()
 
-	var SEARCH_CONTENT_SLICE []interface{}
+	// Used for Fuzzy Searching
+	ArtistTreeContent := utils.ConvertToArray(ArtistTree)
 
+	Notify := notify.NewNotificationServer()
+	Notify.Start()
+
+	// Connecting Notification Server to Client and Rendering Module so that they can send Notifications
+	client.SetNotificationServer(Notify)
+	render.SetNotificationServer(Notify)
+
+	// This is the Slice that is used to Display Content in the SearchView
+	var SearchContentSlice []interface{}
+
+	// This Function Is Responsible for Changing the Focus it uses the Focus Map and Based on it Chooses
+	// the Draw Function
 	UI.ExpandedView.SetDrawFunc(func(s tcell.Screen, x, y, width, height int) (int, int, int, int) {
-		if InsidePlaylist {
-			UpdatePlaylist(UI.ExpandedView)
-		} else if InsideSearchView {
-			UpdateSearchView(UI.ExpandedView, SEARCH_CONTENT_SLICE)
-		} else {
-			Update(dirTree.children, UI.ExpandedView)
+		if ui.HasFocus("Playlist") {
+			client.UpdatePlaylist(UI.ExpandedView)
+		} else if ui.HasFocus("SearchView") {
+			client.UpdateSearchView(UI.ExpandedView, SearchContentSlice)
+		} else if ui.HasFocus("FileBrowser") {
+			client.Update(dirTree.Children, UI.ExpandedView)
 		}
 		return UI.ExpandedView.GetInnerRect()
 	})
 
-	var FUNC_MAP = map[string]func(){
+	// Function Maps is used For Mapping Keys According to the Value mapped to the Key the respective Function is called
+	// For e.g. in the config if the User Maps T to togglePlayBack then whenever in the input handler the T is received
+	// the respective function in this case togglePlayBack is called.
+	var FuncMap = map[string]func(){
 		"showChildrenContent": func() {
 			r, _ := UI.ExpandedView.GetSelection()
-			if !InsidePlaylist && !InsideSearchView {
-				if len(dirTree.children[r].children) == 0 {
-					id, _ := CONN.AddId(dirTree.children[r].absolutePath, -1)
+			if ui.HasFocus("FileBrowser") {
+				if len(dirTree.Children[r].Children) == 0 {
+					id, _ := CONN.AddId(dirTree.Children[r].AbsolutePath, -1)
 					CONN.PlayId(id)
 				} else {
-					Update(dirTree.children[r].children, UI.ExpandedView)
-					dirTree = &dirTree.children[r]
+					client.Update(dirTree.Children[r].Children, UI.ExpandedView)
+					dirTree = &dirTree.Children[r]
 				}
-			} else if InsidePlaylist {
+			} else if ui.HasFocus("Playlist") {
 				CONN.Play(r)
-			} else if InsideSearchView {
+			} else if ui.HasFocus("SearchView") {
 				r, _ := UI.ExpandedView.GetSelection()
-				AddToPlaylist(SEARCH_CONTENT_SLICE[r], true)
+				client.AddToPlaylist(SearchContentSlice[r], true)
 			}
 		},
 		"togglePlayBack": func() {
-			togglePlayBack()
+			client.TogglePlayBack()
 		},
 		"showParentContent": func() {
-			if !InsidePlaylist && !InsideSearchView {
-				if dirTree.parent != nil {
-					Update(dirTree.parent.children, UI.ExpandedView)
-					dirTree = dirTree.parent
+			if ui.HasFocus("FileBrowser") {
+				if dirTree.Parent != nil {
+					client.Update(dirTree.Parent.Children, UI.ExpandedView)
+					dirTree = dirTree.Parent
 				}
 			}
 		},
@@ -108,18 +132,18 @@ func main() {
 		},
 		"clearPlaylist": func() {
 			CONN.Clear()
-			NOTIFICATION_SERVER.Send("PlayList Cleared")
+			Notify.Send("Playlist Cleared")
 		},
 		"previousSong": func() {
 			CONN.Previous()
 		},
 		"addToPlaylist": func() {
-			if !InsidePlaylist && !InsideSearchView {
+			if ui.HasFocus("FileBrowser") {
 				r, _ := UI.ExpandedView.GetSelection()
-				CONN.Add(dirTree.children[r].absolutePath)
-			} else if InsideSearchView {
+				CONN.Add(dirTree.Children[r].AbsolutePath)
+			} else if ui.HasFocus("SearchView") {
 				r, _ := UI.ExpandedView.GetSelection()
-				AddToPlaylist(SEARCH_CONTENT_SLICE[r], false)
+				client.AddToPlaylist(SearchContentSlice[r], false)
 			}
 		},
 		"toggleRandom": func() {
@@ -151,25 +175,20 @@ func main() {
 			CONN.SetVolume(int(Volume))
 		},
 		"navigateToFiles": func() {
-			InsidePlaylist = false
-			InsideSearchView = false
+			ui.SetFocus("FileBrowser")
 			UI.Navbar.Select(1, 0)
-			Update(dirTree.children, UI.ExpandedView)
+			client.Update(dirTree.Children, UI.ExpandedView)
 		},
 		"navigateToPlaylist": func() {
-			InsidePlaylist = true
-			InsideSearchView = false
+			ui.SetFocus("Playlist")
 			UI.Navbar.Select(0, 0)
-			UpdatePlaylist(UI.ExpandedView)
+			client.UpdatePlaylist(UI.ExpandedView)
 		},
 		"navigateToMostPlayed": func() {
-			InsideSearchView = false
-			InsidePlaylist = false
 			UI.Navbar.Select(2, 0)
 		},
 		"navigateToSearch": func() {
-			InsideSearchView = true
-			InsidePlaylist = false
+			ui.SetFocus("SearchView")
 			UI.Navbar.Select(3, 0)
 		},
 		"quit": func() {
@@ -177,17 +196,17 @@ func main() {
 		},
 		"stop": func() {
 			CONN.Stop()
-			NOTIFICATION_SERVER.Send("Playback Stopped")
+			Notify.Send("Playback Stopped")
 		},
 		"updateDB": func() {
 			_, err = CONN.Update("")
 			if err != nil {
 				panic(err)
 			}
-			NOTIFICATION_SERVER.Send("Database Updated")
+			Notify.Send("Database Updated")
 		},
 		"deleteSongFromPlaylist": func() {
-			if InsidePlaylist {
+			if ui.HasFocus("Playlist") {
 				r, _ := UI.ExpandedView.GetSelection()
 				CONN.Delete(r, -1)
 			}
@@ -197,12 +216,15 @@ func main() {
 		},
 	}
 
-	config.GenerateKeyMap(FUNC_MAP)
+	// Generating the Key Map Based on the Function Map Here Basically the Values will be flipped
+	// In the config if togglePlayBack is mapped to [ T , P, SPACE ] then here Basically we will receive a map
+	// for each event T, P, SPACE mapped to the same function togglePlayBack
+	config.GenerateKeyMap(FuncMap)
 
 	UI.SearchBar.SetAutocompleteFunc(func(c string) []string {
 		if c != "" && c != " " && c != "  " {
 			_, _, w, _ := UI.SearchBar.GetRect()
-			matches := fuzzy.Find(c, ARTIST_TREE_CONTENT)
+			matches := fuzzy.Find(c, ArtistTreeContent)
 			var suggestions []string
 			for i, match := range matches {
 				if i == 10 {
@@ -216,9 +238,10 @@ func main() {
 		}
 	})
 
+	// Input Handler
 	UI.ExpandedView.SetInputCapture(func(e *tcell.EventKey) *tcell.EventKey {
 		if val, ok := config.KEY_MAP[int(e.Rune())]; ok {
-			FUNC_MAP[val]()
+			FuncMap[val]()
 			return nil
 		} else {
 			return e
@@ -228,12 +251,11 @@ func main() {
 	UI.SearchBar.SetDoneFunc(func(e tcell.Key) {
 		if e == tcell.KeyEnter {
 			UI.ExpandedView.Select(0, 0)
-			InsideSearchView = true
-			InsidePlaylist = false
-			SEARCH_CONTENT_SLICE = nil
-			SEARCH_CONTENT_SLICE, err = GenerateContentSlice(UI.SearchBar.GetText())
+			ui.SetFocus("SearchView")
+			SearchContentSlice = nil
+			SearchContentSlice, err = client.GenerateContentSlice(UI.SearchBar.GetText())
 			if err != nil {
-				NOTIFICATION_SERVER.Send("Could Not Retrieve the Results")
+				Notify.Send("Could Not Retrieve the Results")
 			} else {
 				UI.SearchBar.SetText("")
 				UI.App.SetFocus(UI.ExpandedView)
@@ -241,7 +263,7 @@ func main() {
 			}
 		}
 		if e == tcell.KeyEscape {
-			InsideSearchView = false
+			ui.FocusMap["SearchView"] = false
 			UI.App.SetFocus(UI.ExpandedView)
 		}
 	})

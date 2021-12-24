@@ -1,6 +1,7 @@
-package utils
+package render
 
 import (
+	"github.com/aditya-K2/gomp/utils"
 	"os"
 	"strings"
 
@@ -67,17 +68,17 @@ func ExtractImageFromFile(uri string, imagePath string) string {
 	if strings.HasSuffix(uri, ".mp3") {
 		imagePath := GetMp3Image(uri, imagePath)
 		if imagePath == "" {
-			Copy(viper.GetString("DEFAULT_IMAGE_PATH"), _i)
+			utils.Copy(viper.GetString("DEFAULT_IMAGE_PATH"), _i)
 			return viper.GetString("DEFAULT_IMAGE_PATH")
 		}
 	} else if strings.HasSuffix(uri, ".flac") {
 		imagePath := GetFlacImage(uri, imagePath)
 		if imagePath == "" {
-			Copy(viper.GetString("DEFAULT_IMAGE_PATH"), _i)
+			utils.Copy(viper.GetString("DEFAULT_IMAGE_PATH"), _i)
 			return viper.GetString("DEFAULT_IMAGE_PATH")
 		}
 	} else {
-		Copy(viper.GetString("DEFAULT_IMAGE_PATH"), _i)
+		utils.Copy(viper.GetString("DEFAULT_IMAGE_PATH"), _i)
 		return viper.GetString("DEFAULT_IMAGE_PATH")
 	}
 	return imagePath

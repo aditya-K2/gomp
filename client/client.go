@@ -1,8 +1,11 @@
-package main
+package client
 
 import (
 	"errors"
 	"fmt"
+
+	"github.com/fhs/gompd/mpd"
+
 	"strings"
 
 	"github.com/aditya-K2/gomp/utils"
@@ -10,10 +13,23 @@ import (
 )
 
 var (
+	CONN               *mpd.Client
+	ArtistTree         map[string]map[string]map[string]string
+	NotificationServer interface {
+		Send(string)
+	}
 	WHITE_AND_BOLD string = "[#ffffff::b]"
 )
 
-func togglePlayBack() error {
+func SetConnection(c *mpd.Client) {
+	CONN = c
+}
+
+func SetNotificationServer(n interface{ Send(string) }) {
+	NotificationServer = n
+}
+
+func TogglePlayBack() error {
 	status, err := CONN.Status()
 	if status["state"] == "play" && err == nil {
 		CONN.Pause(true)
@@ -39,32 +55,30 @@ func UpdatePlaylist(inputTable *tview.Table) {
 	}
 }
 
-/*
-	The GenerateContentSlice returns a slice of the content to be displayed on the Search View. The Slice is generated
-	because the random nature of maps as they return values randomly hence the draw function keeps changing the order
-	in which the results.
-*/
+// The GenerateContentSlice returns a slice of the content to be displayed on the Search View. The Slice is generated
+// because the random nature of maps as they return values randomly hence the draw function keeps changing the order
+// in which the results appear.
 func GenerateContentSlice(selectedSuggestion string) ([]interface{}, error) {
 	var ContentSlice []interface{}
 	if strings.TrimRight(selectedSuggestion, " ") == "" {
-		NOTIFICATION_SERVER.Send("Empty Search!")
+		NotificationServer.Send("Empty Search!")
 		return nil, errors.New("empty Search String Provided")
 	}
-	if _, ok := ARTIST_TREE[selectedSuggestion]; ok {
+	if _, ok := ArtistTree[selectedSuggestion]; ok {
 		ContentSlice = append(ContentSlice, WHITE_AND_BOLD+"Artists :")
 		ContentSlice = append(ContentSlice, selectedSuggestion)
 		ContentSlice = append(ContentSlice, WHITE_AND_BOLD+"Artist Albums :")
-		for albumName := range ARTIST_TREE[selectedSuggestion] {
+		for albumName := range ArtistTree[selectedSuggestion] {
 			ContentSlice = append(ContentSlice, [2]string{albumName, selectedSuggestion})
 		}
 		ContentSlice = append(ContentSlice, WHITE_AND_BOLD+"Artist Tracks :")
-		for albumName, trackList := range ARTIST_TREE[selectedSuggestion] {
+		for albumName, trackList := range ArtistTree[selectedSuggestion] {
 			for track := range trackList {
 				ContentSlice = append(ContentSlice, [3]string{track, selectedSuggestion, albumName})
 			}
 		}
 	}
-	if aMap := QueryArtistTreeForAlbums(ARTIST_TREE, selectedSuggestion); len(aMap) != 0 {
+	if aMap := QueryArtistTreeForAlbums(ArtistTree, selectedSuggestion); len(aMap) != 0 {
 		ContentSlice = append(ContentSlice, WHITE_AND_BOLD+"Albums :")
 		for mSlice := range aMap {
 			ContentSlice = append(ContentSlice, mSlice)
@@ -76,7 +90,7 @@ func GenerateContentSlice(selectedSuggestion string) ([]interface{}, error) {
 			}
 		}
 	}
-	if tMap := QueryArtistTreeForTracks(ARTIST_TREE, selectedSuggestion); len(tMap) != 0 {
+	if tMap := QueryArtistTreeForTracks(ArtistTree, selectedSuggestion); len(tMap) != 0 {
 		ContentSlice = append(ContentSlice, WHITE_AND_BOLD+"Tracks :")
 		for mSlice := range tMap {
 			ContentSlice = append(ContentSlice, mSlice)
@@ -85,11 +99,9 @@ func GenerateContentSlice(selectedSuggestion string) ([]interface{}, error) {
 	return ContentSlice, nil
 }
 
-/*
-	UpdateSearchView as the name suggests Updates the Search View the idea is to basically keep a fourth option called
-	Search in the Navigation bar which will render things from a global ContentSlice at least in the context of the main
-	function this will also help in persisting the Search Results.
-*/
+//  UpdateSearchView as the name suggests Updates the Search View the idea is to basically keep a fourth option called
+//  Search in the Navigation bar which will render things from a global ContentSlice at least in the context of the main
+//  function this will also help in persisting the Search Results.
 func UpdateSearchView(inputTable *tview.Table, c []interface{}) {
 	inputTable.Clear()
 	_, _, width, _ := inputTable.GetInnerRect()
@@ -122,8 +134,8 @@ func UpdateSearchView(inputTable *tview.Table, c []interface{}) {
 func Update(f []FileNode, inputTable *tview.Table) {
 	inputTable.Clear()
 	for i, j := range f {
-		if len(j.children) == 0 {
-			_songAttributes, err := CONN.ListAllInfo(j.absolutePath)
+		if len(j.Children) == 0 {
+			_songAttributes, err := CONN.ListAllInfo(j.AbsolutePath)
 			if err == nil && _songAttributes[0]["Title"] != "" {
 				_, _, w, _ := inputTable.GetInnerRect()
 				inputTable.SetCell(i, 0,
@@ -140,19 +152,21 @@ func Update(f []FileNode, inputTable *tview.Table) {
 
 			} else if _songAttributes[0]["Title"] == "" {
 				inputTable.SetCell(i, 0,
-					tview.NewTableCell("[blue]"+j.path).
+					tview.NewTableCell("[blue]"+j.Path).
 						SetAlign(tview.AlignLeft))
 			}
 		} else {
 			inputTable.SetCell(i, 0,
-				tview.NewTableCell("[yellow::b]"+j.path).
+				tview.NewTableCell("[yellow::b]"+j.Path).
 					SetAlign(tview.AlignLeft))
 		}
 	}
 }
 
+// GenerateArtistTree Artist Tree is a map of Artist to their Album Map
+// Album Tree is a map of the tracks in that particular album.
 func GenerateArtistTree() (map[string]map[string]map[string]string, error) {
-	ArtistTree := make(map[string]map[string]map[string]string)
+	ArtistTree = make(map[string]map[string]map[string]string)
 	AllInfo, err := CONN.ListAllInfo("/")
 	if err == nil {
 		for _, i := range AllInfo {
@@ -184,56 +198,50 @@ func PrintArtistTree(a map[string]map[string]map[string]string) {
 	}
 }
 
-/*
-	Adds All tracks from a specified album to a playlist
-*/
+//  Adds All tracks from a specified album to a playlist
 func AddAlbum(a map[string]map[string]map[string]string, alb string, artist string) {
 	for _, v := range a[artist][alb] {
 		err := CONN.Add(v)
 		if err != nil {
-			NOTIFICATION_SERVER.Send("Could Not Add Song : " + v)
+			NotificationServer.Send("Could Not Add Song : " + v)
 		}
 	}
-	NOTIFICATION_SERVER.Send("Album Added : " + alb)
+	NotificationServer.Send("Album Added : " + alb)
 }
 
-/*
-	Adds All tracks from a specified artist to a playlist
-*/
+//  Adds All tracks from a specified artist to a playlist
 func AddArtist(a map[string]map[string]map[string]string, artist string) {
 	if val, ok := a[artist]; ok {
 		for _, v := range val {
 			for _, path := range v {
 				err := CONN.Add(path)
 				if err != nil {
-					NOTIFICATION_SERVER.Send("Could Not Add Song : " + path)
+					NotificationServer.Send("Could Not Add Song : " + path)
 				}
 			}
 		}
-		NOTIFICATION_SERVER.Send("Artist Added : " + artist)
+		NotificationServer.Send("Artist Added : " + artist)
 	}
 }
 
-/*
-	Adds Specified Track to the Playlist
-*/
+//  Adds Specified Track to the Playlist
 func AddTitle(a map[string]map[string]map[string]string, artist, alb, track string, addAndPlay bool) {
 	if addAndPlay {
 		id, err := CONN.AddId(a[artist][alb][track], -1)
 		CONN.PlayId(id)
 		if err != nil {
-			NOTIFICATION_SERVER.Send("Could Not Add Track : " + track)
+			NotificationServer.Send("Could Not Add Track : " + track)
 		}
 	} else {
 		err := CONN.Add(a[artist][alb][track])
 		if err != nil {
-			NOTIFICATION_SERVER.Send("Could Not Add Track : " + track)
+			NotificationServer.Send("Could Not Add Track : " + track)
 		}
 	}
-	NOTIFICATION_SERVER.Send("Track Added : " + track)
+	NotificationServer.Send("Track Added : " + track)
 }
 
-/* Querys the Artist Tree for a track and returns a TrackMap (i.e [3]string{artist, album, track} -> path) which will help us
+/* Querys the Artist Tree for a track and returns a TrackMap (i.e [3]string{artist, album, track} -> Path) which will help us
 to add tracks to the playlist */
 func QueryArtistTreeForTracks(a map[string]map[string]map[string]string, track string) map[[3]string]string {
 	TrackMap := make(map[[3]string]string)
@@ -249,7 +257,7 @@ func QueryArtistTreeForTracks(a map[string]map[string]map[string]string, track s
 	return TrackMap
 }
 
-/* Querys the Artist Tree for an album and returns a AlbumMap (i.e [3]string{artist, album } ->[]path of songs in the album)
+/* Querys the Artist Tree for an album and returns a AlbumMap (i.e [3]string{artist, album } ->[]Path of songs in the album)
 which will help us to add all album tracks to the playlist */
 func QueryArtistTreeForAlbums(a map[string]map[string]map[string]string, album string) map[[2]string][][2]string {
 	AlbumMap := make(map[[2]string][][2]string)
@@ -272,17 +280,17 @@ func AddToPlaylist(a interface{}, addAndPlay bool) {
 	case [3]string:
 		{
 			b := a.([3]string)
-			AddTitle(ARTIST_TREE, b[1], b[2], b[0], addAndPlay)
+			AddTitle(ArtistTree, b[1], b[2], b[0], addAndPlay)
 		}
 	case [2]string:
 		{
 			b := a.([2]string)
-			AddAlbum(ARTIST_TREE, b[0], b[1])
+			AddAlbum(ArtistTree, b[0], b[1])
 		}
 	case string:
 		{
 			b := a.(string)
-			AddArtist(ARTIST_TREE, b)
+			AddArtist(ArtistTree, b)
 		}
 	}
 }

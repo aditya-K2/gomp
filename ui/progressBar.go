@@ -1,8 +1,10 @@
-package main
+package ui
 
 import (
 	"fmt"
 	"strconv"
+
+	"github.com/fhs/gompd/mpd"
 
 	"github.com/aditya-K2/gomp/utils"
 
@@ -10,7 +12,19 @@ import (
 	"github.com/gdamore/tcell/v2"
 )
 
-var CurrentSong string
+var (
+	CurrentSong string
+	CONN        *mpd.Client
+	RENDERER    interface{ Send(string) }
+)
+
+func SetConnection(c *mpd.Client) {
+	CONN = c
+}
+
+func ConnectRenderer(r interface{ Send(string) }) {
+	RENDERER = r
+}
 
 // The progressBar is just a string which is separated by the color formatting String
 // for e.g
@@ -26,7 +40,7 @@ type progressBar struct {
 // This Function returns a progressBar with a table of two rows
 // the First row will contain information about the current Song
 // and the Second one will contain the progressBar
-func newProgressBar(r *Renderer) *progressBar {
+func newProgressBar() *progressBar {
 	p := progressBar{}
 
 	a := tview.NewTable().
@@ -38,7 +52,7 @@ func newProgressBar(r *Renderer) *progressBar {
 	a.SetBorder(true)
 
 	a.SetDrawFunc(func(s tcell.Screen, x, y, width, height int) (int, int, int, int) {
-		p.updateTitle(r)
+		p.updateTitle()
 		p.updateProgress()
 		return p.t.GetInnerRect()
 	})
@@ -49,16 +63,16 @@ func newProgressBar(r *Renderer) *progressBar {
 	return &p
 }
 
-func (s *progressBar) updateTitle(r *Renderer) {
+func (s *progressBar) updateTitle() {
 	_currentAttributes, err := CONN.CurrentSong()
 	if err == nil {
 		song := "[green::bi]" + _currentAttributes["Title"] + "[-:-:-] - " + "[blue::b]" + _currentAttributes["Artist"] + "\n"
 		s.t.GetCell(0, 0).Text = song
 		if len(_currentAttributes) == 0 && CurrentSong != "" {
 			CurrentSong = ""
-			r.Send("stop")
+			RENDERER.Send("stop")
 		} else if song != CurrentSong && len(_currentAttributes) != 0 {
-			r.Send(_currentAttributes["file"])
+			RENDERER.Send(_currentAttributes["file"])
 			CurrentSong = song
 		}
 	}
@@ -72,14 +86,28 @@ func (s *progressBar) updateProgress() {
 	if du != 0 {
 		percentage := el / du * 100
 		if err == nil && err1 == nil {
-			s.t.SetTitle(fmt.Sprintf("[[::i] %s [-:-:-]Shuffle: %s Repeat: %s Volume: %s ]", utils.FormatString(_status["state"]), utils.FormatString(_status["random"]), utils.FormatString(_status["repeat"]), _status["volume"])).SetTitleAlign(tview.AlignRight)
+			s.t.SetTitle(fmt.Sprintf("[[::i] %s [-:-:-]Shuffle: %s Repeat: %s Volume: %s ]",
+				utils.FormatString(_status["state"]),
+				utils.FormatString(_status["random"]),
+				utils.FormatString(_status["repeat"]),
+				_status["volume"])).
+				SetTitleAlign(tview.AlignRight)
 			s.t.GetCell(2, 0).Text = utils.GetText(float64(_width), percentage, utils.StrTime(el)+"/"+utils.StrTime(du)+"("+strconv.FormatFloat(percentage, 'f', 2, 32)+"%"+")")
 		} else {
-			s.t.SetTitle(fmt.Sprintf("[[::i] %s [-:-:-]Shuffle: %s Repeat: %s]", utils.FormatString(_status["state"]), utils.FormatString(_status["random"]), utils.FormatString(_status["repeat"]))).SetTitleAlign(tview.AlignRight)
+			s.t.SetTitle(fmt.Sprintf("[[::i] %s [-:-:-]Shuffle: %s Repeat: %s]",
+				utils.FormatString(_status["state"]),
+				utils.FormatString(_status["random"]),
+				utils.FormatString(_status["repeat"]))).
+				SetTitleAlign(tview.AlignRight)
 			s.t.GetCell(2, 0).Text = ""
 		}
 	} else {
-		s.t.SetTitle(fmt.Sprintf("[[::i] %s [-:-:-]Shuffle: %s Repeat: %s Volume: %s ]", utils.FormatString(_status["state"]), utils.FormatString(_status["random"]), utils.FormatString(_status["repeat"]), _status["volume"])).SetTitleAlign(tview.AlignRight)
+		s.t.SetTitle(fmt.Sprintf("[[::i] %s [-:-:-]Shuffle: %s Repeat: %s Volume: %s ]",
+			utils.FormatString(_status["state"]),
+			utils.FormatString(_status["random"]),
+			utils.FormatString(_status["repeat"]),
+			_status["volume"])).
+			SetTitleAlign(tview.AlignRight)
 		s.t.GetCell(2, 0).Text = utils.GetText(float64(_width), 0, "   ---:---")
 	}
 }
