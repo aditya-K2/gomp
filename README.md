@@ -10,9 +10,9 @@ https://user-images.githubusercontent.com/51816057/144759799-b9eecf9e-93ad-43a7-
 
 * [Roadmap](#roadmap)
 * [Installing / Building](#installing--building)
-	* [AUR Package](#aur-package)
-	* [Manually](#manually)
-* [Documentation](#documentation)
+    * [AUR Package](#aur-package)
+    * [Manually](#manually)
+    * [Configuring gomp](#configuring-gomp)
 
 # Roadmap
 
@@ -40,8 +40,6 @@ git clone https://github.com/aditya-K2/gomp &&
 cd gomp &&
 go build
 ```
+---
 
-# Documentation
-
-The Documentation is hosted [here](https://aditya-K2.github.io/gomp/)
-
+#### [Configuring](https://aditya-K2.github.io/gomp/) gomp
