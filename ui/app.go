@@ -60,7 +60,7 @@ func NewApplication() *Application {
 		AddItem(searchBar, 3, 1, false).
 		AddItem(sNavExpViewFlex, 0, 1, false)
 
-	lex := tview.NewFlex().SetDirection(tview.FlexRow).
+	MainFlex := tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(searchBarFlex, 0, 8, false).
 		AddItem(pBar.t, 5, 1, false)
 
@@ -68,7 +68,7 @@ func NewApplication() *Application {
 	expandedView.SetSelectable(true, false)
 
 	rootPages := tview.NewPages()
-	rootPages.AddPage("Main", lex, true, true)
+	rootPages.AddPage("Main", MainFlex, true, true)
 
 	App := tview.NewApplication()
 	App.SetRoot(rootPages, true).SetFocus(expandedView)
