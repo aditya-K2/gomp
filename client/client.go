@@ -3,6 +3,7 @@ package client
 import (
 	"errors"
 	"fmt"
+
 	"github.com/fhs/gompd/mpd"
 
 	"strings"
@@ -54,11 +55,9 @@ func UpdatePlaylist(inputTable *tview.Table) {
 	}
 }
 
-/*
-	The GenerateContentSlice returns a slice of the content to be displayed on the Search View. The Slice is generated
-	because the random nature of maps as they return values randomly hence the draw function keeps changing the order
-	in which the results.
-*/
+// The GenerateContentSlice returns a slice of the content to be displayed on the Search View. The Slice is generated
+// because the random nature of maps as they return values randomly hence the draw function keeps changing the order
+// in which the results appear.
 func GenerateContentSlice(selectedSuggestion string) ([]interface{}, error) {
 	var ContentSlice []interface{}
 	if strings.TrimRight(selectedSuggestion, " ") == "" {
@@ -100,11 +99,9 @@ func GenerateContentSlice(selectedSuggestion string) ([]interface{}, error) {
 	return ContentSlice, nil
 }
 
-/*
-	UpdateSearchView as the name suggests Updates the Search View the idea is to basically keep a fourth option called
-	Search in the Navigation bar which will render things from a global ContentSlice at least in the context of the main
-	function this will also help in persisting the Search Results.
-*/
+//  UpdateSearchView as the name suggests Updates the Search View the idea is to basically keep a fourth option called
+//  Search in the Navigation bar which will render things from a global ContentSlice at least in the context of the main
+//  function this will also help in persisting the Search Results.
 func UpdateSearchView(inputTable *tview.Table, c []interface{}) {
 	inputTable.Clear()
 	_, _, width, _ := inputTable.GetInnerRect()
@@ -166,6 +163,8 @@ func Update(f []FileNode, inputTable *tview.Table) {
 	}
 }
 
+// GenerateArtistTree Artist Tree is a map of Artist to their Album Map
+// Album Tree is a map of the tracks in that particular album.
 func GenerateArtistTree() (map[string]map[string]map[string]string, error) {
 	ArtistTree = make(map[string]map[string]map[string]string)
 	AllInfo, err := CONN.ListAllInfo("/")
@@ -199,9 +198,7 @@ func PrintArtistTree(a map[string]map[string]map[string]string) {
 	}
 }
 
-/*
-	Adds All tracks from a specified album to a playlist
-*/
+//  Adds All tracks from a specified album to a playlist
 func AddAlbum(a map[string]map[string]map[string]string, alb string, artist string) {
 	for _, v := range a[artist][alb] {
 		err := CONN.Add(v)
@@ -212,9 +209,7 @@ func AddAlbum(a map[string]map[string]map[string]string, alb string, artist stri
 	NotificationServer.Send("Album Added : " + alb)
 }
 
-/*
-	Adds All tracks from a specified artist to a playlist
-*/
+//  Adds All tracks from a specified artist to a playlist
 func AddArtist(a map[string]map[string]map[string]string, artist string) {
 	if val, ok := a[artist]; ok {
 		for _, v := range val {
@@ -229,9 +224,7 @@ func AddArtist(a map[string]map[string]map[string]string, artist string) {
 	}
 }
 
-/*
-	Adds Specified Track to the Playlist
-*/
+//  Adds Specified Track to the Playlist
 func AddTitle(a map[string]map[string]map[string]string, artist, alb, track string, addAndPlay bool) {
 	if addAndPlay {
 		id, err := CONN.AddId(a[artist][alb][track], -1)

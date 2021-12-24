@@ -1,10 +1,11 @@
 package render
 
 import (
-	"github.com/aditya-K2/gomp/ui"
-	"github.com/fhs/gompd/mpd"
 	"image"
 	"os"
+
+	"github.com/aditya-K2/gomp/ui"
+	"github.com/fhs/gompd/mpd"
 
 	"github.com/aditya-K2/gomp/cache"
 	"github.com/aditya-K2/gomp/utils"
@@ -14,8 +15,8 @@ import (
 )
 
 var (
-	CONN *mpd.Client
-	Notify interface { Send(string) }
+	CONN   *mpd.Client
+	Notify interface{ Send(string) }
 )
 
 func SetConnection(c *mpd.Client) {
@@ -26,18 +27,14 @@ func SetNotificationServer(n interface{ Send(string) }) {
 	Notify = n
 }
 
-/*
-	Renderer is just a channel on which we will send the Path to the song whose
-	Image is to be Rendered. This channel is passed to the OpenImage which in turn is called
-	by the Start() function as a go routine.
-*/
+//  Renderer is just a channel on which we will send the Path to the song whose
+//  Image is to be Rendered. This channel is passed to the OpenImage which in turn is called
+//  by the Start() function as a go routine.
 type Renderer struct {
 	c chan string
 }
 
-/*
-	Returns a new Renderer with a string channel
-*/
+//  Returns a new Renderer with a string channel
 func NewRenderer() *Renderer {
 	c := make(chan string)
 	return &Renderer{
@@ -45,21 +42,15 @@ func NewRenderer() *Renderer {
 	}
 }
 
-/*
-	Send Image Path to Renderer
-*/
+// Send Image Path to Renderer
 func (self *Renderer) Send(path string) {
 	self.c <- path
 }
 
-/*
-
-   Go Routine that will Be Called and will listen on the channel c
-   for changes and on getting a string over the channel will open the Image and
-   keep listening again. This will keep the image blocked ( i.e no need to use time.Sleep() etc. )
-   and saves resources too.
-
-*/
+// Go Routine that will Be Called and will listen on the channel c
+// for changes and on getting a string over the channel will open the Image and
+// keep listening again. This will keep the image blocked ( i.e no need to use time.Sleep() etc. )
+// and saves resources too.
 func OpenImage(path string, c chan string) {
 	fw, fh := utils.GetFontWidth()
 	var im *ueberzug.Image
@@ -79,18 +70,14 @@ func OpenImage(path string, c chan string) {
 	}
 }
 
-/*
-	Initialises the Renderer and calls the go routine OpenImage and passes the channel
-	as argument.
-*/
+// Initialises the Renderer and calls the go routine OpenImage and passes the channel
+// as argument.
 func (self *Renderer) Start(path string) {
 	go OpenImage(path, self.c)
 }
 
-/*
-	This Function returns the path to the image that is to be rendered it checks first for the image in the cache
-	else it adds the image to the cache and then extracts it and renders it.
-*/
+// This Function returns the path to the image that is to be rendered it checks first for the image in the cache
+// else it adds the image to the cache and then extracts it and renders it.
 func GetImagePath(path string) string {
 	a, err := CONN.ListInfo(path)
 	var extractedImage string

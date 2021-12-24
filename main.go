@@ -22,7 +22,6 @@ import (
 
 func main() {
 	config.ReadConfig()
-	// Connect to MPD server
 	var mpdConnectionError error
 	CONN, mpdConnectionError := mpd.Dial("tcp", "localhost:"+viper.GetString("MPD_PORT"))
 	if mpdConnectionError != nil {
@@ -37,8 +36,11 @@ func main() {
 	render.SetConnection(CONN)
 
 	cache.SetCacheDir(viper.GetString("CACHE_DIR"))
+
 	Renderer := render.NewRenderer()
+	// Connecting the Renderer to the Main UI
 	ui.ConnectRenderer(Renderer)
+
 	c, _ := CONN.CurrentSong()
 	if len(c) != 0 {
 		Renderer.Start(c["file"])
@@ -47,27 +49,41 @@ func main() {
 	}
 
 	UI := ui.NewApplication()
+
+	// Connecting the Notification Server to the Main UI
 	notify.ConnectUI(UI)
 
 	fileMap, err := CONN.GetFiles()
+
+	// Generating the Directory Tree for File Navigation.
 	dirTree := client.GenerateDirectoryTree(fileMap)
 
+	// Default View upon Opening is of Playlist.
 	client.UpdatePlaylist(UI.ExpandedView)
 
 	_v, _ := CONN.Status()
+	// Setting Volume, Random and Repeat Values
 	Volume, _ := strconv.ParseInt(_v["volume"], 10, 64)
 	Random, _ := strconv.ParseBool(_v["random"])
 	Repeat, _ := strconv.ParseBool(_v["repeat"])
 
 	ArtistTree, err := client.GenerateArtistTree()
+
+	// Used for Fuzzy Searching
 	ArtistTreeContent := utils.ConvertToArray(ArtistTree)
+
 	Notify := notify.NewNotificationServer()
 	Notify.Start()
+
+	// Connecting Notification Server to Client and Rendering Module so that they can send Notifications
 	client.SetNotificationServer(Notify)
 	render.SetNotificationServer(Notify)
 
+	// This is the Slice that is used to Display Content in the SearchView
 	var SearchContentSlice []interface{}
 
+	// This Function Is Responsible for Changing the Focus it uses the Focus Map and Based on it Chooses
+	// the Draw Function
 	UI.ExpandedView.SetDrawFunc(func(s tcell.Screen, x, y, width, height int) (int, int, int, int) {
 		if ui.HasFocus("Playlist") {
 			client.UpdatePlaylist(UI.ExpandedView)
@@ -79,6 +95,9 @@ func main() {
 		return UI.ExpandedView.GetInnerRect()
 	})
 
+	// Function Maps is used For Mapping Keys According to the Value mapped to the Key the respective Function is called
+	// For e.g. in the config if the User Maps T to togglePlayBack then whenever in the input handler the T is received
+	// the respective function in this case togglePlayBack is called.
 	var FuncMap = map[string]func(){
 		"showChildrenContent": func() {
 			r, _ := UI.ExpandedView.GetSelection()
@@ -197,6 +216,9 @@ func main() {
 		},
 	}
 
+	// Generating the Key Map Based on the Function Map Here Basically the Values will be flipped
+	// In the config if togglePlayBack is mapped to [ T , P, SPACE ] then here Basically we will receive a map
+	// for each event T, P, SPACE mapped to the same function togglePlayBack
 	config.GenerateKeyMap(FuncMap)
 
 	UI.SearchBar.SetAutocompleteFunc(func(c string) []string {
@@ -216,6 +238,7 @@ func main() {
 		}
 	})
 
+	// Input Handler
 	UI.ExpandedView.SetInputCapture(func(e *tcell.EventKey) *tcell.EventKey {
 		if val, ok := config.KEY_MAP[int(e.Rune())]; ok {
 			FuncMap[val]()
