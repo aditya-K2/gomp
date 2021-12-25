@@ -6,10 +6,29 @@ import (
 )
 
 type FileNode struct {
-	Children []FileNode
+	Children     []FileNode
 	Path         string
 	Parent       *FileNode
 	AbsolutePath string
+}
+
+// Source Interface For Fuzzy Searching.
+type FileNodes []FileNode
+
+func (f FileNodes) String(i int) string {
+	if len(f[i].Children) == 0 {
+		_s, err := CONN.ListAllInfo(f[i].AbsolutePath)
+		if err != nil {
+			NotificationServer.Send(fmt.Sprintf("Could Not Get Information About the Node %s", f[i].Path))
+			return f[i].Path
+		}
+		return _s[0]["Title"]
+	}
+	return f[i].Path
+}
+
+func (f FileNodes) Len() int {
+	return len(f)
 }
 
 func (f *FileNode) AddChildren(path string) {

@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"io/ioutil"
 	"strconv"
 	"strings"
@@ -135,4 +136,38 @@ func CheckDirectoryFmt(path string) string {
 	} else {
 		return path + "/"
 	}
+}
+
+func GetMatchedString(s string, color string, nulcol string, matchedIndexes []int) string {
+	// The indexes that we will receive from the matchedIndexes are always sorted so we have to just
+	// add the color string at
+	//           `indexValue + ( len(colorString) * k )`
+	//           where k is the index of the indexValue in the matchedIndexes slice
+	// and we will need to also reset the colors, For that we check if the next indexValue in the matchedIndexes for
+	// the current indexValue is not the consecutive value ( v + 1 ) if yes ( is not consecutive ) then we add the reset
+	// color string at the k + 1 index in the string.
+	// for e.g.
+	//    if we have the following matchedIndexes slice
+	//                        []int{ 1, 3, 4, 6}
+	// During the First Iteration matchedIndexes[k] = 1 and and matchedIndexes[k+1] are not consecutive so the nulcol
+	// string will be added to the matchedIndexes[k] + 1 index of the string
+	// During the Second Iteration as 3, 4 are consecutive the nulcol will be skipped.
+	color = fmt.Sprintf("[%s:-:bi]", color)
+	nulcol = fmt.Sprintf("[%s:-:b]", nulcol)
+	nulc := 0
+	for k := range matchedIndexes {
+		s = InsertAt(s, color, matchedIndexes[k]+(len(color)*k)+nulc)
+		if k < len(matchedIndexes)-1 && matchedIndexes[k]-matchedIndexes[k+1] != 1 {
+			s = InsertAt(s, nulcol, (matchedIndexes[k]+1)+(len(color)*(k+1))+nulc)
+			nulc += len(nulcol)
+		}
+		if k == len(matchedIndexes)-1 {
+			s = InsertAt(s, nulcol, ((matchedIndexes[len(matchedIndexes)-1] + 1) +
+				(len(matchedIndexes) * len(color)) +
+				(len(nulcol) * (len(matchedIndexes) - 1))))
+		}
+	}
+	// Adding the Nulcol at the Start
+	s = nulcol + s
+	return s
 }
