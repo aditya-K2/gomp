@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"strconv"
 	"time"
 
@@ -161,6 +162,16 @@ func main() {
 			} else if ui.HasFocus("SearchView") {
 				r, _ := UI.ExpandedView.GetSelection()
 				client.AddToPlaylist(SearchContentSlice[r], false)
+			} else if ui.HasFocus("BuffSearchView") {
+				r, _ := UI.ExpandedView.GetSelection()
+				ui.SetFocus("FileBrowser")
+				err := CONN.Add(dirTree.Children[Matches[r].Index].AbsolutePath)
+				if err != nil {
+					Notify.Send(fmt.Sprintf("Could Not Add URI %s to the Playlist", dirTree.Children[Matches[r].Index].Path))
+				} else {
+					Notify.Send(fmt.Sprintf("URI Added %s to the Playlist", dirTree.Children[Matches[r].Index].Path))
+				}
+				ui.SetFocus("BuffSearchView")
 			}
 		},
 		"toggleRandom": func() {
@@ -308,6 +319,16 @@ func main() {
 			}
 			UI.SearchBar.SetText("")
 			UI.App.SetFocus(UI.ExpandedView)
+		}
+	})
+
+	UI.ExpandedView.SetDoneFunc(func(e tcell.Key) {
+		if e == tcell.KeyEscape {
+			if ui.HasFocus("BuffSearchView") {
+				ui.SetFocus("FileBrowser")
+				UI.SearchBar.SetText("")
+				Matches = nil
+			}
 		}
 	})
 
