@@ -1,7 +1,6 @@
 package client
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/aditya-K2/fuzzy"
@@ -18,12 +17,7 @@ func UpdateBuffSearchView(inputTable *tview.Table, m fuzzy.Matches, f []FileNode
 			if len(f[v.Index].Children) != 0 {
 				inputTable.SetCellSimple(k, 0, utils.GetMatchedString(f[v.Index].Path, "#0000ff", "yellow", v.MatchedIndexes))
 			} else {
-				_s, err := CONN.ListAllInfo(f[v.Index].AbsolutePath)
-				if err != nil {
-					NotificationServer.Send(fmt.Sprintf("Could Not Add %s to the Table", f[v.Index].Path))
-				} else {
-					inputTable.SetCellSimple(k, 0, utils.GetMatchedString(_s[0]["Title"], "#fbff00", "green", v.MatchedIndexes))
-				}
+				inputTable.SetCellSimple(k, 0, utils.GetMatchedString(f[v.Index].Title, "#fbff00", "green", v.MatchedIndexes))
 			}
 			if k == 15 {
 				break

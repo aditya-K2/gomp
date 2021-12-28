@@ -52,7 +52,7 @@ func main() {
 	// Connecting the Notification Server to the Main UI
 	notify.ConnectUI(UI)
 
-	fileMap, err := CONN.GetFiles()
+	fileMap, err := CONN.ListAllInfo("/")
 
 	// Generating the Directory Tree for File Navigation.
 	dirTree := client.GenerateDirectoryTree(fileMap)
