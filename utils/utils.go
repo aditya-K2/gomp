@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"fmt"
 	"io/ioutil"
 	"strconv"
 	"strings"
@@ -138,36 +137,35 @@ func CheckDirectoryFmt(path string) string {
 	}
 }
 
-func GetMatchedString(s string, color string, nulcol string, matchedIndexes []int) string {
-	// The indexes that we will receive from the matchedIndexes are always sorted so we have to just
-	// add the color string at
-	//           `indexValue + ( len(colorString) * k )`
-	//           where k is the index of the indexValue in the matchedIndexes slice
-	// and we will need to also reset the colors, For that we check if the next indexValue in the matchedIndexes for
-	// the current indexValue is not the consecutive value ( v + 1 ) if yes ( is not consecutive ) then we add the reset
-	// color string at the k + 1 index in the string.
-	// for e.g.
-	//    if we have the following matchedIndexes slice
-	//                        []int{ 1, 3, 4, 6}
-	// During the First Iteration matchedIndexes[k] = 1 and and matchedIndexes[k+1] are not consecutive so the nulcol
-	// string will be added to the matchedIndexes[k] + 1 index of the string
-	// During the Second Iteration as 3, 4 are consecutive the nulcol will be skipped.
-	color = fmt.Sprintf("[%s:-:bi]", color)
-	nulcol = fmt.Sprintf("[%s:-:b]", nulcol)
-	nulc := 0
-	for k := range matchedIndexes {
-		s = InsertAt(s, color, matchedIndexes[k]+(len(color)*k)+nulc)
-		if k < len(matchedIndexes)-1 && matchedIndexes[k]-matchedIndexes[k+1] != 1 {
-			s = InsertAt(s, nulcol, (matchedIndexes[k]+1)+(len(color)*(k+1))+nulc)
-			nulc += len(nulcol)
-		}
-		if k == len(matchedIndexes)-1 {
-			s = InsertAt(s, nulcol, ((matchedIndexes[len(matchedIndexes)-1] + 1) +
-				(len(matchedIndexes) * len(color)) +
-				(len(nulcol) * (len(matchedIndexes) - 1))))
+func GetMatchedString(a []int, s, color string) string {
+	// The Matches are sorted so we just have to traverse the Matches and if the two adjacent matches are not consecutive
+	// then we append the color string at the start + offset and the nulcol ( reset ) at end + offset + 1 and then reset
+	// start and end to a[k+1] for e.g if matches := []int{1, 2, 4, 5, 6, 9} then the start will be 1 and end will be 1
+	// now until we reach `4` the value of end will change to `2` that means when we reach `4` the s string will be
+	// `O[yellow:-:-]ut[-:-:-]putString` after that until we reach the end will be changed and finally become `6` and the
+	// s string will be `O[yellow:-:-]ut[-:-:-]p[yellow:-:-]utS[-:-:-]tring`
+	// Please note that after around 45 simulatenously highlighted characters tview stops highlighting and the color
+	// sequences are rendered hope no one has that big of search query.
+	start := a[0]
+	end := a[0]
+	offset := 0
+	nulcol := "[-:-:-]"
+	for k := range a {
+		if k < len(a)-1 && a[k+1]-a[k] == 1 {
+			end = a[k+1]
+		} else if k < len(a)-1 {
+			s = InsertAt(s, color, start+offset)
+			offset += len(color)
+			s = InsertAt(s, nulcol, end+offset+1)
+			offset += len(nulcol)
+			start = a[k+1]
+			end = a[k+1]
+		} else if k == len(a)-1 {
+			s = InsertAt(s, color, start+offset)
+			offset += len(color)
+			s = InsertAt(s, nulcol, end+offset+1)
+			offset += len(nulcol)
 		}
 	}
-	// Adding the Nulcol at the Start
-	s = nulcol + s
 	return s
 }

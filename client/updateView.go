@@ -6,6 +6,7 @@ import (
 	"github.com/aditya-K2/fuzzy"
 	"github.com/aditya-K2/gomp/utils"
 	"github.com/aditya-K2/tview"
+	"github.com/gdamore/tcell/v2"
 )
 
 func UpdateBuffSearchView(inputTable *tview.Table, m fuzzy.Matches, f []FileNode) {
@@ -15,9 +16,19 @@ func UpdateBuffSearchView(inputTable *tview.Table, m fuzzy.Matches, f []FileNode
 	} else {
 		for k, v := range m {
 			if len(f[v.Index].Children) != 0 {
-				inputTable.SetCellSimple(k, 0, utils.GetMatchedString(f[v.Index].Path, "#0000ff", "yellow", v.MatchedIndexes))
+				inputTable.SetCell(k, 0, tview.NewTableCell(utils.GetMatchedString(v.MatchedIndexes, f[v.Index].Path, "[#0000ff:-:bi]")).
+					SetAlign(tview.AlignLeft).
+					SetStyle(tcell.StyleDefault.
+						Foreground(tcell.ColorYellow).
+						Background(tcell.ColorBlack).
+						Bold(true)))
 			} else {
-				inputTable.SetCellSimple(k, 0, utils.GetMatchedString(f[v.Index].Title, "#fbff00", "green", v.MatchedIndexes))
+				inputTable.SetCell(k, 0, tview.NewTableCell(utils.GetMatchedString(v.MatchedIndexes, f[v.Index].Title, "[#fbff00:-:bi]")).
+					SetAlign(tview.AlignLeft).
+					SetStyle(tcell.StyleDefault.
+						Foreground(tcell.ColorGreen).
+						Background(tcell.ColorBlack).
+						Bold(true)))
 			}
 			if k == 15 {
 				break
@@ -33,11 +44,29 @@ func UpdatePlaylist(inputTable *tview.Table) {
 	for i, j := range _playlistAttr {
 		_, _, w, _ := inputTable.GetInnerRect()
 		if j["Title"] == "" || j["Artist"] == "" || j["Album"] == "" {
-			inputTable.SetCell(i, 0, tview.NewTableCell(utils.GetFormattedString(j["file"], w/3)))
+			inputTable.SetCell(i, 0, tview.NewTableCell(utils.GetFormattedString(j["file"], w/3)).
+				SetAlign(tview.AlignLeft).
+				SetStyle(tcell.StyleDefault.
+					Foreground(tcell.ColorBlue).
+					Background(tcell.ColorBlack).
+					Bold(true)))
+
 		} else {
-			inputTable.SetCell(i, 0, tview.NewTableCell(utils.GetFormattedString("[green]"+j["Title"], w/3)))
-			inputTable.SetCell(i, 1, tview.NewTableCell(utils.GetFormattedString("[magenta]"+j["Artist"], w/3)))
-			inputTable.SetCell(i, 2, tview.NewTableCell("[yellow]"+j["Album"]))
+			inputTable.SetCell(i, 0, tview.NewTableCell(utils.GetFormattedString(j["Title"], w/3)).
+				SetAlign(tview.AlignLeft).
+				SetStyle(tcell.StyleDefault.
+					Foreground(tcell.ColorGreen).
+					Background(tcell.ColorBlack)))
+			inputTable.SetCell(i, 1, tview.NewTableCell(utils.GetFormattedString(j["Artist"], w/3)).
+				SetAlign(tview.AlignLeft).
+				SetStyle(tcell.StyleDefault.
+					Foreground(tcell.ColorPurple).
+					Background(tcell.ColorBlack)))
+			inputTable.SetCell(i, 2, tview.NewTableCell(j["Album"]).
+				SetAlign(tview.AlignLeft).
+				SetStyle(tcell.StyleDefault.
+					Foreground(tcell.ColorYellow).
+					Background(tcell.ColorBlack)))
 		}
 	}
 }
@@ -52,20 +81,44 @@ func UpdateSearchView(inputTable *tview.Table, c []interface{}) {
 		switch content.(type) {
 		case [3]string:
 			{
-				inputTable.SetCell(i, 0, tview.NewTableCell(utils.GetFormattedString("[green]"+content.([3]string)[0], width/3)))
-				inputTable.SetCell(i, 1, tview.NewTableCell(utils.GetFormattedString("[magenta]"+content.([3]string)[1], width/3)))
-				inputTable.SetCell(i, 2, tview.NewTableCell(utils.GetFormattedString("[yellow]"+content.([3]string)[2], width/3)))
+				inputTable.SetCell(i, 0, tview.NewTableCell(utils.GetFormattedString(content.([3]string)[0], width/3)).
+					SetAlign(tview.AlignLeft).
+					SetStyle(tcell.StyleDefault.
+						Foreground(tcell.ColorGreen).
+						Background(tcell.ColorBlack)))
+				inputTable.SetCell(i, 1, tview.NewTableCell(utils.GetFormattedString(content.([3]string)[1], width/3)).
+					SetAlign(tview.AlignLeft).
+					SetStyle(tcell.StyleDefault.
+						Foreground(tcell.ColorPurple).
+						Background(tcell.ColorBlack)))
+				inputTable.SetCell(i, 2, tview.NewTableCell(utils.GetFormattedString(content.([3]string)[2], width/3)).
+					SetAlign(tview.AlignLeft).
+					SetStyle(tcell.StyleDefault.
+						Foreground(tcell.ColorYellow).
+						Background(tcell.ColorBlack)))
 			}
 		case [2]string:
 			{
-				inputTable.SetCell(i, 0, tview.NewTableCell(utils.GetFormattedString("[green]"+content.([2]string)[0], width/3)))
-				inputTable.SetCell(i, 1, tview.NewTableCell(utils.GetFormattedString("[magenta]"+content.([2]string)[1], width/3)))
+				inputTable.SetCell(i, 0, tview.NewTableCell(utils.GetFormattedString(content.([2]string)[0], width/3)).
+					SetAlign(tview.AlignLeft).
+					SetStyle(tcell.StyleDefault.
+						Foreground(tcell.ColorYellow).
+						Background(tcell.ColorBlack)))
+				inputTable.SetCell(i, 1, tview.NewTableCell(utils.GetFormattedString(content.([2]string)[1], width/3)).
+					SetAlign(tview.AlignLeft).
+					SetStyle(tcell.StyleDefault.
+						Foreground(tcell.ColorPurple).
+						Background(tcell.ColorBlack)))
 			}
 		case string:
 			{
 				b := content.(string)
 				if !strings.HasPrefix(b, WHITE_AND_BOLD) {
-					inputTable.SetCell(i, 0, tview.NewTableCell("[green]"+content.(string)))
+					inputTable.SetCell(i, 0, tview.NewTableCell(content.(string)).
+						SetAlign(tview.AlignLeft).
+						SetStyle(tcell.StyleDefault.
+							Foreground(tcell.ColorPurple).
+							Background(tcell.ColorBlack)))
 				} else {
 					inputTable.SetCell(i, 0, tview.NewTableCell(content.(string)).SetSelectable(false))
 				}
@@ -82,26 +135,43 @@ func Update(f []FileNode, inputTable *tview.Table) {
 			if err == nil && _songAttributes[0]["Title"] != "" {
 				_, _, w, _ := inputTable.GetInnerRect()
 				inputTable.SetCell(i, 0,
-					tview.NewTableCell("[green]"+utils.GetFormattedString(_songAttributes[0]["Title"], w/3)).
-						SetAlign(tview.AlignLeft))
+					tview.NewTableCell(utils.GetFormattedString(_songAttributes[0]["Title"], w/3)).
+						SetAlign(tview.AlignLeft).
+						SetStyle(tcell.StyleDefault.
+							Foreground(tcell.ColorGreen).
+							Background(tcell.ColorBlack)))
 
 				inputTable.SetCell(i, 1,
-					tview.NewTableCell("[magenta]"+utils.GetFormattedString(_songAttributes[0]["Artist"], w/3)).
-						SetAlign(tview.AlignLeft))
+					tview.NewTableCell(utils.GetFormattedString(_songAttributes[0]["Artist"], w/3)).
+						SetAlign(tview.AlignLeft).
+						SetStyle(tcell.StyleDefault.
+							Foreground(tcell.ColorPurple).
+							Background(tcell.ColorBlack)))
 
 				inputTable.SetCell(i, 2,
-					tview.NewTableCell("[yellow]"+_songAttributes[0]["Album"]).
-						SetAlign(tview.AlignLeft))
+					tview.NewTableCell(_songAttributes[0]["Album"]).
+						SetAlign(tview.AlignLeft).
+						SetStyle(tcell.StyleDefault.
+							Foreground(tcell.ColorYellow).
+							Background(tcell.ColorBlack)))
 
 			} else if _songAttributes[0]["Title"] == "" {
 				inputTable.SetCell(i, 0,
-					tview.NewTableCell("[blue]"+j.Path).
-						SetAlign(tview.AlignLeft))
+					tview.NewTableCell(j.Path).
+						SetAlign(tview.AlignLeft).
+						SetStyle(tcell.StyleDefault.
+							Foreground(tcell.ColorBlue).
+							Background(tcell.ColorBlack).
+							Bold(true)))
 			}
 		} else {
 			inputTable.SetCell(i, 0,
-				tview.NewTableCell("[yellow::b]"+j.Path).
-					SetAlign(tview.AlignLeft))
+				tview.NewTableCell(j.Path).
+					SetAlign(tview.AlignLeft).
+					SetStyle(tcell.StyleDefault.
+						Foreground(tcell.ColorYellow).
+						Background(tcell.ColorBlack).
+						Bold(true)))
 		}
 	}
 }
