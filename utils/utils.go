@@ -169,3 +169,15 @@ func GetMatchedString(a []int, s, color string) string {
 	}
 	return s
 }
+
+func Unique(intSlice []int) []int {
+	keys := make(map[int]bool)
+	list := []int{}
+	for _, entry := range intSlice {
+		if _, exists := keys[entry]; !exists {
+			keys[entry] = true
+			list = append(list, entry)
+		}
+	}
+	return list
+}

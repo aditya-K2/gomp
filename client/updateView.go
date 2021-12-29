@@ -16,14 +16,14 @@ func UpdateBuffSearchView(inputTable *tview.Table, m fuzzy.Matches, f []FileNode
 	} else {
 		for k, v := range m {
 			if len(f[v.Index].Children) != 0 {
-				inputTable.SetCell(k, 0, tview.NewTableCell(utils.GetMatchedString(v.MatchedIndexes, f[v.Index].Path, "[#0000ff:-:bi]")).
+				inputTable.SetCell(k, 0, tview.NewTableCell(utils.GetMatchedString(utils.Unique(v.MatchedIndexes), f[v.Index].Path, "[#0000ff:-:bi]")).
 					SetAlign(tview.AlignLeft).
 					SetStyle(tcell.StyleDefault.
 						Foreground(tcell.ColorYellow).
 						Background(tcell.ColorBlack).
 						Bold(true)))
 			} else {
-				inputTable.SetCell(k, 0, tview.NewTableCell(utils.GetMatchedString(v.MatchedIndexes, f[v.Index].Title, "[#fbff00:-:bi]")).
+				inputTable.SetCell(k, 0, tview.NewTableCell(utils.GetMatchedString(utils.Unique(v.MatchedIndexes), f[v.Index].Title, "[#fbff00:-:bi]")).
 					SetAlign(tview.AlignLeft).
 					SetStyle(tcell.StyleDefault.
 						Foreground(tcell.ColorGreen).
