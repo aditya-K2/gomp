@@ -59,7 +59,7 @@ func InsertAt(inputString, stringTobeInserted string, index int) string {
 }
 
 func GetText(width, percentage float64, eta string) string {
-	q := "[#000000:#ffffff:b]"
+	q := "[black:white:b]"
 	var a string
 	a += strings.Repeat(" ", int(width)-len(eta))
 	a = InsertAt(a, eta, int(width/2)-10)

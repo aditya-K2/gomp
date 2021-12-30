@@ -1,8 +1,9 @@
 package notify
 
 import (
-	"github.com/aditya-K2/gomp/ui"
 	"time"
+
+	"github.com/aditya-K2/gomp/ui"
 
 	"github.com/aditya-K2/gomp/utils"
 
@@ -43,12 +44,12 @@ func (self *Notification) Draw(screen tcell.Screen) {
 		TEXTPOSITION int = 2
 	)
 
-	self.Box.SetBackgroundColor(tcell.GetColor("#15191a"))
+	self.Box.SetBackgroundColor(tcell.ColorBlack)
 	self.SetRect(COL-(TEXTLENGTH+7), 1, TEXTLENGTH+4, HEIGHT)
 	self.DrawForSubclass(screen, self.Box)
 	tview.Print(screen, self.Text,
 		COL-(TEXTLENGTH+5), TEXTPOSITION, TEXTLENGTH,
-		tview.AlignCenter, tcell.GetColor("#ffffff"))
+		tview.AlignCenter, tcell.ColorWhite)
 }
 
 /* Notification Server : Not an actual Server*/

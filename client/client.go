@@ -15,7 +15,7 @@ var (
 	NotificationServer interface {
 		Send(string)
 	}
-	WHITE_AND_BOLD string = "[#ffffff::b]"
+	WHITE_AND_BOLD string = "[white::b]"
 )
 
 func SetConnection(c *mpd.Client) {
