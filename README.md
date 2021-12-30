@@ -4,15 +4,17 @@
 
  MPD client inspired by ncmpcpp with builtin cover-art view and LastFM integration.
 
-https://user-images.githubusercontent.com/51816057/144759799-b9eecf9e-93ad-43a7-a076-0ae47f03d03c.mp4
+![screenshot](https://user-images.githubusercontent.com/51816057/147781035-69eeeb1c-cd62-4e42-8e71-3b07538704e8.png)
 
 ## Table of Contents
+
 
 * [Roadmap](#roadmap)
 * [Installing / Building](#installing--building)
     * [AUR Package](#aur-package)
     * [Manually](#manually)
-    * [Configuring gomp](#configuring-gomp)
+* [Setting Up](#setting-up)
+
 
 # Roadmap
 
@@ -42,4 +44,7 @@ go build
 ```
 ---
 
-#### [Configuring](https://aditya-K2.github.io/gomp/) gomp
+# Setting Up
+
+- [Configuring](https://aditya-K2.github.io/gomp/)
+- [Video Showcase](https://github.com/aditya-K2/gomp/tree/master/extras/showcase.md)

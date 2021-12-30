@@ -1,6 +1,8 @@
+
+![screenshot](https://user-images.githubusercontent.com/51816057/147781035-69eeeb1c-cd62-4e42-8e71-3b07538704e8.png)
+
 ## Table Of Contents
 
-* [Prerequisites](#prerequisites)
 * [Configuration](#configuration)
 	* [MPD Port](#mpd-port)
 	* [Music Directory](#music-directory)
@@ -10,12 +12,6 @@
 	* [Cache Directory](#cache-directory)
 	* [Key Mappings](#key-mappings)
 	* [Getting Album Art from LastFm API](#getting-album-art-from-lastfm-api)
-
-# Prerequisites
-
-- Music Player Daemon must be setup and Running
-- Go Should Be Installed ( For Building )
-- After Reading this it is highly recommended to read the [sample_config](https://github.com/aditya-K2/gomp/blob/master/sample_config.yml)
 
 # Configuration
 
