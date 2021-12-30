@@ -48,7 +48,8 @@ var (
 		115: "stop",
 		117: "updateDB",
 		100: "deleteSongFromPlaylist",
-		47:  "FocusSearch",
+		63:  "FocusSearch",
+		47:  "FocusBuffSearch",
 	}
 )
 

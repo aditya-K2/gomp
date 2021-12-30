@@ -143,28 +143,29 @@ togglePlayBack : [ "p", "TAB", "[" ] # using the quotes is neccessary.
 
 Following functions are provided :
 
-|          Functions                 |
-|------------------------------------|
-|     showChildrenContent            |
-|     togglePlayBack                 |
-|     showParentContent              |
-|     nextSong                       |
-|     clearPlaylist                  |
-|     previousSong                   |
-|     addToPlaylist                  |
-|     toggleRandom                   |
-|     toggleRepeat                   |
-|     decreaseVolume                 |
-|     increaseVolume                 |
-|     navigateToFiles                |
-|     navigateToPlaylist             |
-|     navigateToMostPlayed           |
-|     navigateToSearch               |
-|     quit                           |
-|     stop                           |
-|     updateDB                       |
-|     deleteSongFromPlaylist         |
-|     FocusSearch                    |
+|          Functions                 | Default Key Mapping |
+|------------------------------------|---------------------|
+|     showChildrenContent            |    <kbd>l</kbd>     |
+|     togglePlayBack                 |    <kbd>p</kbd>     |
+|     showParentContent              |    <kbd>h</kbd>     |
+|     nextSong                       |    <kbd>n</kbd>     |
+|     clearPlaylist                  |    <kbd>c</kbd>     |
+|     previousSong                   |    <kbd>N</kbd>     |
+|     addToPlaylist                  |    <kbd>a</kbd>     |
+|     toggleRandom                   |    <kbd>z</kbd>     |
+|     toggleRepeat                   |    <kbd>r</kbd>     |
+|     decreaseVolume                 |    <kbd>-</kbd>     |
+|     increaseVolume                 |    <kbd>+</kbd>     |
+|     navigateToFiles                |    <kbd>2</kbd>     |
+|     navigateToPlaylist             |    <kbd>1</kbd>     |
+|     navigateToMostPlayed           |    <kbd>3</kbd>     |
+|     navigateToSearch               |    <kbd>4</kbd>     |
+|     quit                           |    <kbd>q</kbd>     |
+|     stop                           |    <kbd>s</kbd>     |
+|     updateDB                       |    <kbd>u</kbd>     |
+|     deleteSongFromPlaylist         |    <kbd>d</kbd>     |
+|     FocusSearch                    |    <kbd>?</kbd>     |
+|     FocusBuffSearch                |    <kbd>/</kbd>     |
 
 ## Getting Album Art from [LastFm API](https://www.last.fm/api)
 

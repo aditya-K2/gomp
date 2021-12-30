@@ -59,7 +59,7 @@ func InsertAt(inputString, stringTobeInserted string, index int) string {
 }
 
 func GetText(width, percentage float64, eta string) string {
-	q := "[#000000:#ffffff:b]"
+	q := "[black:white:b]"
 	var a string
 	a += strings.Repeat(" ", int(width)-len(eta))
 	a = InsertAt(a, eta, int(width/2)-10)
@@ -135,4 +135,49 @@ func CheckDirectoryFmt(path string) string {
 	} else {
 		return path + "/"
 	}
+}
+
+func GetMatchedString(a []int, s, color string) string {
+	// The Matches are sorted so we just have to traverse the Matches and if the two adjacent matches are not consecutive
+	// then we append the color string at the start + offset and the nulcol ( reset ) at end + offset + 1 and then reset
+	// start and end to a[k+1] for e.g if matches := []int{1, 2, 4, 5, 6, 9} then the start will be 1 and end will be 1
+	// now until we reach `4` the value of end will change to `2` that means when we reach `4` the s string will be
+	// `O[yellow:-:-]ut[-:-:-]putString` after that until we reach the end will be changed and finally become `6` and the
+	// s string will be `O[yellow:-:-]ut[-:-:-]p[yellow:-:-]utS[-:-:-]tring`
+	// Please note that after around 45 simulatenously highlighted characters tview stops highlighting and the color
+	// sequences are rendered hope no one has that big of search query.
+	start := a[0]
+	end := a[0]
+	offset := 0
+	nulcol := "[-:-:-]"
+	for k := range a {
+		if k < len(a)-1 && a[k+1]-a[k] == 1 {
+			end = a[k+1]
+		} else if k < len(a)-1 {
+			s = InsertAt(s, color, start+offset)
+			offset += len(color)
+			s = InsertAt(s, nulcol, end+offset+1)
+			offset += len(nulcol)
+			start = a[k+1]
+			end = a[k+1]
+		} else if k == len(a)-1 {
+			s = InsertAt(s, color, start+offset)
+			offset += len(color)
+			s = InsertAt(s, nulcol, end+offset+1)
+			offset += len(nulcol)
+		}
+	}
+	return s
+}
+
+func Unique(intSlice []int) []int {
+	keys := make(map[int]bool)
+	list := []int{}
+	for _, entry := range intSlice {
+		if _, exists := keys[entry]; !exists {
+			keys[entry] = true
+			list = append(list, entry)
+		}
+	}
+	return list
 }

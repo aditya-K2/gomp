@@ -3,20 +3,37 @@ package client
 import (
 	"fmt"
 	"strings"
+
+	"github.com/fhs/gompd/mpd"
 )
 
 type FileNode struct {
-	Children []FileNode
+	Children     []FileNode
 	Path         string
 	Parent       *FileNode
 	AbsolutePath string
+	Title        string
 }
 
-func (f *FileNode) AddChildren(path string) {
+// Source Interface For Fuzzy Searching.
+type FileNodes []FileNode
+
+func (f FileNodes) String(i int) string {
+	if len(f[i].Children) == 0 {
+		return f[i].Title
+	}
+	return f[i].Path
+}
+
+func (f FileNodes) Len() int {
+	return len(f)
+}
+
+func (f *FileNode) AddChildren(path string, title string) {
 	if f.Path != "" {
-		f.Children = append(f.Children, FileNode{Children: make([]FileNode, 0), Path: path, Parent: f, AbsolutePath: f.AbsolutePath + "/" + path})
+		f.Children = append(f.Children, FileNode{Children: make([]FileNode, 0), Path: path, Parent: f, AbsolutePath: f.AbsolutePath + "/" + path, Title: title})
 	} else {
-		f.Children = append(f.Children, FileNode{Children: make([]FileNode, 0), Path: path, Parent: f, AbsolutePath: f.AbsolutePath + path})
+		f.Children = append(f.Children, FileNode{Children: make([]FileNode, 0), Path: path, Parent: f, AbsolutePath: f.AbsolutePath + path, Title: title})
 	}
 }
 
@@ -25,14 +42,14 @@ func (f *FileNode) AddChildNode(m FileNode) {
 	f.Children = append(f.Children, m)
 }
 
-func GenerateDirectoryTree(path []string) *FileNode {
+func GenerateDirectoryTree(path []mpd.Attrs) *FileNode {
 	var head *FileNode = new(FileNode)
 	var head1 *FileNode = head
 	for i := range path {
-		sepPaths := strings.Split(path[i], "/")
+		sepPaths := strings.Split(path[i]["file"], "/")
 		for j := range sepPaths {
 			if len(head.Children) == 0 {
-				head.AddChildren(sepPaths[j])
+				head.AddChildren(sepPaths[j], path[i]["Title"])
 				head = &(head.Children[len(head.Children)-1])
 			} else {
 				var headIsChanged = false
@@ -44,7 +61,7 @@ func GenerateDirectoryTree(path []string) *FileNode {
 					}
 				}
 				if !headIsChanged {
-					head.AddChildren(sepPaths[j])
+					head.AddChildren(sepPaths[j], path[i]["Title"])
 					head = &(head.Children[len(head.Children)-1])
 				}
 			}

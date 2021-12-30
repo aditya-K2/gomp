@@ -7,9 +7,6 @@ import (
 	"github.com/fhs/gompd/mpd"
 
 	"strings"
-
-	"github.com/aditya-K2/gomp/utils"
-	"github.com/aditya-K2/tview"
 )
 
 var (
@@ -18,7 +15,7 @@ var (
 	NotificationServer interface {
 		Send(string)
 	}
-	WHITE_AND_BOLD string = "[#ffffff::b]"
+	WHITE_AND_BOLD string = "[white::b]"
 )
 
 func SetConnection(c *mpd.Client) {
@@ -37,22 +34,6 @@ func TogglePlayBack() error {
 		CONN.Play(-1)
 	}
 	return err
-}
-
-func UpdatePlaylist(inputTable *tview.Table) {
-	_playlistAttr, _ := CONN.PlaylistInfo(-1, -1)
-
-	inputTable.Clear()
-	for i, j := range _playlistAttr {
-		_, _, w, _ := inputTable.GetInnerRect()
-		if j["Title"] == "" || j["Artist"] == "" || j["Album"] == "" {
-			inputTable.SetCell(i, 0, tview.NewTableCell(utils.GetFormattedString(j["file"], w/3)))
-		} else {
-			inputTable.SetCell(i, 0, tview.NewTableCell(utils.GetFormattedString("[green]"+j["Title"], w/3)))
-			inputTable.SetCell(i, 1, tview.NewTableCell(utils.GetFormattedString("[magenta]"+j["Artist"], w/3)))
-			inputTable.SetCell(i, 2, tview.NewTableCell("[yellow]"+j["Album"]))
-		}
-	}
 }
 
 // The GenerateContentSlice returns a slice of the content to be displayed on the Search View. The Slice is generated
@@ -97,70 +78,6 @@ func GenerateContentSlice(selectedSuggestion string) ([]interface{}, error) {
 		}
 	}
 	return ContentSlice, nil
-}
-
-//  UpdateSearchView as the name suggests Updates the Search View the idea is to basically keep a fourth option called
-//  Search in the Navigation bar which will render things from a global ContentSlice at least in the context of the main
-//  function this will also help in persisting the Search Results.
-func UpdateSearchView(inputTable *tview.Table, c []interface{}) {
-	inputTable.Clear()
-	_, _, width, _ := inputTable.GetInnerRect()
-	for i, content := range c {
-		switch content.(type) {
-		case [3]string:
-			{
-				inputTable.SetCell(i, 0, tview.NewTableCell(utils.GetFormattedString("[green]"+content.([3]string)[0], width/3)))
-				inputTable.SetCell(i, 1, tview.NewTableCell(utils.GetFormattedString("[magenta]"+content.([3]string)[1], width/3)))
-				inputTable.SetCell(i, 2, tview.NewTableCell(utils.GetFormattedString("[yellow]"+content.([3]string)[2], width/3)))
-			}
-		case [2]string:
-			{
-				inputTable.SetCell(i, 0, tview.NewTableCell(utils.GetFormattedString("[green]"+content.([2]string)[0], width/3)))
-				inputTable.SetCell(i, 1, tview.NewTableCell(utils.GetFormattedString("[magenta]"+content.([2]string)[1], width/3)))
-			}
-		case string:
-			{
-				b := content.(string)
-				if !strings.HasPrefix(b, WHITE_AND_BOLD) {
-					inputTable.SetCell(i, 0, tview.NewTableCell("[green]"+content.(string)))
-				} else {
-					inputTable.SetCell(i, 0, tview.NewTableCell(content.(string)).SetSelectable(false))
-				}
-			}
-		}
-	}
-}
-
-func Update(f []FileNode, inputTable *tview.Table) {
-	inputTable.Clear()
-	for i, j := range f {
-		if len(j.Children) == 0 {
-			_songAttributes, err := CONN.ListAllInfo(j.AbsolutePath)
-			if err == nil && _songAttributes[0]["Title"] != "" {
-				_, _, w, _ := inputTable.GetInnerRect()
-				inputTable.SetCell(i, 0,
-					tview.NewTableCell("[green]"+utils.GetFormattedString(_songAttributes[0]["Title"], w/3)).
-						SetAlign(tview.AlignLeft))
-
-				inputTable.SetCell(i, 1,
-					tview.NewTableCell("[magenta]"+utils.GetFormattedString(_songAttributes[0]["Artist"], w/3)).
-						SetAlign(tview.AlignLeft))
-
-				inputTable.SetCell(i, 2,
-					tview.NewTableCell("[yellow]"+_songAttributes[0]["Album"]).
-						SetAlign(tview.AlignLeft))
-
-			} else if _songAttributes[0]["Title"] == "" {
-				inputTable.SetCell(i, 0,
-					tview.NewTableCell("[blue]"+j.Path).
-						SetAlign(tview.AlignLeft))
-			}
-		} else {
-			inputTable.SetCell(i, 0,
-				tview.NewTableCell("[yellow::b]"+j.Path).
-					SetAlign(tview.AlignLeft))
-		}
-	}
 }
 
 // GenerateArtistTree Artist Tree is a map of Artist to their Album Map

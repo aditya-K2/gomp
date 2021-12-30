@@ -10,6 +10,7 @@ func GenerateFocusMap() {
 	FocusMap["Playlist"] = true
 	FocusMap["FileBrowser"] = false
 	FocusMap["SearchView"] = false
+	FocusMap["BuffSearchView"] = false
 }
 
 func HasFocus(s string) bool {
