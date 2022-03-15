@@ -130,10 +130,12 @@ func main() {
 				ui.SetFocus("FileBrowser")
 				if len(dirTree.Children[r].Children) == 0 {
 					if id, err := CONN.AddId(dirTree.Children[r].AbsolutePath, -1); err != nil {
-						Notify.Send(fmt.Sprintf("Could not Add Song %s", dirTree.Children[r].Path))
+						Notify.Send(fmt.Sprintf("Could not Add Song %s",
+							dirTree.Children[r].Path))
 					} else {
 						if err := CONN.PlayId(id); err != nil {
-							Notify.Send(fmt.Sprintf("Could Not Play Song %s", dirTree.Children[r].Path))
+							Notify.Send(fmt.Sprintf("Could Not Play Song %s",
+								dirTree.Children[r].Path))
 						}
 					}
 				} else {
@@ -154,7 +156,8 @@ func main() {
 				ui.SetFocus("FileBrowser")
 				if len(dirTree.Children[r].Children) == 0 {
 					if id, err := CONN.AddId(dirTree.Children[Matches[r].Index].AbsolutePath, -1); err != nil {
-						Notify.Send(fmt.Sprintf("Could Not add the Song %s to the Playlist", dirTree.Children[Matches[r].Index].AbsolutePath))
+						Notify.Send(fmt.Sprintf("Could Not add the Song %s to the Playlist",
+							dirTree.Children[Matches[r].Index].AbsolutePath))
 					} else {
 						if err := CONN.PlayId(id); err != nil {
 							Notify.Send("Could not Play the Song")
@@ -180,6 +183,9 @@ func main() {
 					client.Update(dirTree.Parent.Children, UI.ExpandedView)
 					dirTree = dirTree.Parent
 				}
+			} else {
+				Notify.Send("Not Allowed in this View")
+				return
 			}
 		},
 		"nextSong": func() {
@@ -203,7 +209,8 @@ func main() {
 			if ui.HasFocus("FileBrowser") {
 				r, _ := UI.ExpandedView.GetSelection()
 				if err := CONN.Add(dirTree.Children[r].AbsolutePath); err != nil {
-					Notify.Send(fmt.Sprintf("Could not add %s to the Playlist", dirTree.Children[r].Path))
+					Notify.Send(fmt.Sprintf("Could not add %s to the Playlist",
+						dirTree.Children[r].Path))
 				}
 			} else if ui.HasFocus("SearchView") {
 				r, _ := UI.ExpandedView.GetSelection()
@@ -211,10 +218,12 @@ func main() {
 			} else if ui.HasFocus("BuffSearchView") {
 				r, _ := UI.ExpandedView.GetSelection()
 				if err := CONN.Add(dirTree.Children[Matches[r].Index].AbsolutePath); err != nil {
-					Notify.Send(fmt.Sprintf("Could Not Add URI %s to the Playlist", dirTree.Children[Matches[r].Index].Path))
+					Notify.Send(fmt.Sprintf("Could Not Add URI %s to the Playlist",
+						dirTree.Children[Matches[r].Index].Path))
 				} else {
 					ui.SetFocus("FileBrowser")
-					Notify.Send(fmt.Sprintf("URI Added %s to the Playlist", dirTree.Children[Matches[r].Index].Path))
+					Notify.Send(fmt.Sprintf("URI Added %s to the Playlist",
+						dirTree.Children[Matches[r].Index].Path))
 					ui.SetFocus("BuffSearchView")
 				}
 			}
