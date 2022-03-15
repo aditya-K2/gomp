@@ -27,14 +27,14 @@ func SetNotificationServer(n interface{ Send(string) }) {
 	Notify = n
 }
 
-//  Renderer is just a channel on which we will send the Path to the song whose
-//  Image is to be Rendered. This channel is passed to the OpenImage which in turn is called
-//  by the Start() function as a go routine.
+// Renderer is just a channel on which we will send the Path to the song whose
+// Image is to be Rendered. This channel is passed to the OpenImage which in turn is called
+// by the Start() function as a go routine.
 type Renderer struct {
 	c chan string
 }
 
-//  Returns a new Renderer with a string channel
+// NewRenderer Returns a new Renderer with a string channel
 func NewRenderer() *Renderer {
 	c := make(chan string)
 	return &Renderer{
@@ -43,13 +43,13 @@ func NewRenderer() *Renderer {
 }
 
 // Send Image Path to Renderer
-func (self *Renderer) Send(path string) {
-	self.c <- path
+func (r *Renderer) Send(path string) {
+	r.c <- path
 }
 
-// Go Routine that will Be Called and will listen on the channel c
+// OpenImage Go Routine that will Be Called and will listen on the channel c
 // for changes and on getting a string over the channel will open the Image and
-// keep listening again. This will keep the image blocked ( i.e no need to use time.Sleep() etc. )
+// keep listening again. This will keep the image blocked ( i.e. no need to use time.Sleep() etc. )
 // and saves resources too.
 func OpenImage(path string, c chan string) {
 	fw, fh := utils.GetFontWidth()
@@ -57,7 +57,9 @@ func OpenImage(path string, c chan string) {
 	if path != "stop" {
 		extractedImage := GetImagePath(path)
 		img2, _ := GetImg(extractedImage)
-		im, _ = ueberzug.NewImage(img2, int(float32(ui.IMG_X)*fw)+viper.GetInt("ADDITIONAL_PADDING_X"), int(float32(ui.IMG_Y)*fh)+viper.GetInt("ADDITIONAL_PADDING_Y"))
+		im, _ = ueberzug.NewImage(img2,
+			int(float32(ui.ImgX)*fw)+viper.GetInt("ADDITIONAL_PADDING_X"),
+			int(float32(ui.ImgY)*fh)+viper.GetInt("ADDITIONAL_PADDING_Y"))
 	}
 	d := <-c
 	if im != nil {
@@ -70,13 +72,14 @@ func OpenImage(path string, c chan string) {
 	}
 }
 
-// Initialises the Renderer and calls the go routine OpenImage and passes the channel
+// Start Initialises the Renderer and calls the go routine OpenImage and passes the channel
 // as argument.
-func (self *Renderer) Start(path string) {
-	go OpenImage(path, self.c)
+func (r *Renderer) Start(path string) {
+	go OpenImage(path, r.c)
 }
 
-// This Function returns the path to the image that is to be rendered it checks first for the image in the cache
+// GetImagePath This Function returns the path to the image that is to be
+// rendered it checks first for the image in the cache
 // else it adds the image to the cache and then extracts it and renders it.
 func GetImagePath(path string) string {
 	a, err := CONN.ListInfo(path)
@@ -88,7 +91,8 @@ func GetImagePath(path string) string {
 			imagePath := cache.GenerateName(a[0]["artist"], a[0]["album"])
 			absPath := utils.CheckDirectoryFmt(viper.GetString("MUSIC_DIRECTORY")) + path
 			extractedImage = ExtractImageFromFile(absPath, imagePath)
-			if extractedImage == viper.GetString("DEFAULT_IMAGE_PATH") && viper.GetString("GET_COVER_ART_FROM_LAST_FM") == "TRUE" {
+			if extractedImage == viper.GetString("DEFAULT_IMAGE_PATH") &&
+				viper.GetString("GET_COVER_ART_FROM_LAST_FM") == "TRUE" {
 				downloadedImage, err := getImageFromLastFM(a[0]["artist"], a[0]["album"], imagePath)
 				if err == nil {
 					Notify.Send("Image From LastFM")
@@ -116,7 +120,8 @@ func GetImg(uri string) (image.Image, error) {
 	}
 	fw, fh := utils.GetFontWidth()
 	img = resize.Resize(
-		uint(float32(ui.IMG_W)*(fw+float32(viper.GetFloat64("IMAGE_WIDTH_EXTRA_X")))), uint(float32(ui.IMG_H)*(fh+float32(viper.GetFloat64("IMAGE_WIDTH_EXTRA_Y")))),
+		uint(float32(ui.ImgW)*(fw+float32(viper.GetFloat64("IMAGE_WIDTH_EXTRA_X")))),
+		uint(float32(ui.ImgH)*(fh+float32(viper.GetFloat64("IMAGE_WIDTH_EXTRA_Y")))),
 		img,
 		resize.Bilinear,
 	)

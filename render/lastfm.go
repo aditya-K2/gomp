@@ -39,8 +39,11 @@ func downloadImage(url string, imagePath string) (string, error) {
 		if err == nil {
 			b, err := os.Create(imagePath)
 			if err == nil {
-				b.Write(v)
-				return imagePath, nil
+				if _, err := b.Write(v); err == nil {
+					return imagePath, nil
+				} else {
+					return "", errors.New("could Not Write Image")
+				}
 			} else {
 				b.Close()
 				return "", err
@@ -49,5 +52,5 @@ func downloadImage(url string, imagePath string) (string, error) {
 			return "", err
 		}
 	}
-	return "", errors.New("Image Not Received")
+	return "", errors.New("image Not Received")
 }
