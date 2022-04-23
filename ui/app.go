@@ -5,7 +5,12 @@ import (
 	"github.com/gdamore/tcell/v2"
 )
 
-var IMG_X, IMG_Y, IMG_W, IMG_H int
+var (
+	ImgY int
+	ImgW int
+	ImgH int
+	ImgX int
+)
 
 type Application struct {
 	App          *tview.Application
@@ -26,7 +31,7 @@ func NewApplication() *Application {
 	imagePreviewer := tview.NewBox()
 	imagePreviewer.SetBorder(true)
 	imagePreviewer.SetDrawFunc(func(s tcell.Screen, x, y, width, height int) (int, int, int, int) {
-		IMG_X, IMG_Y, IMG_W, IMG_H = imagePreviewer.GetRect()
+		ImgX, ImgY, ImgW, ImgH = imagePreviewer.GetRect()
 		return imagePreviewer.GetInnerRect()
 	})
 

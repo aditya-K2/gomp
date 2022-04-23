@@ -24,6 +24,8 @@ func main() {
 	var mpdConnectionError error
 	CONN, mpdConnectionError := mpd.Dial("tcp", "localhost:"+viper.GetString("MPD_PORT"))
 	if mpdConnectionError != nil {
+		utils.Print("RED", "Could Not Connect to MPD Server\n")
+		utils.Print("GREEN", "Make Sure You Mention the Correct MPD Port in the config file.\n")
 		panic(mpdConnectionError)
 	}
 	defer CONN.Close()
@@ -40,11 +42,15 @@ func main() {
 	// Connecting the Renderer to the Main UI
 	ui.ConnectRenderer(Renderer)
 
-	c, _ := CONN.CurrentSong()
-	if len(c) != 0 {
-		Renderer.Start(c["file"])
+	if c, err := CONN.CurrentSong(); err != nil {
+		utils.Print("RED", "Could Not Retrieve the Current Song\n")
+		panic(err)
 	} else {
-		Renderer.Start("stop")
+		if len(c) != 0 {
+			Renderer.Start(c["file"])
+		} else {
+			Renderer.Start("stop")
+		}
 	}
 
 	UI := ui.NewApplication()
@@ -53,6 +59,11 @@ func main() {
 	notify.ConnectUI(UI)
 
 	fileMap, err := CONN.ListAllInfo("/")
+	if err != nil {
+		utils.Print("RED", "Could Not Generate the File Map\n")
+		utils.Print("GREEN", "Make Sure You Mention the Correct MPD Port in the config file.\n")
+		panic(err)
+	}
 
 	// Generating the Directory Tree for File Navigation.
 	dirTree := client.GenerateDirectoryTree(fileMap)
@@ -60,13 +71,25 @@ func main() {
 	// Default View upon Opening is of Playlist.
 	client.UpdatePlaylist(UI.ExpandedView)
 
-	_v, _ := CONN.Status()
-	// Setting Volume, Random and Repeat Values
-	Volume, _ := strconv.ParseInt(_v["volume"], 10, 64)
-	Random, _ := strconv.ParseBool(_v["random"])
-	Repeat, _ := strconv.ParseBool(_v["repeat"])
+	var Volume int64
+	var Random, Repeat bool
+
+	if _v, err := CONN.Status(); err != nil {
+		utils.Print("RED", "Could Not Get the MPD Status\n")
+		panic(err)
+	} else {
+		// Setting Volume, Random and Repeat Values
+		Volume, _ = strconv.ParseInt(_v["volume"], 10, 64)
+		Random, _ = strconv.ParseBool(_v["random"])
+		Repeat, _ = strconv.ParseBool(_v["repeat"])
+	}
 
 	ArtistTree, err := client.GenerateArtistTree()
+	if err != nil {
+		utils.Print("RED", "Could Not Generate the ArtistTree\n")
+		utils.Print("GREEN", "Make Sure You Mention the Correct MPD Port in the config file.\n")
+		panic(err)
+	}
 
 	// Used for Fuzzy Searching
 	ArtistTreeContent := utils.ConvertToArray(ArtistTree)
@@ -106,8 +129,15 @@ func main() {
 				r, _ := UI.ExpandedView.GetSelection()
 				ui.SetFocus("FileBrowser")
 				if len(dirTree.Children[r].Children) == 0 {
-					id, _ := CONN.AddId(dirTree.Children[r].AbsolutePath, -1)
-					CONN.PlayId(id)
+					if id, err := CONN.AddId(dirTree.Children[r].AbsolutePath, -1); err != nil {
+						Notify.Send(fmt.Sprintf("Could not Add Song %s",
+							dirTree.Children[r].Path))
+					} else {
+						if err := CONN.PlayId(id); err != nil {
+							Notify.Send(fmt.Sprintf("Could Not Play Song %s",
+								dirTree.Children[r].Path))
+						}
+					}
 				} else {
 					client.Update(dirTree.Children[r].Children, UI.ExpandedView)
 					dirTree = &dirTree.Children[r]
@@ -115,7 +145,9 @@ func main() {
 				}
 			} else if ui.HasFocus("Playlist") {
 				r, _ := UI.ExpandedView.GetSelection()
-				CONN.Play(r)
+				if err := CONN.Play(r); err != nil {
+					Notify.Send("Could Not Play the Song")
+				}
 			} else if ui.HasFocus("SearchView") {
 				r, _ := UI.ExpandedView.GetSelection()
 				client.AddToPlaylist(SearchContentSlice[r], true)
@@ -123,8 +155,14 @@ func main() {
 				r, _ := UI.ExpandedView.GetSelection()
 				ui.SetFocus("FileBrowser")
 				if len(dirTree.Children[r].Children) == 0 {
-					id, _ := CONN.AddId(dirTree.Children[Matches[r].Index].AbsolutePath, -1)
-					CONN.PlayId(id)
+					if id, err := CONN.AddId(dirTree.Children[Matches[r].Index].AbsolutePath, -1); err != nil {
+						Notify.Send(fmt.Sprintf("Could Not add the Song %s to the Playlist",
+							dirTree.Children[Matches[r].Index].AbsolutePath))
+					} else {
+						if err := CONN.PlayId(id); err != nil {
+							Notify.Send("Could not Play the Song")
+						}
+					}
 				} else {
 					client.Update(dirTree.Children[Matches[r].Index].Children, UI.ExpandedView)
 					dirTree = &dirTree.Children[Matches[r].Index]
@@ -135,7 +173,9 @@ func main() {
 			}
 		},
 		"togglePlayBack": func() {
-			client.TogglePlayBack()
+			if err := client.TogglePlayBack(); err != nil {
+				Notify.Send("Could not Toggle Play Back")
+			}
 		},
 		"showParentContent": func() {
 			if ui.HasFocus("FileBrowser") {
@@ -143,46 +183,58 @@ func main() {
 					client.Update(dirTree.Parent.Children, UI.ExpandedView)
 					dirTree = dirTree.Parent
 				}
+			} else {
+				Notify.Send("Not Allowed in this View")
+				return
 			}
 		},
 		"nextSong": func() {
-			CONN.Next()
+			if err := CONN.Next(); err != nil {
+				Notify.Send("Could not Select the Next Song")
+			}
 		},
 		"clearPlaylist": func() {
-			CONN.Clear()
-			Notify.Send("Playlist Cleared")
+			if err := CONN.Clear(); err != nil {
+				Notify.Send("Could not Clear the Playlist")
+			} else {
+				Notify.Send("Playlist Cleared")
+			}
 		},
 		"previousSong": func() {
-			CONN.Previous()
+			if err := CONN.Previous(); err != nil {
+				Notify.Send("Could Not Select the Previous Song")
+			}
 		},
 		"addToPlaylist": func() {
 			if ui.HasFocus("FileBrowser") {
 				r, _ := UI.ExpandedView.GetSelection()
-				CONN.Add(dirTree.Children[r].AbsolutePath)
+				if err := CONN.Add(dirTree.Children[r].AbsolutePath); err != nil {
+					Notify.Send(fmt.Sprintf("Could not add %s to the Playlist",
+						dirTree.Children[r].Path))
+				}
 			} else if ui.HasFocus("SearchView") {
 				r, _ := UI.ExpandedView.GetSelection()
 				client.AddToPlaylist(SearchContentSlice[r], false)
 			} else if ui.HasFocus("BuffSearchView") {
 				r, _ := UI.ExpandedView.GetSelection()
-				ui.SetFocus("FileBrowser")
-				err := CONN.Add(dirTree.Children[Matches[r].Index].AbsolutePath)
-				if err != nil {
-					Notify.Send(fmt.Sprintf("Could Not Add URI %s to the Playlist", dirTree.Children[Matches[r].Index].Path))
+				if err := CONN.Add(dirTree.Children[Matches[r].Index].AbsolutePath); err != nil {
+					Notify.Send(fmt.Sprintf("Could Not Add URI %s to the Playlist",
+						dirTree.Children[Matches[r].Index].Path))
 				} else {
-					Notify.Send(fmt.Sprintf("URI Added %s to the Playlist", dirTree.Children[Matches[r].Index].Path))
+					ui.SetFocus("FileBrowser")
+					Notify.Send(fmt.Sprintf("URI Added %s to the Playlist",
+						dirTree.Children[Matches[r].Index].Path))
+					ui.SetFocus("BuffSearchView")
 				}
-				ui.SetFocus("BuffSearchView")
 			}
 		},
 		"toggleRandom": func() {
-			err := CONN.Random(!Random)
-			if err == nil {
+			if err := CONN.Random(!Random); err == nil {
 				Random = !Random
 			}
 		},
 		"toggleRepeat": func() {
-			err := CONN.Repeat(!Repeat)
-			if err == nil {
+			if err := CONN.Repeat(!Repeat); err == nil {
 				Repeat = !Repeat
 			}
 		},
@@ -192,7 +244,9 @@ func main() {
 			} else {
 				Volume -= 10
 			}
-			CONN.SetVolume(int(Volume))
+			if err := CONN.SetVolume(int(Volume)); err != nil {
+				Notify.Send("Could Not Decrease the Volume")
+			}
 		},
 		"increaseVolume": func() {
 			if Volume >= 100 {
@@ -200,7 +254,9 @@ func main() {
 			} else {
 				Volume += 10
 			}
-			CONN.SetVolume(int(Volume))
+			if err := CONN.SetVolume(int(Volume)); err != nil {
+				Notify.Send("Could Not Increase the Volume")
+			}
 		},
 		"navigateToFiles": func() {
 			ui.SetFocus("FileBrowser")
@@ -229,20 +285,26 @@ func main() {
 			}
 		},
 		"stop": func() {
-			CONN.Stop()
-			Notify.Send("Playback Stopped")
+			if err := CONN.Stop(); err != nil {
+				Notify.Send("Could not Stop the Playback")
+			} else {
+				Notify.Send("Playback Stopped")
+			}
 		},
 		"updateDB": func() {
 			_, err = CONN.Update("")
 			if err != nil {
-				panic(err)
+				Notify.Send("Could Not Update the Database")
+			} else {
+				Notify.Send("Database Updated")
 			}
-			Notify.Send("Database Updated")
 		},
 		"deleteSongFromPlaylist": func() {
 			if ui.HasFocus("Playlist") {
 				r, _ := UI.ExpandedView.GetSelection()
-				CONN.Delete(r, -1)
+				if err := CONN.Delete(r, -1); err != nil {
+					Notify.Send("Could not Remove the Song from Playlist")
+				}
 			}
 		},
 		"FocusSearch": func() {

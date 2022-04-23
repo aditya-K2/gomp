@@ -30,8 +30,8 @@ func GetWidth() *winsize {
 
 func GetFontWidth() (float32, float32) {
 	g := GetWidth()
-	fw := (float32(g.Xpixel) / float32(g.Col))
-	fh := (float32(g.Ypixel) / float32(g.Row))
+	fw := float32(g.Xpixel) / float32(g.Col)
+	fh := float32(g.Ypixel) / float32(g.Row)
 	return fw, fh
 }
 
@@ -109,19 +109,9 @@ func Copy(sourceImage, destinationImage string) error {
 	}
 }
 
-func Join(stringSlice []string) string {
-	var _s string = stringSlice[0]
-	for i := 1; i < len(stringSlice); i++ {
-		if _s != "" {
-			_s += ("/" + stringSlice[i])
-		}
-	}
-	return _s
-}
-
 func GetFormattedString(s string, width int) string {
 	if len(s) < width {
-		s += strings.Repeat(" ", (width - len(s)))
+		s += strings.Repeat(" ", width-len(s))
 	} else {
 		s = s[:(width - 2)]
 		s += "  "
@@ -172,7 +162,7 @@ func GetMatchedString(a []int, s, color string) string {
 
 func Unique(intSlice []int) []int {
 	keys := make(map[int]bool)
-	list := []int{}
+	var list []int
 	for _, entry := range intSlice {
 		if _, exists := keys[entry]; !exists {
 			keys[entry] = true
