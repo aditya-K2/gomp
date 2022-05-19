@@ -350,6 +350,18 @@ func main() {
 			FuncMap[val]()
 			return nil
 		} else {
+			if ui.HasFocus("Playlist") {
+				if e.Rune() == 'j' || e.Rune() == 'k' {
+					if p, err := CONN.PlaylistInfo(-1, -1); err != nil {
+						Notify.Send("Error Getting PlaylistInfo")
+					} else {
+						if len(p) == 0 {
+							Notify.Send("Empty Playlist")
+							return nil
+						}
+					}
+				}
+			}
 			return e
 		}
 	})
