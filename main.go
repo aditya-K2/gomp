@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 	"time"
 
@@ -25,8 +26,9 @@ func main() {
 	CONN, mpdConnectionError := mpd.Dial("tcp", "localhost:"+viper.GetString("MPD_PORT"))
 	if mpdConnectionError != nil {
 		utils.Print("RED", "Could Not Connect to MPD Server\n")
+		utils.Print("CYAN", "Check Whether the MPD Server is Turned ON or\n")
 		utils.Print("GREEN", "Make Sure You Mention the Correct MPD Port in the config file.\n")
-		panic(mpdConnectionError)
+		os.Exit(1)
 	}
 	defer CONN.Close()
 
@@ -44,7 +46,7 @@ func main() {
 
 	if c, err := CONN.CurrentSong(); err != nil {
 		utils.Print("RED", "Could Not Retrieve the Current Song\n")
-		panic(err)
+		os.Exit(1)
 	} else {
 		if len(c) != 0 {
 			Renderer.Start(c["file"])
@@ -62,7 +64,7 @@ func main() {
 	if err != nil {
 		utils.Print("RED", "Could Not Generate the File Map\n")
 		utils.Print("GREEN", "Make Sure You Mention the Correct MPD Port in the config file.\n")
-		panic(err)
+		os.Exit(1)
 	}
 
 	// Generating the Directory Tree for File Navigation.
@@ -76,7 +78,7 @@ func main() {
 
 	if _v, err := CONN.Status(); err != nil {
 		utils.Print("RED", "Could Not Get the MPD Status\n")
-		panic(err)
+		os.Exit(1)
 	} else {
 		// Setting Volume, Random and Repeat Values
 		Volume, _ = strconv.ParseInt(_v["volume"], 10, 64)
@@ -88,7 +90,7 @@ func main() {
 	if err != nil {
 		utils.Print("RED", "Could Not Generate the ArtistTree\n")
 		utils.Print("GREEN", "Make Sure You Mention the Correct MPD Port in the config file.\n")
-		panic(err)
+		os.Exit(1)
 	}
 
 	// Used for Fuzzy Searching

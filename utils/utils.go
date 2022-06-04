@@ -2,6 +2,7 @@ package utils
 
 import (
 	"io/ioutil"
+	"os"
 	"strconv"
 	"strings"
 	"syscall"
@@ -17,13 +18,14 @@ type winsize struct {
 
 func GetWidth() *winsize {
 	ws := &winsize{}
-	retCode, _, errno := syscall.Syscall(syscall.SYS_IOCTL,
+	retCode, _, _ := syscall.Syscall(syscall.SYS_IOCTL,
 		uintptr(syscall.Stdin),
 		uintptr(syscall.TIOCGWINSZ),
 		uintptr(unsafe.Pointer(ws)))
 
 	if int(retCode) == -1 {
-		panic(errno)
+		Print("RED", "Error Getting Font Width\n")
+		os.Exit(1)
 	}
 	return ws
 }

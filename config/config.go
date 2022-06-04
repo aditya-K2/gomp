@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -33,7 +32,9 @@ func ReadConfig() {
 	viper.AddConfigPath(HOME_DIR + "/.config/gomp")
 	err := viper.ReadInConfig()
 	if err != nil {
-		fmt.Println("Could Not Read Config file.")
+		utils.Print("RED", "Could Not Read Config file.\n")
+		utils.Print("GREEN", "Make a config file $HOME/.config/gomp/config.yml\n")
+		os.Exit(1)
 	}
 }
 
@@ -54,8 +55,11 @@ func GenerateKeyMap(funcMap map[string]func()) {
 func getMusicDirectory() string {
 	content, err := ioutil.ReadFile(HOME_DIR + "/.config/mpd/mpd.conf")
 	if err != nil {
-		fmt.Println("No Config File for mpd Found")
-		panic(err)
+		utils.Print("RED", "There is No Config File for MPD at $HOME/.config/mpd/mpd.conf\n")
+		utils.Print("CYAN", "Make Sure there is mpd.conf file or Mention the ")
+		utils.Print("GREEN", "music_directory")
+		utils.Print("CYAN", " in the config file at $HOME/.config/gomp/config.yml\n")
+		os.Exit(1)
 	}
 	ab := string(content)
 	maps := strings.Split(ab, "\n")
