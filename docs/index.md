@@ -15,7 +15,7 @@
 
 # Configuration
 
-Configuration of gomp is done through a `config.yml` file in `$HOME/config/gomp/`
+Configuration of gomp is done through a `config.yml` file in `$HOME/.config/gomp/`
 
 It is essential to have some config options defined in order to have a smooth experience.
 
