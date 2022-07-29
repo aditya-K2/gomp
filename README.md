@@ -15,6 +15,8 @@
     * [Manually](#manually)
 * [Setting Up](#setting-up)
 
+#### Drop your Feedback or Questions about the Documentation [Here](https://github.com/aditya-K2/gomp/issues/25)
+
 
 # Roadmap
 
