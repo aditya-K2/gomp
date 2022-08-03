@@ -42,17 +42,6 @@ func main() {
 	// Connecting the Renderer to the Main UI
 	ui.ConnectRenderer(Renderer)
 
-	if c, err := CONN.CurrentSong(); err != nil {
-		utils.Print("RED", "Could Not Retrieve the Current Song\n")
-		panic(err)
-	} else {
-		if len(c) != 0 {
-			Renderer.Start(c["file"])
-		} else {
-			Renderer.Start("stop")
-		}
-	}
-
 	UI := ui.NewApplication()
 
 	// Connecting the Notification Server to the Main UI
@@ -96,6 +85,17 @@ func main() {
 
 	Notify := notify.NewNotificationServer()
 	Notify.Start()
+
+	if c, err := CONN.CurrentSong(); err != nil {
+		utils.Print("RED", "Could Not Retrieve the Current Song\n")
+		panic(err)
+	} else {
+		if len(c) != 0 {
+			Renderer.Start(c["file"])
+		} else {
+			Renderer.Start("stop")
+		}
+	}
 
 	// Connecting Notification Server to Client and Rendering Module so that they can send Notifications
 	client.SetNotificationServer(Notify)
