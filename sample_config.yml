@@ -1,3 +1,6 @@
+# Note It is neccessary to use /home/your_user_name instead of ~
+# Read more about it here: https://github.com/aditya-K2/gomp/issues/1#issuecomment-1205090265
+
 MUSIC_DIRECTORY: "/D/Downloads/AllSongs/"
   # Your Music Directory (i.e music_directory in mpd.conf)
 
@@ -49,6 +52,8 @@ MPD_PORT : "6600"
 
 
 DEFAULT_IMAGE_PATH:   "default.jpg"
+# Note It is neccessary to use /home/your_user_name instead of ~
+# Read more about it here: https://github.com/aditya-K2/gomp/issues/1#issuecomment-1205090265
 
 GET_COVER_ART_FROM_LAST_FM : "TRUE" # Turn On Getting Album art from lastfm api
 LASTFM_API_KEY: "YOUR API KEY HERE"
@@ -76,5 +81,7 @@ togglePlayBack : [ "p", "SPACE", "]" ] # using the quotes is neccessary.
 # 3. Fallback to the default image.
 #
 #
-CACHE_DIR : "/path/to/the/cache/Directory" # for e.g "~/.config/gomp/cache/"
+CACHE_DIR : "/path/to/the/cache/Directory" # for e.g "/home/user_name/.config/gomp/cache/"
+  # Note It is neccessary to use /home/your_user_name instead of ~
+  # Read more about it here: https://github.com/aditya-K2/gomp/issues/1#issuecomment-1205090265
   # You will have to manually create this directory.
