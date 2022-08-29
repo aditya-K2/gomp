@@ -8,9 +8,9 @@ import (
 	"github.com/aditya-K2/gomp/cache"
 	"github.com/aditya-K2/gomp/client"
 	"github.com/aditya-K2/gomp/config"
+	"github.com/aditya-K2/gomp/notify"
 	"github.com/aditya-K2/gomp/render"
 	"github.com/aditya-K2/gomp/ui"
-	"github.com/aditya-K2/gomp/ui/notify"
 	"github.com/aditya-K2/gomp/utils"
 
 	"github.com/aditya-K2/fuzzy"
