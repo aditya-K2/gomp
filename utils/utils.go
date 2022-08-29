@@ -58,16 +58,6 @@ func InsertAt(inputString, stringTobeInserted string, index int) string {
 	return s
 }
 
-func GetText(width, percentage float64, eta string) string {
-	q := "[black:white:b]"
-	var a string
-	a += strings.Repeat(" ", int(width)-len(eta))
-	a = InsertAt(a, eta, int(width/2)-10)
-	a = InsertAt(a, "[-:-:-]", int(width*percentage/100))
-	q += a
-	return q
-}
-
 func ConvertToArray(ArtistTree map[string]map[string]map[string]string) []string {
 	var p []string
 	for k2, v := range ArtistTree {

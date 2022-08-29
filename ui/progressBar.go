@@ -3,17 +3,17 @@ package ui
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/fhs/gompd/mpd"
+	"github.com/gdamore/tcell/v2"
 
 	"github.com/aditya-K2/gomp/utils"
-
 	"github.com/aditya-K2/tview"
-	"github.com/gdamore/tcell/v2"
 )
 
 var (
-	CurrentSong string
+	CurrentSong string = ""
 	CONN        *mpd.Client
 	RENDERER    interface{ Send(string) }
 )
@@ -26,48 +26,63 @@ func ConnectRenderer(r interface{ Send(string) }) {
 	RENDERER = r
 }
 
-// The progressBar is just a string which is separated by the color formatting String
-// for e.g
-// "[:#fbff00:]******************`innerText`[-:-:-]                "
-// the above string shows represents the progress until [-:-:-]
-// [-:-:-] this string represents resetting colors so the substring before it would be with a
-// colored background. this is done by calculating the innerRect of the table and taking that length as
-// 100% and then representing the rest of the information in relation to it
-type progressBar struct {
-	t *tview.Table
+type ProgressBar struct {
+	*tview.Box
+	BarTitle     string
+	BarText      string
+	BarTopTitle  string
+	progressFunc func() (string, string, string, float64)
 }
 
-// This Function returns a progressBar with a table of two rows
-// the First row will contain information about the current Song
-// and the Second one will contain the progressBar
-func newProgressBar() *progressBar {
-	p := progressBar{}
-
-	a := tview.NewTable().
-		SetCell(0, 0, tview.NewTableCell("")).
-		SetCell(1, 0, tview.NewTableCell("")).
-		SetCell(2, 0, tview.NewTableCell(""))
-
-	a.SetBackgroundColor(tcell.ColorDefault)
-	a.SetBorder(true)
-
-	a.SetDrawFunc(func(s tcell.Screen, x, y, width, height int) (int, int, int, int) {
-		p.updateTitle()
-		p.updateProgress()
-		return p.t.GetInnerRect()
-	})
-
-	CurrentSong = ""
-
-	p = progressBar{a}
-	return &p
+func (self *ProgressBar) SetProgressFunc(pfunc func() (string, string, string, float64)) *ProgressBar {
+	self.progressFunc = pfunc
+	return self
 }
 
-func (s *progressBar) updateTitle() {
+func NewProgressBar() *ProgressBar {
+	return &ProgressBar{
+		Box: tview.NewBox(),
+	}
+}
+
+func GetProgressGlyph(width, percentage float64, btext string) string {
+	q := "[black:white:b]"
+	var a string
+	a += strings.Repeat(" ", int(width)-len(btext))
+	a = utils.InsertAt(a, btext, int(width/2)-10)
+	a = utils.InsertAt(a, "[-:-:-]", int(width*percentage/100))
+	q += a
+	return q
+}
+
+func (self *ProgressBar) Draw(screen tcell.Screen) {
+	var (
+		OFFSET int = 1
+	)
+	self.Box.SetBorder(true)
+	self.Box.SetBackgroundColor(tcell.ColorDefault)
+	var percentage float64
+	self.BarTitle, self.BarTopTitle, self.BarText, percentage = self.progressFunc()
+	self.DrawForSubclass(screen, self.Box)
+	self.Box.SetTitle(self.BarTopTitle)
+	self.Box.SetTitleAlign(tview.AlignRight)
+	x, y, _width, _ := self.Box.GetInnerRect()
+	tview.Print(screen, self.BarTitle, x+OFFSET, y, _width, tview.AlignLeft, tcell.ColorWhite)
+	tview.Print(screen,
+		GetProgressGlyph(float64(_width-OFFSET-1),
+			percentage,
+			self.BarText),
+		x, y+2, _width-OFFSET, tview.AlignRight, tcell.ColorWhite)
+}
+
+func progressFunction() (string, string, string, float64) {
 	_currentAttributes, err := CONN.CurrentSong()
+	var song, top, text string
+	var percentage float64
 	if err == nil {
-		song := "[green::bi]" + _currentAttributes["Title"] + "[-:-:-] - " + "[blue::b]" + _currentAttributes["Artist"] + "\n"
-		s.t.GetCell(0, 0).Text = song
+		song = "[green::bi]" +
+			_currentAttributes["Title"] + "[-:-:-] - " + "[blue::b]" +
+			_currentAttributes["Artist"] + "\n"
 		if len(_currentAttributes) == 0 && CurrentSong != "" {
 			CurrentSong = ""
 			RENDERER.Send("stop")
@@ -75,39 +90,29 @@ func (s *progressBar) updateTitle() {
 			RENDERER.Send(_currentAttributes["file"])
 			CurrentSong = song
 		}
+	} else {
+		utils.Print("RED", "Error Retrieving Current Song\n")
+		panic(err)
 	}
-}
-
-func (s *progressBar) updateProgress() {
 	_status, err := CONN.Status()
-	_, _, _width, _ := s.t.GetInnerRect()
 	el, err1 := strconv.ParseFloat(_status["elapsed"], 8)
 	du, err := strconv.ParseFloat(_status["duration"], 8)
+	top = fmt.Sprintf("[[::i] %s [-:-:-]Shuffle: %s Repeat: %s Volume: %s ]",
+		utils.FormatString(_status["state"]),
+		utils.FormatString(_status["random"]),
+		utils.FormatString(_status["repeat"]),
+		_status["volume"])
 	if du != 0 {
-		percentage := el / du * 100
+		percentage = el / du * 100
 		if err == nil && err1 == nil {
-			s.t.SetTitle(fmt.Sprintf("[[::i] %s [-:-:-]Shuffle: %s Repeat: %s Volume: %s ]",
-				utils.FormatString(_status["state"]),
-				utils.FormatString(_status["random"]),
-				utils.FormatString(_status["repeat"]),
-				_status["volume"])).
-				SetTitleAlign(tview.AlignRight)
-			s.t.GetCell(2, 0).Text = utils.GetText(float64(_width), percentage, utils.StrTime(el)+"/"+utils.StrTime(du)+"("+strconv.FormatFloat(percentage, 'f', 2, 32)+"%"+")")
+			text = utils.StrTime(el) + "/" + utils.StrTime(du) +
+				"(" + strconv.FormatFloat(percentage, 'f', 2, 32) + "%" + ")"
 		} else {
-			s.t.SetTitle(fmt.Sprintf("[[::i] %s [-:-:-]Shuffle: %s Repeat: %s]",
-				utils.FormatString(_status["state"]),
-				utils.FormatString(_status["random"]),
-				utils.FormatString(_status["repeat"]))).
-				SetTitleAlign(tview.AlignRight)
-			s.t.GetCell(2, 0).Text = ""
+			text = ""
 		}
 	} else {
-		s.t.SetTitle(fmt.Sprintf("[[::i] %s [-:-:-]Shuffle: %s Repeat: %s Volume: %s ]",
-			utils.FormatString(_status["state"]),
-			utils.FormatString(_status["random"]),
-			utils.FormatString(_status["repeat"]),
-			_status["volume"])).
-			SetTitleAlign(tview.AlignRight)
-		s.t.GetCell(2, 0).Text = utils.GetText(float64(_width), 0, "   ---:---")
+		text = "   ---:---"
+		percentage = 0
 	}
+	return song, top, text, percentage
 }

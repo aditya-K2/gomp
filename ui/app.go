@@ -17,13 +17,14 @@ type Application struct {
 	ExpandedView *tview.Table
 	Navbar       *tview.Table
 	SearchBar    *tview.InputField
-	ProgressBar  *progressBar
+	ProgressBar  *ProgressBar
 	Pages        *tview.Pages
 }
 
 func NewApplication() *Application {
 
-	var pBar *progressBar = newProgressBar()
+	pBar := NewProgressBar()
+	pBar.SetProgressFunc(progressFunction)
 	expandedView := tview.NewTable()
 	Navbar := tview.NewTable()
 	searchBar := tview.NewInputField()
@@ -67,7 +68,7 @@ func NewApplication() *Application {
 
 	MainFlex := tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(searchBarFlex, 0, 8, false).
-		AddItem(pBar.t, 5, 1, false)
+		AddItem(pBar, 5, 1, false)
 
 	expandedView.SetBorderPadding(1, 1, 1, 1).SetBorder(true)
 	expandedView.SetSelectable(true, false)
