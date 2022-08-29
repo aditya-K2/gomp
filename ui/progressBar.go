@@ -26,12 +26,19 @@ func ConnectRenderer(r interface{ Send(string) }) {
 	RENDERER = r
 }
 
+// ProgressBar is a two-lined Box. First line is the BarTitle
+// Second being the actual progress done.
+// Use SetProgressFunc to provide the callback which provides the Fields each time the ProgressBar will be Drawn.
+// The progressFunc must return (BarTitle, BarTopTitle, BarText, percentage) respectively
 type ProgressBar struct {
 	*tview.Box
 	BarTitle     string
 	BarText      string
 	BarTopTitle  string
-	progressFunc func() (string, string, string, float64)
+	progressFunc func() (BarTitle string,
+		BarTopTitle string,
+		BarText string,
+		percentage float64)
 }
 
 func (self *ProgressBar) SetProgressFunc(pfunc func() (string, string, string, float64)) *ProgressBar {
