@@ -92,8 +92,8 @@ func main() {
 	// Used for Fuzzy Searching
 	ArtistTreeContent := utils.ConvertToArray(ArtistTree)
 
-	Notify := notify.NewNotificationServer()
-	Notify.Start()
+	globals.Notify = notify.NewNotificationServer()
+	globals.Notify.Start()
 
 	if c, err := CONN.CurrentSong(); err != nil {
 		utils.Print("RED", "Could Not Retrieve the Current Song\n")
@@ -107,8 +107,8 @@ func main() {
 	}
 
 	// Connecting Notification Server to Client and Rendering Module so that they can send Notifications
-	client.SetNotificationServer(Notify)
-	render.SetNotificationServer(Notify)
+	client.SetNotificationServer(globals.Notify)
+	render.SetNotificationServer(globals.Notify)
 
 	// This Function Is Responsible for Changing the Focus it uses the Focus Map and Based on it Chooses
 	// the Draw Function
@@ -127,7 +127,7 @@ func main() {
 		},
 		"togglePlayBack": func() {
 			if err := client.TogglePlayBack(); err != nil {
-				Notify.Send("Could not Toggle Play Back")
+				globals.Notify.Send("Could not Toggle Play Back")
 			}
 		},
 		"showParentContent": func() {
@@ -135,19 +135,19 @@ func main() {
 		},
 		"nextSong": func() {
 			if err := CONN.Next(); err != nil {
-				Notify.Send("Could not Select the Next Song")
+				globals.Notify.Send("Could not Select the Next Song")
 			}
 		},
 		"clearPlaylist": func() {
 			if err := CONN.Clear(); err != nil {
-				Notify.Send("Could not Clear the Playlist")
+				globals.Notify.Send("Could not Clear the Playlist")
 			} else {
-				Notify.Send("Playlist Cleared")
+				globals.Notify.Send("Playlist Cleared")
 			}
 		},
 		"previousSong": func() {
 			if err := CONN.Previous(); err != nil {
-				Notify.Send("Could Not Select the Previous Song")
+				globals.Notify.Send("Could Not Select the Previous Song")
 			}
 		},
 		"addToPlaylist": func() {
@@ -170,7 +170,7 @@ func main() {
 				Volume -= 10
 			}
 			if err := CONN.SetVolume(int(Volume)); err != nil {
-				Notify.Send("Could Not Decrease the Volume")
+				globals.Notify.Send("Could Not Decrease the Volume")
 			}
 		},
 		"increaseVolume": func() {
@@ -180,7 +180,7 @@ func main() {
 				Volume += 10
 			}
 			if err := CONN.SetVolume(int(Volume)); err != nil {
-				Notify.Send("Could Not Increase the Volume")
+				globals.Notify.Send("Could Not Increase the Volume")
 			}
 		},
 		"navigateToFiles": func() {
@@ -206,17 +206,17 @@ func main() {
 		},
 		"stop": func() {
 			if err := CONN.Stop(); err != nil {
-				Notify.Send("Could not Stop the Playback")
+				globals.Notify.Send("Could not Stop the Playback")
 			} else {
-				Notify.Send("Playback Stopped")
+				globals.Notify.Send("Playback Stopped")
 			}
 		},
 		"updateDB": func() {
 			_, err = CONN.Update("")
 			if err != nil {
-				Notify.Send("Could Not Update the Database")
+				globals.Notify.Send("Could Not Update the Database")
 			} else {
-				Notify.Send("Database Updated")
+				globals.Notify.Send("Database Updated")
 			}
 		},
 		"deleteSongFromPlaylist": func() {
@@ -265,12 +265,19 @@ func main() {
 			if views.GetCurrentView().GetViewName() == "PlaylistView" {
 				if e.Rune() == 'j' || e.Rune() == 'k' {
 					if p, err := CONN.PlaylistInfo(-1, -1); err != nil {
-						Notify.Send("Error Getting PlaylistInfo")
+						globals.Notify.Send("Error Getting PlaylistInfo")
 					} else {
 						if len(p) == 0 {
-							Notify.Send("Empty Playlist")
+							globals.Notify.Send("Empty Playlist")
 							return nil
 						}
+					}
+				}
+			} else if views.GetCurrentView().GetViewName() == "SearchView" {
+				if e.Rune() == 'j' || e.Rune() == 'k' {
+					if globals.SearchContentSlice == nil || len(globals.SearchContentSlice) == 0 {
+						globals.Notify.Send("No Search Results")
+						return nil
 					}
 				}
 			}
@@ -288,7 +295,7 @@ func main() {
 				globals.SearchContentSlice = nil
 				globals.SearchContentSlice, err = client.GenerateContentSlice(globals.Ui.SearchBar.GetText())
 				if err != nil {
-					Notify.Send("Could Not Retrieve the Results")
+					globals.Notify.Send("Could Not Retrieve the Results")
 				} else {
 					globals.Ui.SearchBar.SetText("")
 					globals.Ui.App.SetFocus(globals.Ui.ExpandedView)

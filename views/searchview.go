@@ -1,7 +1,6 @@
 package views
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/aditya-K2/gomp/client"
@@ -20,12 +19,15 @@ func (s SearchView) GetViewName() string {
 func (s SearchView) ShowChildrenContent() {
 	UI := globals.Ui
 	SearchContentSlice := globals.SearchContentSlice
-	r, _ := UI.ExpandedView.GetSelection()
-	client.AddToPlaylist(SearchContentSlice[r], true)
+	if len(globals.SearchContentSlice) <= 0 || globals.SearchContentSlice == nil {
+		globals.Notify.Send("No Search Results")
+	} else {
+		r, _ := UI.ExpandedView.GetSelection()
+		client.AddToPlaylist(SearchContentSlice[r], true)
+	}
 }
 
 func (s SearchView) ShowParentContent() {
-	fmt.Println(s)
 	globals.Notify.Send("Not Allowed in this View")
 	return
 }
@@ -33,8 +35,12 @@ func (s SearchView) ShowParentContent() {
 func (s SearchView) AddToPlaylist() {
 	UI := globals.Ui
 	SearchContentSlice := globals.SearchContentSlice
-	r, _ := UI.ExpandedView.GetSelection()
-	client.AddToPlaylist(SearchContentSlice[r], false)
+	if len(globals.SearchContentSlice) <= 0 || globals.SearchContentSlice == nil {
+		globals.Notify.Send("No Search Results")
+	} else {
+		r, _ := UI.ExpandedView.GetSelection()
+		client.AddToPlaylist(SearchContentSlice[r], false)
+	}
 }
 
 func (p SearchView) Quit() {

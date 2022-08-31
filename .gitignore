@@ -2,3 +2,4 @@ gomp
 .idea
 *.jpg
 e.go
+.fuse*
