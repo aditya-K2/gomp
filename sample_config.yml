@@ -49,7 +49,15 @@ IMAGE_WIDTH_EXTRA_Y  : -3.75
 
 MPD_PORT : "6600"
   # Port on which music player daemon is running
+  # Do not provide this if you are connecting through a unix socket
 
+NETWORK_TYPE : "tcp" # Defaults to tcp if not provided, use "unix" if MPD Server is configured to expose
+  # a unix socket rather than a port
+  # Known networks are "tcp", "tcp4" (IPv4-only), "tcp6" (IPv6-only), "udp", "udp4" (IPv4-only), "udp6" (IPv6-only),
+  # "ip", "ip4" (IPv4-only), "ip6" (IPv6-only), "unix" and "unixpacket".
+
+NETWORK_ADDRESS : "localhost" # Defaults to localhost if not provided,
+  # This is the address of the host, for e.g "localhost"/ "127.0.0.1" / a Unix Socket "/home/$USER/.mpd/socket"
 
 DEFAULT_IMAGE_PATH:   "default.jpg"
 # Note It is neccessary to use /home/your_user_name instead of ~
