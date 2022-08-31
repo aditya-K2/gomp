@@ -18,6 +18,8 @@ var (
 		"ADDITIONAL_PADDING_Y": 16,
 		"IMAGE_WIDTH_EXTRA_X":  -1.5,
 		"IMAGE_WIDTH_EXTRA_Y":  -3.75,
+		"NETWORK_TYPE":         "tcp",
+		"NETWORK_ADDRESS":      "localhost",
 		"MUSIC_DIRECTORY":      utils.CheckDirectoryFmt(getMusicDirectory()),
 		"PORT":                 "6600",
 		"DEFAULT_IMAGE_PATH":   "default.jpg",
