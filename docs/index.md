@@ -29,6 +29,7 @@ MPD_PORT : "6600"
 ## Network Type
 
 By Default gomp assumes that you connect to MPD Server through tcp, But if your MPD Server is configured to expose a unix socket rather than a port, then you can specify network type to "unix"
+Defaults to `tcp` if not provided.
 
 ```yml
 NETWORK_TYPE : "unix"
@@ -39,7 +40,7 @@ Read More about it in the [sample_config](https://github.com/aditya-K2/gomp/blob
 ## Network Address
 
 The Address of the Host for e.g `"localhost"` or `"/path/to/unix/socket/"` if you are using unix sockets
-Defaults to `localhost`
+Defaults to `localhost` if not provided.
 
 ```yml
 NETWORK_ADDRESS : "/home/$USER/.mpd/socket"
