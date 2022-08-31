@@ -48,5 +48,5 @@ go build
 
 # Setting Up
 
-- [Configuring](https://aditya-K2.github.io/gomp/)
+- [Documentation](https://aditya-K2.github.io/gomp/)
 - [Video Showcase](https://github.com/aditya-K2/gomp/tree/master/extras/showcase.md)
