@@ -18,12 +18,12 @@ var (
 	WHITE_AND_BOLD string = "[white::b]"
 )
 
-func SetConnection(c *mpd.Client) {
-	CONN = c
-}
-
 func SetNotificationServer(n interface{ Send(string) }) {
 	NotificationServer = n
+}
+
+func SetConnection(c *mpd.Client) {
+	CONN = c
 }
 
 func TogglePlayBack() error {
