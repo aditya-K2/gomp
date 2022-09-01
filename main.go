@@ -50,9 +50,6 @@ func main() {
 
 	ui.Ui = ui.NewApplication()
 
-	// Connecting the Notification Server to the Main UI
-	notify.ConnectUI(ui.Ui)
-
 	fileMap, err := CONN.ListAllInfo("/")
 	if err != nil {
 		utils.Print("RED", "Could Not Generate the File Map\n")
