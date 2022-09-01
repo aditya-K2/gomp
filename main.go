@@ -7,7 +7,6 @@ import (
 	"github.com/aditya-K2/gomp/cache"
 	"github.com/aditya-K2/gomp/client"
 	"github.com/aditya-K2/gomp/config"
-	"github.com/aditya-K2/gomp/globals"
 	"github.com/aditya-K2/gomp/notify"
 	"github.com/aditya-K2/gomp/render"
 	"github.com/aditya-K2/gomp/ui"
@@ -31,30 +30,28 @@ func main() {
 	} else if nt == "unix" && port != "" {
 		port = ""
 	}
-	globals.Conn, mpdConnectionError = mpd.Dial(nt,
+	client.Conn, mpdConnectionError = mpd.Dial(nt,
 		viper.GetString("NETWORK_ADDRESS")+del+port)
 	if mpdConnectionError != nil {
 		utils.Print("RED", "Could Not Connect to MPD Server\n")
 		utils.Print("GREEN", "Make Sure You Mention the Correct MPD Port in the config file.\n")
 		panic(mpdConnectionError)
 	}
-	CONN := globals.Conn
+	CONN := client.Conn
 	defer CONN.Close()
 
-	client.SetConnection(CONN)
 	ui.SetConnection(CONN)
-	render.SetConnection(CONN)
 
 	cache.SetCacheDir(viper.GetString("CACHE_DIR"))
 
-	globals.Renderer = render.NewRenderer()
+	render.Rendr = render.NewRenderer()
 	// Connecting the Renderer to the Main UI
-	ui.ConnectRenderer(globals.Renderer)
+	ui.ConnectRenderer(render.Rendr)
 
-	globals.Ui = ui.NewApplication()
+	ui.Ui = ui.NewApplication()
 
 	// Connecting the Notification Server to the Main UI
-	notify.ConnectUI(globals.Ui)
+	notify.ConnectUI(ui.Ui)
 
 	fileMap, err := CONN.ListAllInfo("/")
 	if err != nil {
@@ -64,10 +61,10 @@ func main() {
 	}
 
 	// Generating the Directory Tree for File Navigation.
-	globals.DirTree = client.GenerateDirectoryTree(fileMap)
+	client.DirTree = client.GenerateDirectoryTree(fileMap)
 
 	// Default View upon Opening is of Playlist.
-	views.PView.Update(globals.Ui.ExpandedView)
+	views.PView.Update(ui.Ui.ExpandedView)
 
 	var Volume int64
 	var Random, Repeat bool
@@ -92,30 +89,26 @@ func main() {
 	// Used for Fuzzy Searching
 	ArtistTreeContent := utils.ConvertToArray(ArtistTree)
 
-	globals.Notify = notify.NewNotificationServer()
-	globals.Notify.Start()
+	notify.Notify = notify.NewNotificationServer()
+	notify.Notify.Start()
 
 	if c, err := CONN.CurrentSong(); err != nil {
 		utils.Print("RED", "Could Not Retrieve the Current Song\n")
 		panic(err)
 	} else {
 		if len(c) != 0 {
-			globals.Renderer.Start(c["file"])
+			render.Rendr.Start(c["file"])
 		} else {
-			globals.Renderer.Start("stop")
+			render.Rendr.Start("stop")
 		}
 	}
-
-	// Connecting Notification Server to Client and Rendering Module so that they can send Notifications
-	client.SetNotificationServer(globals.Notify)
-	render.SetNotificationServer(globals.Notify)
 
 	// This Function Is Responsible for Changing the Focus it uses the Focus Map and Based on it Chooses
 	// the Draw Function
 	views.SetCurrentView(views.PView)
-	globals.Ui.ExpandedView.SetDrawFunc(func(s tcell.Screen, x, y, width, height int) (int, int, int, int) {
-		views.GetCurrentView().Update(globals.Ui.ExpandedView)
-		return globals.Ui.ExpandedView.GetInnerRect()
+	ui.Ui.ExpandedView.SetDrawFunc(func(s tcell.Screen, x, y, width, height int) (int, int, int, int) {
+		views.GetCurrentView().Update(ui.Ui.ExpandedView)
+		return ui.Ui.ExpandedView.GetInnerRect()
 	})
 
 	// Function Maps is used For Mapping Keys According to the Value mapped to the Key the respective Function is called
@@ -127,7 +120,7 @@ func main() {
 		},
 		"togglePlayBack": func() {
 			if err := client.TogglePlayBack(); err != nil {
-				globals.Notify.Send("Could not Toggle Play Back")
+				notify.Notify.Send("Could not Toggle Play Back")
 			}
 		},
 		"showParentContent": func() {
@@ -135,19 +128,19 @@ func main() {
 		},
 		"nextSong": func() {
 			if err := CONN.Next(); err != nil {
-				globals.Notify.Send("Could not Select the Next Song")
+				notify.Notify.Send("Could not Select the Next Song")
 			}
 		},
 		"clearPlaylist": func() {
 			if err := CONN.Clear(); err != nil {
-				globals.Notify.Send("Could not Clear the Playlist")
+				notify.Notify.Send("Could not Clear the Playlist")
 			} else {
-				globals.Notify.Send("Playlist Cleared")
+				notify.Notify.Send("Playlist Cleared")
 			}
 		},
 		"previousSong": func() {
 			if err := CONN.Previous(); err != nil {
-				globals.Notify.Send("Could Not Select the Previous Song")
+				notify.Notify.Send("Could Not Select the Previous Song")
 			}
 		},
 		"addToPlaylist": func() {
@@ -170,7 +163,7 @@ func main() {
 				Volume -= 10
 			}
 			if err := CONN.SetVolume(int(Volume)); err != nil {
-				globals.Notify.Send("Could Not Decrease the Volume")
+				notify.Notify.Send("Could Not Decrease the Volume")
 			}
 		},
 		"increaseVolume": func() {
@@ -180,50 +173,50 @@ func main() {
 				Volume += 10
 			}
 			if err := CONN.SetVolume(int(Volume)); err != nil {
-				globals.Notify.Send("Could Not Increase the Volume")
+				notify.Notify.Send("Could Not Increase the Volume")
 			}
 		},
 		"navigateToFiles": func() {
 			views.SetCurrentView(views.FView)
-			globals.Ui.Navbar.Select(1, 0)
-			views.FView.Update(globals.Ui.ExpandedView)
+			ui.Ui.Navbar.Select(1, 0)
+			views.FView.Update(ui.Ui.ExpandedView)
 		},
 		"navigateToPlaylist": func() {
 			views.SetCurrentView(views.PView)
-			globals.Ui.Navbar.Select(0, 0)
-			views.PView.Update(globals.Ui.ExpandedView)
+			ui.Ui.Navbar.Select(0, 0)
+			views.PView.Update(ui.Ui.ExpandedView)
 		},
 		"navigateToMostPlayed": func() {
-			globals.Ui.Navbar.Select(2, 0)
+			ui.Ui.Navbar.Select(2, 0)
 		},
 		"navigateToSearch": func() {
 			views.SetCurrentView(views.SView)
-			globals.Ui.Navbar.Select(3, 0)
-			views.SView.Update(globals.Ui.ExpandedView)
+			ui.Ui.Navbar.Select(3, 0)
+			views.SView.Update(ui.Ui.ExpandedView)
 		},
 		"quit": func() {
 			views.GetCurrentView().Quit()
 		},
 		"stop": func() {
 			if err := CONN.Stop(); err != nil {
-				globals.Notify.Send("Could not Stop the Playback")
+				notify.Notify.Send("Could not Stop the Playback")
 			} else {
-				globals.Notify.Send("Playback Stopped")
+				notify.Notify.Send("Playback Stopped")
 			}
 		},
 		"updateDB": func() {
 			_, err = CONN.Update("")
 			if err != nil {
-				globals.Notify.Send("Could Not Update the Database")
+				notify.Notify.Send("Could Not Update the Database")
 			} else {
-				globals.Notify.Send("Database Updated")
+				notify.Notify.Send("Database Updated")
 			}
 		},
 		"deleteSongFromPlaylist": func() {
 			views.GetCurrentView().DeleteSongFromPlaylist()
 		},
 		"FocusSearch": func() {
-			globals.Ui.App.SetFocus(globals.Ui.SearchBar)
+			ui.Ui.App.SetFocus(ui.Ui.SearchBar)
 		},
 		"FocusBuffSearch": func() {
 			views.GetCurrentView().FocusBuffSearchView()
@@ -235,12 +228,12 @@ func main() {
 	// for each event T, P, SPACE mapped to the same function togglePlayBack
 	config.GenerateKeyMap(FuncMap)
 
-	globals.Ui.SearchBar.SetAutocompleteFunc(func(c string) []string {
+	ui.Ui.SearchBar.SetAutocompleteFunc(func(c string) []string {
 		if views.GetCurrentView().GetViewName() == "BuffSearchView" {
 			return nil
 		} else {
 			if c != "" && c != " " && c != "  " {
-				_, _, w, _ := globals.Ui.SearchBar.GetRect()
+				_, _, w, _ := ui.Ui.SearchBar.GetRect()
 				matches := fuzzy.Find(c, ArtistTreeContent)
 				var suggestions []string
 				for i, match := range matches {
@@ -257,7 +250,7 @@ func main() {
 	})
 
 	// Input Handler
-	globals.Ui.ExpandedView.SetInputCapture(func(e *tcell.EventKey) *tcell.EventKey {
+	ui.Ui.ExpandedView.SetInputCapture(func(e *tcell.EventKey) *tcell.EventKey {
 		if val, ok := config.KEY_MAP[int(e.Rune())]; ok {
 			FuncMap[val]()
 			return nil
@@ -265,18 +258,18 @@ func main() {
 			if views.GetCurrentView().GetViewName() == "PlaylistView" {
 				if e.Rune() == 'j' || e.Rune() == 'k' {
 					if p, err := CONN.PlaylistInfo(-1, -1); err != nil {
-						globals.Notify.Send("Error Getting PlaylistInfo")
+						notify.Notify.Send("Error Getting PlaylistInfo")
 					} else {
 						if len(p) == 0 {
-							globals.Notify.Send("Empty Playlist")
+							notify.Notify.Send("Empty Playlist")
 							return nil
 						}
 					}
 				}
 			} else if views.GetCurrentView().GetViewName() == "SearchView" {
 				if e.Rune() == 'j' || e.Rune() == 'k' {
-					if globals.SearchContentSlice == nil || len(globals.SearchContentSlice) == 0 {
-						globals.Notify.Send("No Search Results")
+					if client.SearchContentSlice == nil || len(client.SearchContentSlice) == 0 {
+						notify.Notify.Send("No Search Results")
 						return nil
 					}
 				}
@@ -285,21 +278,21 @@ func main() {
 		}
 	})
 
-	globals.Ui.SearchBar.SetDoneFunc(func(e tcell.Key) {
+	ui.Ui.SearchBar.SetDoneFunc(func(e tcell.Key) {
 		if e == tcell.KeyEnter {
-			globals.Ui.ExpandedView.Select(0, 0)
+			ui.Ui.ExpandedView.Select(0, 0)
 			if views.GetCurrentView().GetViewName() == "BuffSearchView" {
-				globals.Ui.App.SetFocus(globals.Ui.ExpandedView)
+				ui.Ui.App.SetFocus(ui.Ui.ExpandedView)
 			} else {
 				views.SetCurrentView(views.SView)
-				globals.SearchContentSlice = nil
-				globals.SearchContentSlice, err = client.GenerateContentSlice(globals.Ui.SearchBar.GetText())
+				client.SearchContentSlice = nil
+				client.SearchContentSlice, err = client.GenerateContentSlice(ui.Ui.SearchBar.GetText())
 				if err != nil {
-					globals.Notify.Send("Could Not Retrieve the Results")
+					notify.Notify.Send("Could Not Retrieve the Results")
 				} else {
-					globals.Ui.SearchBar.SetText("")
-					globals.Ui.App.SetFocus(globals.Ui.ExpandedView)
-					globals.Ui.Navbar.Select(3, 0)
+					ui.Ui.SearchBar.SetText("")
+					ui.Ui.App.SetFocus(ui.Ui.ExpandedView)
+					ui.Ui.Navbar.Select(3, 0)
 				}
 			}
 		}
@@ -307,39 +300,39 @@ func main() {
 			if views.GetCurrentView().GetViewName() == "SearchView" {
 			} else if views.GetCurrentView().GetViewName() == "BuffSearchView" {
 				views.SetCurrentView(views.FView)
-				globals.Matches = nil
+				client.Matches = nil
 			}
-			globals.Ui.SearchBar.SetText("")
-			globals.Ui.App.SetFocus(globals.Ui.ExpandedView)
+			ui.Ui.SearchBar.SetText("")
+			ui.Ui.App.SetFocus(ui.Ui.ExpandedView)
 		}
 	})
 
-	globals.Ui.ExpandedView.SetDoneFunc(func(e tcell.Key) {
+	ui.Ui.ExpandedView.SetDoneFunc(func(e tcell.Key) {
 		if e == tcell.KeyEscape {
 			if views.GetCurrentView().GetViewName() == "BuffSearchView" {
 				views.SetCurrentView(views.FView)
-				globals.Ui.SearchBar.SetText("")
-				globals.Matches = nil
+				ui.Ui.SearchBar.SetText("")
+				client.Matches = nil
 			}
 		}
 	})
 
-	globals.Ui.SearchBar.SetChangedFunc(func(text string) {
+	ui.Ui.SearchBar.SetChangedFunc(func(text string) {
 		if views.GetCurrentView().GetViewName() == "BuffSearchView" {
-			var f client.FileNodes = globals.DirTree.Children
-			globals.Matches = fuzzy.FindFrom(text, f)
-			views.BuffSView.Update(globals.Ui.ExpandedView)
+			var f client.FileNodes = client.DirTree.Children
+			client.Matches = fuzzy.FindFrom(text, f)
+			views.BuffSView.Update(ui.Ui.ExpandedView)
 		}
 	})
 
 	go func() {
 		for {
-			globals.Ui.App.Draw()
+			ui.Ui.App.Draw()
 			time.Sleep(time.Second)
 		}
 	}()
 
-	if err := globals.Ui.App.Run(); err != nil {
+	if err := ui.Ui.App.Run(); err != nil {
 		panic(err)
 	}
 }

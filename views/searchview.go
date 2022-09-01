@@ -4,7 +4,8 @@ import (
 	"strings"
 
 	"github.com/aditya-K2/gomp/client"
-	"github.com/aditya-K2/gomp/globals"
+	"github.com/aditya-K2/gomp/notify"
+	"github.com/aditya-K2/gomp/ui"
 	"github.com/aditya-K2/gomp/utils"
 	"github.com/aditya-K2/tview"
 	"github.com/gdamore/tcell/v2"
@@ -17,10 +18,10 @@ func (s SearchView) GetViewName() string {
 	return "SearchView"
 }
 func (s SearchView) ShowChildrenContent() {
-	UI := globals.Ui
-	SearchContentSlice := globals.SearchContentSlice
-	if len(globals.SearchContentSlice) <= 0 || globals.SearchContentSlice == nil {
-		globals.Notify.Send("No Search Results")
+	UI := ui.Ui
+	SearchContentSlice := client.SearchContentSlice
+	if len(client.SearchContentSlice) <= 0 || client.SearchContentSlice == nil {
+		notify.Notify.Send("No Search Results")
 	} else {
 		r, _ := UI.ExpandedView.GetSelection()
 		client.AddToPlaylist(SearchContentSlice[r], true)
@@ -28,15 +29,15 @@ func (s SearchView) ShowChildrenContent() {
 }
 
 func (s SearchView) ShowParentContent() {
-	globals.Notify.Send("Not Allowed in this View")
+	notify.Notify.Send("Not Allowed in this View")
 	return
 }
 
 func (s SearchView) AddToPlaylist() {
-	UI := globals.Ui
-	SearchContentSlice := globals.SearchContentSlice
-	if len(globals.SearchContentSlice) <= 0 || globals.SearchContentSlice == nil {
-		globals.Notify.Send("No Search Results")
+	UI := ui.Ui
+	SearchContentSlice := client.SearchContentSlice
+	if len(client.SearchContentSlice) <= 0 || client.SearchContentSlice == nil {
+		notify.Notify.Send("No Search Results")
 	} else {
 		r, _ := UI.ExpandedView.GetSelection()
 		client.AddToPlaylist(SearchContentSlice[r], false)
@@ -44,7 +45,7 @@ func (s SearchView) AddToPlaylist() {
 }
 
 func (p SearchView) Quit() {
-	globals.Ui.App.Stop()
+	ui.Ui.App.Stop()
 }
 
 func (s SearchView) FocusBuffSearchView()    {}
@@ -52,7 +53,7 @@ func (s SearchView) DeleteSongFromPlaylist() {}
 
 func (s SearchView) Update(inputTable *tview.Table) {
 	inputTable.Clear()
-	c := globals.SearchContentSlice
+	c := client.SearchContentSlice
 	_, _, width, _ := inputTable.GetInnerRect()
 	for i, content := range c {
 		switch content.(type) {

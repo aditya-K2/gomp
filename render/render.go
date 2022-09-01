@@ -4,8 +4,9 @@ import (
 	"image"
 	"os"
 
+	"github.com/aditya-K2/gomp/client"
+	"github.com/aditya-K2/gomp/notify"
 	"github.com/aditya-K2/gomp/ui"
-	"github.com/fhs/gompd/mpd"
 
 	"github.com/aditya-K2/gomp/cache"
 	"github.com/aditya-K2/gomp/utils"
@@ -15,17 +16,8 @@ import (
 )
 
 var (
-	CONN   *mpd.Client
-	Notify interface{ Send(string) }
+	Rendr *Renderer
 )
-
-func SetConnection(c *mpd.Client) {
-	CONN = c
-}
-
-func SetNotificationServer(n interface{ Send(string) }) {
-	Notify = n
-}
 
 // Renderer is just a channel on which we will send the Path to the song whose
 // Image is to be Rendered. This channel is passed to the OpenImage which in turn is called
@@ -82,7 +74,7 @@ func (r *Renderer) Start(path string) {
 // rendered it checks first for the image in the cache
 // else it adds the image to the cache and then extracts it and renders it.
 func GetImagePath(path string) string {
-	a, err := CONN.ListInfo(path)
+	a, err := client.Conn.ListInfo(path)
 	var extractedImage string
 	if err == nil && len(a) != 0 {
 		if cache.Exists(a[0]["artist"], a[0]["album"]) {
@@ -95,13 +87,13 @@ func GetImagePath(path string) string {
 				viper.GetString("GET_COVER_ART_FROM_LAST_FM") == "TRUE" {
 				downloadedImage, err := getImageFromLastFM(a[0]["artist"], a[0]["album"], imagePath)
 				if err == nil {
-					Notify.Send("Image From LastFM")
+					notify.Notify.Send("Image From LastFM")
 					extractedImage = downloadedImage
 				} else {
-					Notify.Send("Falling Back to Default Image.")
+					notify.Notify.Send("Falling Back to Default Image.")
 				}
 			} else {
-				Notify.Send("Extracted Image Successfully")
+				notify.Notify.Send("Extracted Image Successfully")
 			}
 		}
 	}

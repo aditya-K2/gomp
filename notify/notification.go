@@ -12,17 +12,18 @@ import (
 )
 
 var (
-	UI *ui.Application
+	UI     *ui.Application
+	Notify *NotificationServer
 )
-
-func ConnectUI(a *ui.Application) {
-	UI = a
-}
 
 /* Notification Primitive */
 type Notification struct {
 	*tview.Box
 	Text string
+}
+
+func ConnectUI(a *ui.Application) {
+	UI = a
 }
 
 /* Get A Pointer to A Notification Struct */

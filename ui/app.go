@@ -10,6 +10,7 @@ var (
 	ImgW int
 	ImgH int
 	ImgX int
+	Ui   *Application
 )
 
 type Application struct {

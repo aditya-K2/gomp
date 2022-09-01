@@ -3,7 +3,9 @@ package views
 import (
 	"fmt"
 
-	"github.com/aditya-K2/gomp/globals"
+	"github.com/aditya-K2/gomp/client"
+	"github.com/aditya-K2/gomp/notify"
+	"github.com/aditya-K2/gomp/ui"
 	"github.com/aditya-K2/gomp/utils"
 	"github.com/aditya-K2/tview"
 	"github.com/gdamore/tcell/v2"
@@ -17,57 +19,57 @@ func (s BuffSearchView) GetViewName() string {
 }
 
 func (s BuffSearchView) ShowChildrenContent() {
-	UI := globals.Ui
-	CONN := globals.Conn
+	UI := ui.Ui
+	CONN := client.Conn
 	r, _ := UI.ExpandedView.GetSelection()
 	SetCurrentView(FView)
-	if len(globals.DirTree.Children[r].Children) == 0 {
-		if id, err := CONN.AddId(globals.DirTree.Children[globals.Matches[r].Index].AbsolutePath, -1); err != nil {
-			globals.Notify.Send(fmt.Sprintf("Could Not add the Song %s to the Playlist",
-				globals.DirTree.Children[globals.Matches[r].Index].AbsolutePath))
+	if len(client.DirTree.Children[r].Children) == 0 {
+		if id, err := CONN.AddId(client.DirTree.Children[client.Matches[r].Index].AbsolutePath, -1); err != nil {
+			notify.Notify.Send(fmt.Sprintf("Could Not add the Song %s to the Playlist",
+				client.DirTree.Children[client.Matches[r].Index].AbsolutePath))
 		} else {
 			if err := CONN.PlayId(id); err != nil {
-				globals.Notify.Send("Could not Play the Song")
+				notify.Notify.Send("Could not Play the Song")
 			}
 		}
 	} else {
-		globals.DirTree = &globals.DirTree.Children[globals.Matches[r].Index]
+		client.DirTree = &client.DirTree.Children[client.Matches[r].Index]
 		FView.Update(UI.ExpandedView)
 	}
 	UI.SearchBar.SetText("")
-	// Resetting globals.Matches
-	globals.Matches = nil
+	// Resetting client.Matches
+	client.Matches = nil
 }
 
 func (s BuffSearchView) ShowParentContent() {
-	globals.Notify.Send("Not Allowed in this View")
+	notify.Notify.Send("Not Allowed in this View")
 	return
 }
 
 func (s BuffSearchView) AddToPlaylist() {
-	UI := globals.Ui
-	CONN := globals.Conn
+	UI := ui.Ui
+	CONN := client.Conn
 	r, _ := UI.ExpandedView.GetSelection()
-	if err := CONN.Add(globals.DirTree.Children[globals.Matches[r].Index].AbsolutePath); err != nil {
-		globals.Notify.Send(fmt.Sprintf("Could Not Add URI %s to the Playlist",
-			globals.DirTree.Children[globals.Matches[r].Index].Path))
+	if err := CONN.Add(client.DirTree.Children[client.Matches[r].Index].AbsolutePath); err != nil {
+		notify.Notify.Send(fmt.Sprintf("Could Not Add URI %s to the Playlist",
+			client.DirTree.Children[client.Matches[r].Index].Path))
 	} else {
 		SetCurrentView(FView)
-		globals.Notify.Send(fmt.Sprintf("URI Added %s to the Playlist",
-			globals.DirTree.Children[globals.Matches[r].Index].Path))
+		notify.Notify.Send(fmt.Sprintf("URI Added %s to the Playlist",
+			client.DirTree.Children[client.Matches[r].Index].Path))
 		SetCurrentView(BuffSView)
 	}
 }
 
 func (s BuffSearchView) Quit() {
-	UI := globals.Ui
+	UI := ui.Ui
 	SetCurrentView(FView)
 	UI.SearchBar.SetText("")
-	globals.Matches = nil
+	client.Matches = nil
 }
 
 func (f BuffSearchView) FocusBuffSearchView() {
-	UI := globals.Ui
+	UI := ui.Ui
 	SetCurrentView(BuffSView)
 	UI.App.SetFocus(UI.SearchBar)
 }
@@ -75,8 +77,8 @@ func (f BuffSearchView) FocusBuffSearchView() {
 func (f BuffSearchView) DeleteSongFromPlaylist() {}
 
 func (s BuffSearchView) Update(inputTable *tview.Table) {
-	m := globals.Matches
-	f := globals.DirTree.Children
+	m := client.Matches
+	f := client.DirTree.Children
 	inputTable.Clear()
 	if m == nil || len(m) == 0 {
 		FView.Update(inputTable)

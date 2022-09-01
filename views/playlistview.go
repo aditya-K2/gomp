@@ -1,7 +1,9 @@
 package views
 
 import (
-	"github.com/aditya-K2/gomp/globals"
+	"github.com/aditya-K2/gomp/client"
+	"github.com/aditya-K2/gomp/notify"
+	"github.com/aditya-K2/gomp/ui"
 	"github.com/aditya-K2/gomp/utils"
 	"github.com/aditya-K2/tview"
 	"github.com/gdamore/tcell/v2"
@@ -24,38 +26,38 @@ func GetCell(text string, foreground tcell.Color, bold bool) *tview.TableCell {
 }
 
 func (p PlaylistView) ShowChildrenContent() {
-	UI := globals.Ui
-	CONN := globals.Conn
+	UI := ui.Ui
+	CONN := client.Conn
 	r, _ := UI.ExpandedView.GetSelection()
 	if err := CONN.Play(r); err != nil {
-		globals.Notify.Send("Could Not Play the Song")
+		notify.Notify.Send("Could Not Play the Song")
 		return
 	}
 }
 
 func (s PlaylistView) ShowParentContent() {
-	globals.Notify.Send("Not Allowed in this View")
+	notify.Notify.Send("Not Allowed in this View")
 	return
 }
 func (p PlaylistView) AddToPlaylist() {}
 
 func (p PlaylistView) Quit() {
-	globals.Ui.App.Stop()
+	ui.Ui.App.Stop()
 }
 
 func (p PlaylistView) FocusBuffSearchView() {}
 
 func (p PlaylistView) DeleteSongFromPlaylist() {
-	UI := globals.Ui
-	CONN := globals.Conn
+	UI := ui.Ui
+	CONN := client.Conn
 	r, _ := UI.ExpandedView.GetSelection()
 	if err := CONN.Delete(r, -1); err != nil {
-		globals.Notify.Send("Could not Remove the Song from Playlist")
+		notify.Notify.Send("Could not Remove the Song from Playlist")
 	}
 }
 
 func (p PlaylistView) Update(inputTable *tview.Table) {
-	CONN := globals.Conn
+	CONN := client.Conn
 	_playlistAttr, _ := CONN.PlaylistInfo(-1, -1)
 
 	inputTable.Clear()

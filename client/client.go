@@ -4,34 +4,28 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/aditya-K2/fuzzy"
+	"github.com/aditya-K2/gomp/notify"
 	"github.com/fhs/gompd/mpd"
 
 	"strings"
 )
 
 var (
-	CONN               *mpd.Client
+	Conn               *mpd.Client
 	ArtistTree         map[string]map[string]map[string]string
-	NotificationServer interface {
-		Send(string)
-	}
-	WHITE_AND_BOLD string = "[white::b]"
+	WHITE_AND_BOLD     string = "[white::b]"
+	DirTree            *FileNode
+	Matches            fuzzy.Matches
+	SearchContentSlice []interface{}
 )
 
-func SetNotificationServer(n interface{ Send(string) }) {
-	NotificationServer = n
-}
-
-func SetConnection(c *mpd.Client) {
-	CONN = c
-}
-
 func TogglePlayBack() error {
-	status, err := CONN.Status()
+	status, err := Conn.Status()
 	if status["state"] == "play" && err == nil {
-		CONN.Pause(true)
+		Conn.Pause(true)
 	} else if status["state"] == "pause" && err == nil {
-		CONN.Play(-1)
+		Conn.Play(-1)
 	}
 	return err
 }
@@ -42,7 +36,7 @@ func TogglePlayBack() error {
 func GenerateContentSlice(selectedSuggestion string) ([]interface{}, error) {
 	var ContentSlice []interface{}
 	if strings.TrimRight(selectedSuggestion, " ") == "" {
-		NotificationServer.Send("Empty Search!")
+		notify.Notify.Send("Empty Search!")
 		return nil, errors.New("empty Search String Provided")
 	}
 	if _, ok := ArtistTree[selectedSuggestion]; ok {
@@ -84,7 +78,7 @@ func GenerateContentSlice(selectedSuggestion string) ([]interface{}, error) {
 // Album Tree is a map of the tracks in that particular album.
 func GenerateArtistTree() (map[string]map[string]map[string]string, error) {
 	ArtistTree = make(map[string]map[string]map[string]string)
-	AllInfo, err := CONN.ListAllInfo("/")
+	AllInfo, err := Conn.ListAllInfo("/")
 	if err == nil {
 		for _, i := range AllInfo {
 			if _, ArtistExists := ArtistTree[i["Artist"]]; !ArtistExists {
@@ -118,12 +112,12 @@ func PrintArtistTree(a map[string]map[string]map[string]string) {
 //  Adds All tracks from a specified album to a playlist
 func AddAlbum(a map[string]map[string]map[string]string, alb string, artist string) {
 	for _, v := range a[artist][alb] {
-		err := CONN.Add(v)
+		err := Conn.Add(v)
 		if err != nil {
-			NotificationServer.Send("Could Not Add Song : " + v)
+			notify.Notify.Send("Could Not Add Song : " + v)
 		}
 	}
-	NotificationServer.Send("Album Added : " + alb)
+	notify.Notify.Send("Album Added : " + alb)
 }
 
 //  Adds All tracks from a specified artist to a playlist
@@ -131,31 +125,31 @@ func AddArtist(a map[string]map[string]map[string]string, artist string) {
 	if val, ok := a[artist]; ok {
 		for _, v := range val {
 			for _, path := range v {
-				err := CONN.Add(path)
+				err := Conn.Add(path)
 				if err != nil {
-					NotificationServer.Send("Could Not Add Song : " + path)
+					notify.Notify.Send("Could Not Add Song : " + path)
 				}
 			}
 		}
-		NotificationServer.Send("Artist Added : " + artist)
+		notify.Notify.Send("Artist Added : " + artist)
 	}
 }
 
 //  Adds Specified Track to the Playlist
 func AddTitle(a map[string]map[string]map[string]string, artist, alb, track string, addAndPlay bool) {
 	if addAndPlay {
-		id, err := CONN.AddId(a[artist][alb][track], -1)
-		CONN.PlayId(id)
+		id, err := Conn.AddId(a[artist][alb][track], -1)
+		Conn.PlayId(id)
 		if err != nil {
-			NotificationServer.Send("Could Not Add Track : " + track)
+			notify.Notify.Send("Could Not Add Track : " + track)
 		}
 	} else {
-		err := CONN.Add(a[artist][alb][track])
+		err := Conn.Add(a[artist][alb][track])
 		if err != nil {
-			NotificationServer.Send("Could Not Add Track : " + track)
+			notify.Notify.Send("Could Not Add Track : " + track)
 		}
 	}
-	NotificationServer.Send("Track Added : " + track)
+	notify.Notify.Send("Track Added : " + track)
 }
 
 /* Querys the Artist Tree for a track and returns a TrackMap (i.e [3]string{artist, album, track} -> Path) which will help us
