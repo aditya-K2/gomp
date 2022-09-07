@@ -294,9 +294,7 @@ func main() {
 			}
 		}
 		if e == tcell.KeyEscape {
-			if views.GetCurrentView().GetViewName() == "SearchView" {
-			} else if views.GetCurrentView().GetViewName() == "BuffSearchView" {
-				views.SetCurrentView(views.FView)
+			if views.GetCurrentView().GetViewName() == "BuffSearchView" {
 				client.Matches = nil
 			}
 			ui.Ui.SearchBar.SetText("")
