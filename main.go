@@ -14,7 +14,7 @@ import (
 	"github.com/aditya-K2/gomp/views"
 
 	"github.com/aditya-K2/fuzzy"
-	"github.com/fhs/gompd/mpd"
+	"github.com/fhs/gompd/v2/mpd"
 	"github.com/gdamore/tcell/v2"
 	"github.com/spf13/viper"
 )

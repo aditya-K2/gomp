@@ -6,7 +6,7 @@ require (
 	github.com/aditya-K2/fuzzy v0.1.1-0.20211128173834-d0023b66cdd4
 	github.com/aditya-K2/tview v0.0.0-20211115161300-6b99c2c2658c
 	github.com/bogem/id3v2 v1.2.0
-	github.com/fhs/gompd v1.0.1
+	github.com/fhs/gompd/v2 v2.2.0
 	github.com/gdamore/tcell/v2 v2.4.1-0.20210905002822-f057f0a857a1
 	github.com/mewkiz/flac v1.0.7
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646

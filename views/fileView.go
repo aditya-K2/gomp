@@ -24,11 +24,11 @@ func (f FileView) ShowChildrenContent() {
 	r, _ := UI.ExpandedView.GetSelection()
 	SetCurrentView(FView)
 	if len(client.DirTree.Children[r].Children) == 0 {
-		if id, err := CONN.AddId(client.DirTree.Children[r].AbsolutePath, -1); err != nil {
+		if id, err := CONN.AddID(client.DirTree.Children[r].AbsolutePath, -1); err != nil {
 			notify.Notify.Send(fmt.Sprintf("Could not Add Song %s",
 				client.DirTree.Children[r].Path))
 		} else {
-			if err := CONN.PlayId(id); err != nil {
+			if err := CONN.PlayID(id); err != nil {
 				notify.Notify.Send(fmt.Sprintf("Could Not Play Song %s",
 					client.DirTree.Children[r].Path))
 			}

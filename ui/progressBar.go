@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/fhs/gompd/mpd"
+	"github.com/fhs/gompd/v2/mpd"
 	"github.com/gdamore/tcell/v2"
 
 	"github.com/aditya-K2/gomp/utils"

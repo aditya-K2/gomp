@@ -90,8 +90,8 @@ github.com/envoyproxy/go-control-plane v0.9.9-0.20210512163311-63b5d3c536b0/go.m
 github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
 github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
 github.com/fatih/color v1.9.0/go.mod h1:eQcE1qtQxscV5RaZvpXrrb8Drkc3/DdQ+uUYCNjL+zU=
-github.com/fhs/gompd v1.0.1 h1:kBcAhjnAPJQAylZXR0TeH+d2vpjawXlTtKYguqNlF4A=
-github.com/fhs/gompd v1.0.1/go.mod h1:b219/mNa9PvRqvkUip51b23hGL3iX4d4q3gNXdtrD04=
+github.com/fhs/gompd/v2 v2.2.0 h1:zdSYAAOzQ5cCCgYa5CoXkL0Vr0Cqb/b5JmTobirLc90=
+github.com/fhs/gompd/v2 v2.2.0/go.mod h1:nNdZtcpD5VpmzZbRl5rV6RhxeMmAWTxEsSIMBkmMIy4=
 github.com/fsnotify/fsnotify v1.5.1 h1:mZcQUHVQUQWoPXXtuf9yuEXKudkV2sx1E06UadKWpgI=
 github.com/fsnotify/fsnotify v1.5.1/go.mod h1:T3375wBYaZdLLcVNkcVbzGHY7f1l/uK5T5Ai1i3InKU=
 github.com/gdamore/encoding v1.0.0 h1:+7OoQ1Bc6eTm5niUzBa0Ctsh6JbMW6Ra+YNuAtDBdko=

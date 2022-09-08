@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/fhs/gompd/mpd"
+	"github.com/fhs/gompd/v2/mpd"
 )
 
 type FileNode struct {

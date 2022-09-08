@@ -6,7 +6,7 @@ import (
 
 	"github.com/aditya-K2/fuzzy"
 	"github.com/aditya-K2/gomp/notify"
-	"github.com/fhs/gompd/mpd"
+	"github.com/fhs/gompd/v2/mpd"
 
 	"strings"
 )
@@ -138,8 +138,8 @@ func AddArtist(a map[string]map[string]map[string]string, artist string) {
 //  Adds Specified Track to the Playlist
 func AddTitle(a map[string]map[string]map[string]string, artist, alb, track string, addAndPlay bool) {
 	if addAndPlay {
-		id, err := Conn.AddId(a[artist][alb][track], -1)
-		Conn.PlayId(id)
+		id, err := Conn.AddID(a[artist][alb][track], -1)
+		Conn.PlayID(id)
 		if err != nil {
 			notify.Notify.Send("Could Not Add Track : " + track)
 		}

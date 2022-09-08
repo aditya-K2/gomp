@@ -24,11 +24,11 @@ func (s BuffSearchView) ShowChildrenContent() {
 	r, _ := UI.ExpandedView.GetSelection()
 	SetCurrentView(FView)
 	if len(client.DirTree.Children[r].Children) == 0 {
-		if id, err := CONN.AddId(client.DirTree.Children[client.Matches[r].Index].AbsolutePath, -1); err != nil {
+		if id, err := CONN.AddID(client.DirTree.Children[client.Matches[r].Index].AbsolutePath, -1); err != nil {
 			notify.Notify.Send(fmt.Sprintf("Could Not add the Song %s to the Playlist",
 				client.DirTree.Children[client.Matches[r].Index].AbsolutePath))
 		} else {
-			if err := CONN.PlayId(id); err != nil {
+			if err := CONN.PlayID(id); err != nil {
 				notify.Notify.Send("Could not Play the Song")
 			}
 		}
