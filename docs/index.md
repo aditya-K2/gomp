@@ -187,6 +187,8 @@ Following functions are provided :
 |     deleteSongFromPlaylist         |    <kbd>d</kbd>     |
 |     FocusSearch                    |    <kbd>?</kbd>     |
 |     FocusBuffSearch                |    <kbd>/</kbd>     |
+|     SeekForward                    |    <kbd>f</kbd>     |
+|     SeekBackward                   |    <kbd>b</kbd>     |
 
 ## Getting Album Art from [LastFm API](https://www.last.fm/api)
 

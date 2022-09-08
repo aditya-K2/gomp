@@ -66,6 +66,23 @@ func main() {
 	var Volume int64
 	var Random, Repeat bool
 	var SeekOffset = viper.GetInt("SEEK_OFFSET")
+	var SeekFunc = func(back bool) {
+		if status, err := Conn.Status(); err != nil {
+			notify.Notify.Send("Could not get MPD Status")
+		} else {
+			if status["state"] == "play" {
+				var stime time.Duration
+				if back {
+					stime = -1 * time.Second * time.Duration(SeekOffset)
+				} else {
+					stime = time.Second * time.Duration(SeekOffset)
+				}
+				if err := Conn.SeekCur(stime, true); err != nil {
+					notify.Notify.Send("Could Not Seek Forward in the Song")
+				}
+			}
+		}
+	}
 
 	if _v, err := Conn.Status(); err != nil {
 		utils.Print("RED", "Could Not Get the MPD Status\n")
@@ -220,14 +237,10 @@ func main() {
 			views.GetCurrentView().FocusBuffSearchView()
 		},
 		"SeekForward": func() {
-			if err := CONN.SeekCur(time.Second*time.Duration(SeekOffset), true); err != nil {
-				notify.Notify.Send("Could Not Seek Forward in the Song")
-			}
+			SeekFunc(false)
 		},
 		"SeekBackward": func() {
-			if err := CONN.SeekCur(-1*time.Second*time.Duration(SeekOffset), true); err != nil {
-				notify.Notify.Send("Could Not Seek Backward in the Song")
-			}
+			SeekFunc(true)
 		},
 	}
 
