@@ -51,7 +51,7 @@ var (
 		63:  "FocusSearch",
 		47:  "FocusBuffSearch",
 		98:  "SeekBackward",
-		101: "SeekForward",
+		102: "SeekForward",
 	}
 )
 

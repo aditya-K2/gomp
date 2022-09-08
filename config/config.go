@@ -24,7 +24,7 @@ var (
 		"PORT":                 "6600",
 		"DEFAULT_IMAGE_PATH":   "default.jpg",
 		"CACHE_DIR":            utils.CheckDirectoryFmt(USER_CACHE_DIR),
-		"SEEK_OFFSET":          10,
+		"SEEK_OFFSET":          1,
 	}
 )
 
