@@ -37,10 +37,10 @@ func main() {
 		utils.Print("GREEN", "Make Sure You Mention the Correct MPD Port in the config file.\n")
 		panic(mpdConnectionError)
 	}
-	CONN := client.Conn
-	defer CONN.Close()
+	Conn := client.Conn
+	defer Conn.Close()
 
-	ui.SetConnection(CONN)
+	ui.SetConnection(Conn)
 
 	cache.SetCacheDir(viper.GetString("CACHE_DIR"))
 
@@ -50,7 +50,7 @@ func main() {
 
 	ui.Ui = ui.NewApplication()
 
-	fileMap, err := CONN.ListAllInfo("/")
+	fileMap, err := Conn.ListAllInfo("/")
 	if err != nil {
 		utils.Print("RED", "Could Not Generate the File Map\n")
 		utils.Print("GREEN", "Make Sure You Mention the Correct MPD Port in the config file.\n")
@@ -66,7 +66,7 @@ func main() {
 	var Volume int64
 	var Random, Repeat bool
 
-	if _v, err := CONN.Status(); err != nil {
+	if _v, err := Conn.Status(); err != nil {
 		utils.Print("RED", "Could Not Get the MPD Status\n")
 		panic(err)
 	} else {
@@ -89,7 +89,7 @@ func main() {
 	notify.Notify = notify.NewNotificationServer()
 	notify.Notify.Start()
 
-	if c, err := CONN.CurrentSong(); err != nil {
+	if c, err := Conn.CurrentSong(); err != nil {
 		utils.Print("RED", "Could Not Retrieve the Current Song\n")
 		panic(err)
 	} else {
@@ -124,19 +124,19 @@ func main() {
 			views.GetCurrentView().ShowParentContent()
 		},
 		"nextSong": func() {
-			if err := CONN.Next(); err != nil {
+			if err := Conn.Next(); err != nil {
 				notify.Notify.Send("Could not Select the Next Song")
 			}
 		},
 		"clearPlaylist": func() {
-			if err := CONN.Clear(); err != nil {
+			if err := Conn.Clear(); err != nil {
 				notify.Notify.Send("Could not Clear the Playlist")
 			} else {
 				notify.Notify.Send("Playlist Cleared")
 			}
 		},
 		"previousSong": func() {
-			if err := CONN.Previous(); err != nil {
+			if err := Conn.Previous(); err != nil {
 				notify.Notify.Send("Could Not Select the Previous Song")
 			}
 		},
@@ -144,12 +144,12 @@ func main() {
 			views.GetCurrentView().AddToPlaylist()
 		},
 		"toggleRandom": func() {
-			if err := CONN.Random(!Random); err == nil {
+			if err := Conn.Random(!Random); err == nil {
 				Random = !Random
 			}
 		},
 		"toggleRepeat": func() {
-			if err := CONN.Repeat(!Repeat); err == nil {
+			if err := Conn.Repeat(!Repeat); err == nil {
 				Repeat = !Repeat
 			}
 		},
@@ -159,7 +159,7 @@ func main() {
 			} else {
 				Volume -= 10
 			}
-			if err := CONN.SetVolume(int(Volume)); err != nil {
+			if err := Conn.SetVolume(int(Volume)); err != nil {
 				notify.Notify.Send("Could Not Decrease the Volume")
 			}
 		},
@@ -169,7 +169,7 @@ func main() {
 			} else {
 				Volume += 10
 			}
-			if err := CONN.SetVolume(int(Volume)); err != nil {
+			if err := Conn.SetVolume(int(Volume)); err != nil {
 				notify.Notify.Send("Could Not Increase the Volume")
 			}
 		},
@@ -195,14 +195,14 @@ func main() {
 			views.GetCurrentView().Quit()
 		},
 		"stop": func() {
-			if err := CONN.Stop(); err != nil {
+			if err := Conn.Stop(); err != nil {
 				notify.Notify.Send("Could not Stop the Playback")
 			} else {
 				notify.Notify.Send("Playback Stopped")
 			}
 		},
 		"updateDB": func() {
-			_, err = CONN.Update("")
+			_, err = Conn.Update("")
 			if err != nil {
 				notify.Notify.Send("Could Not Update the Database")
 			} else {
@@ -254,7 +254,7 @@ func main() {
 		} else {
 			if views.GetCurrentView().GetViewName() == "PlaylistView" {
 				if e.Rune() == 'j' || e.Rune() == 'k' {
-					if p, err := CONN.PlaylistInfo(-1, -1); err != nil {
+					if p, err := Conn.PlaylistInfo(-1, -1); err != nil {
 						notify.Notify.Send("Error Getting PlaylistInfo")
 					} else {
 						if len(p) == 0 {
