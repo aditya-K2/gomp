@@ -121,5 +121,8 @@ func progressFunction() (string, string, string, float64) {
 		text = "   ---:---"
 		percentage = 0
 	}
+	if percentage > 100 {
+		percentage = 0
+	}
 	return song, top, text, percentage
 }

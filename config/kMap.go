@@ -50,6 +50,8 @@ var (
 		100: "deleteSongFromPlaylist",
 		63:  "FocusSearch",
 		47:  "FocusBuffSearch",
+		98:  "SeekBackward",
+		101: "SeekForward",
 	}
 )
 

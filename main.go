@@ -65,6 +65,7 @@ func main() {
 
 	var Volume int64
 	var Random, Repeat bool
+	var SeekOffset = viper.GetInt("SEEK_OFFSET")
 
 	if _v, err := CONN.Status(); err != nil {
 		utils.Print("RED", "Could Not Get the MPD Status\n")
@@ -217,6 +218,16 @@ func main() {
 		},
 		"FocusBuffSearch": func() {
 			views.GetCurrentView().FocusBuffSearchView()
+		},
+		"SeekForward": func() {
+			if err := CONN.SeekCur(time.Second*time.Duration(SeekOffset), true); err != nil {
+				notify.Notify.Send("Could Not Seek Forward in the Song")
+			}
+		},
+		"SeekBackward": func() {
+			if err := CONN.SeekCur(-1*time.Second*time.Duration(SeekOffset), true); err != nil {
+				notify.Notify.Send("Could Not Seek Backward in the Song")
+			}
 		},
 	}
 
