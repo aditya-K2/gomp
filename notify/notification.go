@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/aditya-K2/gomp/ui"
-
 	"github.com/aditya-K2/gomp/utils"
 
 	"github.com/aditya-K2/tview"
@@ -12,12 +11,8 @@ import (
 )
 
 var (
-	UI *ui.Application
+	Notify *NotificationServer
 )
-
-func ConnectUI(a *ui.Application) {
-	UI = a
-}
 
 /* Notification Primitive */
 type Notification struct {
@@ -79,11 +74,11 @@ func NotificationRoutine(c chan string, s string) {
 	if s != "EMPTY NOTIFICATION" {
 		go func() {
 			currentTime := time.Now().String()
-			UI.Pages.AddPage(currentTime, NewNotification(s), false, true)
-			UI.App.SetFocus(UI.ExpandedView)
+			ui.Ui.Pages.AddPage(currentTime, NewNotification(s), false, true)
+			ui.Ui.App.SetFocus(ui.Ui.ExpandedView)
 			time.Sleep(time.Second * 1)
-			UI.Pages.RemovePage(currentTime)
-			UI.App.SetFocus(UI.ExpandedView)
+			ui.Ui.Pages.RemovePage(currentTime)
+			ui.Ui.App.SetFocus(ui.Ui.ExpandedView)
 		}()
 	}
 	NewNotification := <-c

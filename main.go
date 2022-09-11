@@ -1,20 +1,20 @@
 package main
 
 import (
-	"fmt"
 	"strconv"
 	"time"
 
 	"github.com/aditya-K2/gomp/cache"
 	"github.com/aditya-K2/gomp/client"
 	"github.com/aditya-K2/gomp/config"
+	"github.com/aditya-K2/gomp/notify"
 	"github.com/aditya-K2/gomp/render"
 	"github.com/aditya-K2/gomp/ui"
-	"github.com/aditya-K2/gomp/ui/notify"
 	"github.com/aditya-K2/gomp/utils"
+	"github.com/aditya-K2/gomp/views"
 
 	"github.com/aditya-K2/fuzzy"
-	"github.com/fhs/gompd/mpd"
+	"github.com/fhs/gompd/v2/mpd"
 	"github.com/gdamore/tcell/v2"
 	"github.com/spf13/viper"
 )
@@ -30,33 +30,27 @@ func main() {
 	} else if nt == "unix" && port != "" {
 		port = ""
 	}
-	CONN, mpdConnectionError := mpd.Dial(nt,
+	client.Conn, mpdConnectionError = mpd.Dial(nt,
 		viper.GetString("NETWORK_ADDRESS")+del+port)
 	if mpdConnectionError != nil {
 		utils.Print("RED", "Could Not Connect to MPD Server\n")
 		utils.Print("GREEN", "Make Sure You Mention the Correct MPD Port in the config file.\n")
 		panic(mpdConnectionError)
 	}
-	defer CONN.Close()
+	Conn := client.Conn
+	defer Conn.Close()
 
-	ui.GenerateFocusMap()
-
-	client.SetConnection(CONN)
-	ui.SetConnection(CONN)
-	render.SetConnection(CONN)
+	ui.SetConnection(Conn)
 
 	cache.SetCacheDir(viper.GetString("CACHE_DIR"))
 
-	Renderer := render.NewRenderer()
+	render.Rendr = render.NewRenderer()
 	// Connecting the Renderer to the Main UI
-	ui.ConnectRenderer(Renderer)
+	ui.ConnectRenderer(render.Rendr)
 
-	UI := ui.NewApplication()
+	ui.Ui = ui.NewApplication()
 
-	// Connecting the Notification Server to the Main UI
-	notify.ConnectUI(UI)
-
-	fileMap, err := CONN.ListAllInfo("/")
+	fileMap, err := Conn.ListAllInfo("/")
 	if err != nil {
 		utils.Print("RED", "Could Not Generate the File Map\n")
 		utils.Print("GREEN", "Make Sure You Mention the Correct MPD Port in the config file.\n")
@@ -64,15 +58,33 @@ func main() {
 	}
 
 	// Generating the Directory Tree for File Navigation.
-	dirTree := client.GenerateDirectoryTree(fileMap)
+	client.DirTree = client.GenerateDirectoryTree(fileMap)
 
 	// Default View upon Opening is of Playlist.
-	client.UpdatePlaylist(UI.ExpandedView)
+	views.PView.Update(ui.Ui.ExpandedView)
 
 	var Volume int64
 	var Random, Repeat bool
+	var SeekOffset = viper.GetInt("SEEK_OFFSET")
+	var SeekFunc = func(back bool) {
+		if status, err := Conn.Status(); err != nil {
+			notify.Notify.Send("Could not get MPD Status")
+		} else {
+			if status["state"] == "play" {
+				var stime time.Duration
+				if back {
+					stime = -1 * time.Second * time.Duration(SeekOffset)
+				} else {
+					stime = time.Second * time.Duration(SeekOffset)
+				}
+				if err := Conn.SeekCur(stime, true); err != nil {
+					notify.Notify.Send("Could Not Seek Forward in the Song")
+				}
+			}
+		}
+	}
 
-	if _v, err := CONN.Status(); err != nil {
+	if _v, err := Conn.Status(); err != nil {
 		utils.Print("RED", "Could Not Get the MPD Status\n")
 		panic(err)
 	} else {
@@ -92,41 +104,26 @@ func main() {
 	// Used for Fuzzy Searching
 	ArtistTreeContent := utils.ConvertToArray(ArtistTree)
 
-	Notify := notify.NewNotificationServer()
-	Notify.Start()
+	notify.Notify = notify.NewNotificationServer()
+	notify.Notify.Start()
 
-	if c, err := CONN.CurrentSong(); err != nil {
+	if c, err := Conn.CurrentSong(); err != nil {
 		utils.Print("RED", "Could Not Retrieve the Current Song\n")
 		panic(err)
 	} else {
 		if len(c) != 0 {
-			Renderer.Start(c["file"])
+			render.Rendr.Start(c["file"])
 		} else {
-			Renderer.Start("stop")
+			render.Rendr.Start("stop")
 		}
 	}
 
-	// Connecting Notification Server to Client and Rendering Module so that they can send Notifications
-	client.SetNotificationServer(Notify)
-	render.SetNotificationServer(Notify)
-
-	// This is the Slice that is used to Display Content in the SearchView
-	var SearchContentSlice []interface{}
-	var Matches fuzzy.Matches
-
 	// This Function Is Responsible for Changing the Focus it uses the Focus Map and Based on it Chooses
 	// the Draw Function
-	UI.ExpandedView.SetDrawFunc(func(s tcell.Screen, x, y, width, height int) (int, int, int, int) {
-		if ui.HasFocus("Playlist") {
-			client.UpdatePlaylist(UI.ExpandedView)
-		} else if ui.HasFocus("SearchView") {
-			client.UpdateSearchView(UI.ExpandedView, SearchContentSlice)
-		} else if ui.HasFocus("FileBrowser") {
-			client.Update(dirTree.Children, UI.ExpandedView)
-		} else if ui.HasFocus("BuffSearchView") {
-			client.UpdateBuffSearchView(UI.ExpandedView, Matches, dirTree.Children)
-		}
-		return UI.ExpandedView.GetInnerRect()
+	views.SetCurrentView(views.PView)
+	ui.Ui.ExpandedView.SetDrawFunc(func(s tcell.Screen, x, y, width, height int) (int, int, int, int) {
+		views.GetCurrentView().Update(ui.Ui.ExpandedView)
+		return ui.Ui.ExpandedView.GetInnerRect()
 	})
 
 	// Function Maps is used For Mapping Keys According to the Value mapped to the Key the respective Function is called
@@ -134,116 +131,43 @@ func main() {
 	// the respective function in this case togglePlayBack is called.
 	var FuncMap = map[string]func(){
 		"showChildrenContent": func() {
-			if ui.HasFocus("FileBrowser") {
-				r, _ := UI.ExpandedView.GetSelection()
-				ui.SetFocus("FileBrowser")
-				if len(dirTree.Children[r].Children) == 0 {
-					if id, err := CONN.AddId(dirTree.Children[r].AbsolutePath, -1); err != nil {
-						Notify.Send(fmt.Sprintf("Could not Add Song %s",
-							dirTree.Children[r].Path))
-					} else {
-						if err := CONN.PlayId(id); err != nil {
-							Notify.Send(fmt.Sprintf("Could Not Play Song %s",
-								dirTree.Children[r].Path))
-						}
-					}
-				} else {
-					client.Update(dirTree.Children[r].Children, UI.ExpandedView)
-					dirTree = &dirTree.Children[r]
-					UI.ExpandedView.Select(0, 0)
-				}
-			} else if ui.HasFocus("Playlist") {
-				r, _ := UI.ExpandedView.GetSelection()
-				if err := CONN.Play(r); err != nil {
-					Notify.Send("Could Not Play the Song")
-				}
-			} else if ui.HasFocus("SearchView") {
-				r, _ := UI.ExpandedView.GetSelection()
-				client.AddToPlaylist(SearchContentSlice[r], true)
-			} else if ui.HasFocus("BuffSearchView") {
-				r, _ := UI.ExpandedView.GetSelection()
-				ui.SetFocus("FileBrowser")
-				if len(dirTree.Children[r].Children) == 0 {
-					if id, err := CONN.AddId(dirTree.Children[Matches[r].Index].AbsolutePath, -1); err != nil {
-						Notify.Send(fmt.Sprintf("Could Not add the Song %s to the Playlist",
-							dirTree.Children[Matches[r].Index].AbsolutePath))
-					} else {
-						if err := CONN.PlayId(id); err != nil {
-							Notify.Send("Could not Play the Song")
-						}
-					}
-				} else {
-					client.Update(dirTree.Children[Matches[r].Index].Children, UI.ExpandedView)
-					dirTree = &dirTree.Children[Matches[r].Index]
-				}
-				UI.SearchBar.SetText("")
-				// Resetting Matches
-				Matches = nil
-			}
+			views.GetCurrentView().ShowChildrenContent()
 		},
 		"togglePlayBack": func() {
 			if err := client.TogglePlayBack(); err != nil {
-				Notify.Send("Could not Toggle Play Back")
+				notify.Notify.Send("Could not Toggle Play Back")
 			}
 		},
 		"showParentContent": func() {
-			if ui.HasFocus("FileBrowser") {
-				if dirTree.Parent != nil {
-					client.Update(dirTree.Parent.Children, UI.ExpandedView)
-					dirTree = dirTree.Parent
-				}
-			} else {
-				Notify.Send("Not Allowed in this View")
-				return
-			}
+			views.GetCurrentView().ShowParentContent()
 		},
 		"nextSong": func() {
-			if err := CONN.Next(); err != nil {
-				Notify.Send("Could not Select the Next Song")
+			if err := Conn.Next(); err != nil {
+				notify.Notify.Send("Could not Select the Next Song")
 			}
 		},
 		"clearPlaylist": func() {
-			if err := CONN.Clear(); err != nil {
-				Notify.Send("Could not Clear the Playlist")
+			if err := Conn.Clear(); err != nil {
+				notify.Notify.Send("Could not Clear the Playlist")
 			} else {
-				Notify.Send("Playlist Cleared")
+				notify.Notify.Send("Playlist Cleared")
 			}
 		},
 		"previousSong": func() {
-			if err := CONN.Previous(); err != nil {
-				Notify.Send("Could Not Select the Previous Song")
+			if err := Conn.Previous(); err != nil {
+				notify.Notify.Send("Could Not Select the Previous Song")
 			}
 		},
 		"addToPlaylist": func() {
-			if ui.HasFocus("FileBrowser") {
-				r, _ := UI.ExpandedView.GetSelection()
-				if err := CONN.Add(dirTree.Children[r].AbsolutePath); err != nil {
-					Notify.Send(fmt.Sprintf("Could not add %s to the Playlist",
-						dirTree.Children[r].Path))
-				}
-			} else if ui.HasFocus("SearchView") {
-				r, _ := UI.ExpandedView.GetSelection()
-				client.AddToPlaylist(SearchContentSlice[r], false)
-			} else if ui.HasFocus("BuffSearchView") {
-				r, _ := UI.ExpandedView.GetSelection()
-				if err := CONN.Add(dirTree.Children[Matches[r].Index].AbsolutePath); err != nil {
-					Notify.Send(fmt.Sprintf("Could Not Add URI %s to the Playlist",
-						dirTree.Children[Matches[r].Index].Path))
-				} else {
-					ui.SetFocus("FileBrowser")
-					Notify.Send(fmt.Sprintf("URI Added %s to the Playlist",
-						dirTree.Children[Matches[r].Index].Path))
-					ui.SetFocus("BuffSearchView")
-				}
-			}
+			views.GetCurrentView().AddToPlaylist()
 		},
 		"toggleRandom": func() {
-			if err := CONN.Random(!Random); err == nil {
+			if err := Conn.Random(!Random); err == nil {
 				Random = !Random
 			}
 		},
 		"toggleRepeat": func() {
-			if err := CONN.Repeat(!Repeat); err == nil {
+			if err := Conn.Repeat(!Repeat); err == nil {
 				Repeat = !Repeat
 			}
 		},
@@ -253,8 +177,8 @@ func main() {
 			} else {
 				Volume -= 10
 			}
-			if err := CONN.SetVolume(int(Volume)); err != nil {
-				Notify.Send("Could Not Decrease the Volume")
+			if err := Conn.SetVolume(int(Volume)); err != nil {
+				notify.Notify.Send("Could Not Decrease the Volume")
 			}
 		},
 		"increaseVolume": func() {
@@ -263,67 +187,60 @@ func main() {
 			} else {
 				Volume += 10
 			}
-			if err := CONN.SetVolume(int(Volume)); err != nil {
-				Notify.Send("Could Not Increase the Volume")
+			if err := Conn.SetVolume(int(Volume)); err != nil {
+				notify.Notify.Send("Could Not Increase the Volume")
 			}
 		},
 		"navigateToFiles": func() {
-			ui.SetFocus("FileBrowser")
-			UI.Navbar.Select(1, 0)
-			client.Update(dirTree.Children, UI.ExpandedView)
+			views.SetCurrentView(views.FView)
+			ui.Ui.Navbar.Select(1, 0)
+			views.FView.Update(ui.Ui.ExpandedView)
 		},
 		"navigateToPlaylist": func() {
-			ui.SetFocus("Playlist")
-			UI.Navbar.Select(0, 0)
-			client.UpdatePlaylist(UI.ExpandedView)
+			views.SetCurrentView(views.PView)
+			ui.Ui.Navbar.Select(0, 0)
+			views.PView.Update(ui.Ui.ExpandedView)
 		},
 		"navigateToMostPlayed": func() {
-			UI.Navbar.Select(2, 0)
+			ui.Ui.Navbar.Select(2, 0)
 		},
 		"navigateToSearch": func() {
-			ui.SetFocus("SearchView")
-			UI.Navbar.Select(3, 0)
+			views.SetCurrentView(views.SView)
+			ui.Ui.Navbar.Select(3, 0)
+			views.SView.Update(ui.Ui.ExpandedView)
 		},
 		"quit": func() {
-			if ui.HasFocus("BuffSearchView") {
-				ui.SetFocus("FileBrowser")
-				UI.SearchBar.SetText("")
-				Matches = nil
-			} else {
-				UI.App.Stop()
-			}
+			views.GetCurrentView().Quit()
 		},
 		"stop": func() {
-			if err := CONN.Stop(); err != nil {
-				Notify.Send("Could not Stop the Playback")
+			if err := Conn.Stop(); err != nil {
+				notify.Notify.Send("Could not Stop the Playback")
 			} else {
-				Notify.Send("Playback Stopped")
+				notify.Notify.Send("Playback Stopped")
 			}
 		},
 		"updateDB": func() {
-			_, err = CONN.Update("")
+			_, err = Conn.Update("")
 			if err != nil {
-				Notify.Send("Could Not Update the Database")
+				notify.Notify.Send("Could Not Update the Database")
 			} else {
-				Notify.Send("Database Updated")
+				notify.Notify.Send("Database Updated")
 			}
 		},
 		"deleteSongFromPlaylist": func() {
-			if ui.HasFocus("Playlist") {
-				r, _ := UI.ExpandedView.GetSelection()
-				if err := CONN.Delete(r, -1); err != nil {
-					Notify.Send("Could not Remove the Song from Playlist")
-				}
-			}
+			views.GetCurrentView().DeleteSongFromPlaylist()
 		},
 		"FocusSearch": func() {
-			UI.App.SetFocus(UI.SearchBar)
+			ui.Ui.App.SetFocus(ui.Ui.SearchBar)
 		},
 		"FocusBuffSearch": func() {
-			if ui.HasFocus("FileBrowser") || ui.HasFocus("BuffSearchView") {
-				ui.SetFocus("BuffSearchView")
-				UI.App.SetFocus(UI.SearchBar)
-			}
+			views.GetCurrentView().FocusBuffSearchView()
+		},
+		"SeekForward": func() {
+			SeekFunc(false)
+		},
+		"SeekBackward": func() {
+			SeekFunc(true)
 		},
 	}
 
@@ -332,12 +249,12 @@ func main() {
 	// for each event T, P, SPACE mapped to the same function togglePlayBack
 	config.GenerateKeyMap(FuncMap)
 
-	UI.SearchBar.SetAutocompleteFunc(func(c string) []string {
-		if ui.HasFocus("BuffSearchView") {
+	ui.Ui.SearchBar.SetAutocompleteFunc(func(c string) []string {
+		if views.GetCurrentView().GetViewName() == "BuffSearchView" {
 			return nil
 		} else {
 			if c != "" && c != " " && c != "  " {
-				_, _, w, _ := UI.SearchBar.GetRect()
+				_, _, w, _ := ui.Ui.SearchBar.GetRect()
 				matches := fuzzy.Find(c, ArtistTreeContent)
 				var suggestions []string
 				for i, match := range matches {
@@ -354,20 +271,27 @@ func main() {
 	})
 
 	// Input Handler
-	UI.ExpandedView.SetInputCapture(func(e *tcell.EventKey) *tcell.EventKey {
+	ui.Ui.ExpandedView.SetInputCapture(func(e *tcell.EventKey) *tcell.EventKey {
 		if val, ok := config.KEY_MAP[int(e.Rune())]; ok {
 			FuncMap[val]()
 			return nil
 		} else {
-			if ui.HasFocus("Playlist") {
+			if views.GetCurrentView().GetViewName() == "PlaylistView" {
 				if e.Rune() == 'j' || e.Rune() == 'k' {
-					if p, err := CONN.PlaylistInfo(-1, -1); err != nil {
-						Notify.Send("Error Getting PlaylistInfo")
+					if p, err := Conn.PlaylistInfo(-1, -1); err != nil {
+						notify.Notify.Send("Error Getting PlaylistInfo")
 					} else {
 						if len(p) == 0 {
-							Notify.Send("Empty Playlist")
+							notify.Notify.Send("Empty Playlist")
 							return nil
 						}
+					}
+				}
+			} else if views.GetCurrentView().GetViewName() == "SearchView" {
+				if e.Rune() == 'j' || e.Rune() == 'k' {
+					if client.SearchContentSlice == nil || len(client.SearchContentSlice) == 0 {
+						notify.Notify.Send("No Search Results")
+						return nil
 					}
 				}
 			}
@@ -375,62 +299,59 @@ func main() {
 		}
 	})
 
-	UI.SearchBar.SetDoneFunc(func(e tcell.Key) {
+	ui.Ui.SearchBar.SetDoneFunc(func(e tcell.Key) {
 		if e == tcell.KeyEnter {
-			UI.ExpandedView.Select(0, 0)
-			if ui.HasFocus("BuffSearchView") {
-				UI.App.SetFocus(UI.ExpandedView)
+			ui.Ui.ExpandedView.Select(0, 0)
+			if views.GetCurrentView().GetViewName() == "BuffSearchView" {
+				ui.Ui.App.SetFocus(ui.Ui.ExpandedView)
 			} else {
-				ui.SetFocus("SearchView")
-				SearchContentSlice = nil
-				SearchContentSlice, err = client.GenerateContentSlice(UI.SearchBar.GetText())
+				views.SetCurrentView(views.SView)
+				client.SearchContentSlice = nil
+				client.SearchContentSlice, err = client.GenerateContentSlice(ui.Ui.SearchBar.GetText())
 				if err != nil {
-					Notify.Send("Could Not Retrieve the Results")
+					notify.Notify.Send("Could Not Retrieve the Results")
 				} else {
-					UI.SearchBar.SetText("")
-					UI.App.SetFocus(UI.ExpandedView)
-					UI.Navbar.Select(3, 0)
+					ui.Ui.SearchBar.SetText("")
+					ui.Ui.App.SetFocus(ui.Ui.ExpandedView)
+					ui.Ui.Navbar.Select(3, 0)
 				}
 			}
 		}
 		if e == tcell.KeyEscape {
-			if ui.HasFocus("SearchView") {
-				ui.FocusMap["SearchView"] = false
-			} else if ui.HasFocus("BuffSearchView") {
-				ui.SetFocus("FileBrowser")
-				Matches = nil
+			if views.GetCurrentView().GetViewName() == "BuffSearchView" {
+				client.Matches = nil
 			}
-			UI.SearchBar.SetText("")
-			UI.App.SetFocus(UI.ExpandedView)
+			ui.Ui.SearchBar.SetText("")
+			ui.Ui.App.SetFocus(ui.Ui.ExpandedView)
 		}
 	})
 
-	UI.ExpandedView.SetDoneFunc(func(e tcell.Key) {
+	ui.Ui.ExpandedView.SetDoneFunc(func(e tcell.Key) {
 		if e == tcell.KeyEscape {
-			if ui.HasFocus("BuffSearchView") {
-				ui.SetFocus("FileBrowser")
-				UI.SearchBar.SetText("")
-				Matches = nil
+			if views.GetCurrentView().GetViewName() == "BuffSearchView" {
+				views.SetCurrentView(views.FView)
+				ui.Ui.SearchBar.SetText("")
+				client.Matches = nil
 			}
 		}
 	})
 
-	UI.SearchBar.SetChangedFunc(func(text string) {
-		if ui.HasFocus("BuffSearchView") {
-			var f client.FileNodes = dirTree.Children
-			Matches = fuzzy.FindFrom(text, f)
-			client.UpdateBuffSearchView(UI.ExpandedView, Matches, dirTree.Children)
+	ui.Ui.SearchBar.SetChangedFunc(func(text string) {
+		if views.GetCurrentView().GetViewName() == "BuffSearchView" {
+			var f client.FileNodes = client.DirTree.Children
+			client.Matches = fuzzy.FindFrom(text, f)
+			views.BuffSView.Update(ui.Ui.ExpandedView)
 		}
 	})
 
 	go func() {
 		for {
-			UI.App.Draw()
+			ui.Ui.App.Draw()
 			time.Sleep(time.Second)
 		}
 	}()
 
-	if err := UI.App.Run(); err != nil {
+	if err := ui.Ui.App.Run(); err != nil {
 		panic(err)
 	}
 }

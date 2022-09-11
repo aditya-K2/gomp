@@ -68,6 +68,13 @@ This is the Fallback Image that will be rendered if gomp doesn't find the embedd
 ```yml
 DEFAULT_IMAGE_PATH : "/path/to/default/image"
 ```
+## Seek Offset
+
+The amount of seconds by which the current song should seek forward or backward.
+
+```yml
+SEEK_OFFSET : 5
+```
 
 ## Additional Padding and Extra Image Width
 
@@ -187,6 +194,8 @@ Following functions are provided :
 |     deleteSongFromPlaylist         |    <kbd>d</kbd>     |
 |     FocusSearch                    |    <kbd>?</kbd>     |
 |     FocusBuffSearch                |    <kbd>/</kbd>     |
+|     SeekForward                    |    <kbd>f</kbd>     |
+|     SeekBackward                   |    <kbd>b</kbd>     |
 
 ## Getting Album Art from [LastFm API](https://www.last.fm/api)
 
