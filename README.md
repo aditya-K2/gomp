@@ -4,7 +4,8 @@
 
  MPD client inspired by ncmpcpp with builtin cover-art view and LastFM integration.
 
-![screenshot](https://user-images.githubusercontent.com/51816057/147781035-69eeeb1c-cd62-4e42-8e71-3b07538704e8.png)
+![Sep11(Sun)11:2026PM](https://user-images.githubusercontent.com/51816057/189541853-282716f1-0515-4ee6-a19a-4989b9de5daf.png)
+
 
 ## Table of Contents
 
