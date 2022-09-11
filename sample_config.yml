@@ -63,6 +63,10 @@ DEFAULT_IMAGE_PATH:   "default.jpg"
 # Note It is neccessary to use /home/your_user_name instead of ~
 # Read more about it here: https://github.com/aditya-K2/gomp/issues/1#issuecomment-1205090265
 
+SEEK_OFFSET : 1
+# The amount of seconds by which the song should seek forward or backward
+# Defaults to 1 if not provided
+
 GET_COVER_ART_FROM_LAST_FM : "TRUE" # Turn On Getting Album art from lastfm api
 LASTFM_API_KEY: "YOUR API KEY HERE"
 LASTFM_API_SECRET: "YOUR API SECRET HERE"
