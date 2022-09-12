@@ -29,15 +29,23 @@ var (
 )
 
 func ReadConfig() {
+
 	for k, v := range defaults {
 		viper.SetDefault(k, v)
 	}
+
 	viper.SetConfigName("config")
 	viper.AddConfigPath(HOME_DIR + "/.config/gomp")
+
 	err := viper.ReadInConfig()
 	if err != nil {
 		fmt.Println("Could Not Read Config file.")
 	}
+
+	// Expanding ~ to the User's Home Directory
+	viper.Set("MUSIC_DIRECTORY", utils.ExpandHomeDir(viper.GetString("MUSIC_DIRECTORY")))
+	viper.Set("DEFAULT_IMAGE_PATH", utils.ExpandHomeDir(viper.GetString("DEFAULT_IMAGE_PATH")))
+	viper.Set("CACHE_DIR", utils.ExpandHomeDir(viper.GetString("CACHE_DIR")))
 }
 
 func GenerateKeyMap(funcMap map[string]func()) {

@@ -2,6 +2,8 @@ package utils
 
 import (
 	"io/ioutil"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"syscall"
@@ -114,6 +116,17 @@ func CheckDirectoryFmt(path string) string {
 		return path
 	} else {
 		return path + "/"
+	}
+}
+
+func ExpandHomeDir(path string) string {
+	HOME_DIR, _ := os.UserHomeDir()
+	if strings.HasPrefix(path, "~/") {
+		return filepath.Join(HOME_DIR, path[1:])
+	} else if path == "~" {
+		return HOME_DIR
+	} else {
+		return path
 	}
 }
 
