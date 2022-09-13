@@ -6,10 +6,13 @@ import (
 	"github.com/aditya-K2/gomp/ui"
 	"github.com/aditya-K2/gomp/utils"
 	"github.com/aditya-K2/tview"
+	"github.com/fhs/gompd/v2/mpd"
 	"github.com/gdamore/tcell/v2"
+	"github.com/spf13/viper"
 )
 
 type PlaylistView struct {
+	Playlist []mpd.Attrs
 }
 
 func (s PlaylistView) GetViewName() string {
@@ -57,11 +60,12 @@ func (p PlaylistView) DeleteSongFromPlaylist() {
 }
 
 func (p PlaylistView) Update(inputTable *tview.Table) {
-	CONN := client.Conn
-	_playlistAttr, _ := CONN.PlaylistInfo(-1, -1)
-
 	inputTable.Clear()
-	for i, j := range _playlistAttr {
+	cplaylist := make([]mpd.Attrs, len(p.Playlist))
+	for k, v := range p.Playlist {
+		cplaylist[k] = v
+	}
+	for i, j := range cplaylist {
 		_, _, w, _ := inputTable.GetInnerRect()
 		if j["Title"] == "" || j["Artist"] == "" || j["Album"] == "" {
 			inputTable.SetCell(i, 0,
@@ -79,4 +83,47 @@ func (p PlaylistView) Update(inputTable *tview.Table) {
 				GetCell(j["Album"], tcell.ColorYellow, false))
 		}
 	}
+}
+
+func (p *PlaylistView) StartWatcher() {
+	var err error
+	if p.Playlist == nil {
+		if p.Playlist, err = client.Conn.PlaylistInfo(-1, -1); err != nil {
+			utils.Print("RED", "Watcher couldn't get the current Playlist.\n")
+			panic(err)
+		}
+	}
+	del := ""
+	nt := viper.GetString("NETWORK_TYPE")
+	port := viper.GetString("MPD_PORT")
+	if nt == "tcp" {
+		del = ":"
+	} else if nt == "unix" && port != "" {
+		port = ""
+	}
+
+	w, err := mpd.NewWatcher(nt,
+		viper.GetString("NETWORK_ADDRESS")+del+port, "", "playlist")
+	if err != nil {
+		utils.Print("RED", "Could Not Start Watcher.\n")
+		utils.Print("GREEN", "Please check your MPD Info in config File.\n")
+		panic(err)
+	}
+
+	go func() {
+		for err := range w.Error {
+			notify.Notify.Send(err.Error())
+		}
+	}()
+
+	go func() {
+		for subsystem := range w.Event {
+			if subsystem == "playlist" {
+				if p.Playlist, err = client.Conn.PlaylistInfo(-1, -1); err != nil {
+					utils.Print("RED", "Watcher couldn't get the current Playlist.\n")
+					panic(err)
+				}
+			}
+		}
+	}()
 }

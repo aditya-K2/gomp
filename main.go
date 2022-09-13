@@ -60,9 +60,6 @@ func main() {
 	// Generating the Directory Tree for File Navigation.
 	client.DirTree = client.GenerateDirectoryTree(fileMap)
 
-	// Default View upon Opening is of Playlist.
-	views.PView.Update(ui.Ui.ExpandedView)
-
 	var Volume int64
 	var Random, Repeat bool
 	var SeekOffset = viper.GetInt("SEEK_OFFSET")
@@ -120,6 +117,7 @@ func main() {
 
 	// This Function Is Responsible for Changing the Focus it uses the Focus Map and Based on it Chooses
 	// the Draw Function
+	views.PView.StartWatcher()
 	views.SetCurrentView(views.PView)
 	ui.Ui.ExpandedView.SetDrawFunc(func(s tcell.Screen, x, y, width, height int) (int, int, int, int) {
 		views.GetCurrentView().Update(ui.Ui.ExpandedView)
