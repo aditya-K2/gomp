@@ -8,7 +8,6 @@ import (
 	"github.com/aditya-K2/tview"
 	"github.com/fhs/gompd/v2/mpd"
 	"github.com/gdamore/tcell/v2"
-	"github.com/spf13/viper"
 )
 
 type PlaylistView struct {
@@ -95,17 +94,9 @@ func (p *PlaylistView) StartWatcher() {
 			panic(err)
 		}
 	}
-	del := ""
-	nt := viper.GetString("NETWORK_TYPE")
-	port := viper.GetString("MPD_PORT")
-	if nt == "tcp" {
-		del = ":"
-	} else if nt == "unix" && port != "" {
-		port = ""
-	}
 
-	w, err := mpd.NewWatcher(nt,
-		viper.GetString("NETWORK_ADDRESS")+del+port, "", "playlist")
+	nt, addr := utils.GetNetwork()
+	w, err := mpd.NewWatcher(nt, addr, "", "playlist")
 	if err != nil {
 		utils.Print("RED", "Could Not Start Watcher.\n")
 		utils.Print("GREEN", "Please check your MPD Info in config File.\n")

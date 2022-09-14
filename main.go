@@ -22,16 +22,7 @@ import (
 func main() {
 	config.ReadConfig()
 	var mpdConnectionError error
-	del := ""
-	nt := viper.GetString("NETWORK_TYPE")
-	port := viper.GetString("MPD_PORT")
-	if nt == "tcp" {
-		del = ":"
-	} else if nt == "unix" && port != "" {
-		port = ""
-	}
-	client.Conn, mpdConnectionError = mpd.Dial(nt,
-		viper.GetString("NETWORK_ADDRESS")+del+port)
+	client.Conn, mpdConnectionError = mpd.Dial(utils.GetNetwork())
 	if mpdConnectionError != nil {
 		utils.Print("RED", "Could Not Connect to MPD Server\n")
 		utils.Print("GREEN", "Make Sure You Mention the Correct MPD Port in the config file.\n")
