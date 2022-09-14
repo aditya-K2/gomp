@@ -118,7 +118,7 @@ func main() {
 	// This Function Is Responsible for Changing the Focus it uses the Focus Map and Based on it Chooses
 	// the Draw Function
 	views.PView.StartWatcher()
-	views.SetCurrentView(views.PView)
+	views.SetCurrentView(&views.PView)
 	ui.Ui.ExpandedView.SetDrawFunc(func(s tcell.Screen, x, y, width, height int) (int, int, int, int) {
 		views.GetCurrentView().Update(ui.Ui.ExpandedView)
 		return ui.Ui.ExpandedView.GetInnerRect()
@@ -148,7 +148,11 @@ func main() {
 			if err := Conn.Clear(); err != nil {
 				notify.Notify.Send("Could not Clear the Playlist")
 			} else {
-				notify.Notify.Send("Playlist Cleared")
+				if views.PView.Playlist, err = client.Conn.PlaylistInfo(-1, -1); err != nil {
+					utils.Print("RED", "Couldn't get the current Playlist.\n")
+					panic(err)
+				}
+				notify.Notify.Send("Playlist Cleared!")
 			}
 		},
 		"previousSong": func() {
@@ -195,7 +199,7 @@ func main() {
 			views.FView.Update(ui.Ui.ExpandedView)
 		},
 		"navigateToPlaylist": func() {
-			views.SetCurrentView(views.PView)
+			views.SetCurrentView(&views.PView)
 			ui.Ui.Navbar.Select(0, 0)
 			views.PView.Update(ui.Ui.ExpandedView)
 		},

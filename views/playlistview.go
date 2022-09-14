@@ -50,22 +50,24 @@ func (p PlaylistView) Quit() {
 
 func (p PlaylistView) FocusBuffSearchView() {}
 
-func (p PlaylistView) DeleteSongFromPlaylist() {
+func (p *PlaylistView) DeleteSongFromPlaylist() {
 	UI := ui.Ui
 	CONN := client.Conn
 	r, _ := UI.ExpandedView.GetSelection()
 	if err := CONN.Delete(r, -1); err != nil {
 		notify.Notify.Send("Could not Remove the Song from Playlist")
+	} else {
+		if p.Playlist, err = client.Conn.PlaylistInfo(-1, -1); err != nil {
+			utils.Print("RED", "Couldn't get the current Playlist.\n")
+			panic(err)
+		}
 	}
+
 }
 
 func (p PlaylistView) Update(inputTable *tview.Table) {
 	inputTable.Clear()
-	cplaylist := make([]mpd.Attrs, len(p.Playlist))
-	for k, v := range p.Playlist {
-		cplaylist[k] = v
-	}
-	for i, j := range cplaylist {
+	for i, j := range p.Playlist {
 		_, _, w, _ := inputTable.GetInnerRect()
 		if j["Title"] == "" || j["Artist"] == "" || j["Album"] == "" {
 			inputTable.SetCell(i, 0,
