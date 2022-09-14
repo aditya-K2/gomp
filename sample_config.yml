@@ -1,7 +1,4 @@
-# Note It is neccessary to use /home/your_user_name instead of ~
-# Read more about it here: https://github.com/aditya-K2/gomp/issues/1#issuecomment-1205090265
-
-MUSIC_DIRECTORY: "/D/Downloads/AllSongs/"
+MUSIC_DIRECTORY: "~/Music"
   # Your Music Directory (i.e music_directory in mpd.conf)
 
 ADDITIONAL_PADDING_X : 9
@@ -59,8 +56,7 @@ NETWORK_TYPE : "tcp" # Defaults to tcp if not provided, use "unix" if MPD Server
 NETWORK_ADDRESS : "localhost" # Defaults to localhost if not provided,
   # This is the address of the host, for e.g "localhost"/ "127.0.0.1" / a Unix Socket "/home/$USER/.mpd/socket"
 
-DEFAULT_IMAGE_PATH:   "default.jpg"
-# Note It is neccessary to use /home/your_user_name instead of ~
+DEFAULT_IMAGE_PATH:   "~/default.jpg"
 # Read more about it here: https://github.com/aditya-K2/gomp/issues/1#issuecomment-1205090265
 
 SEEK_OFFSET : 1
@@ -94,6 +90,4 @@ togglePlayBack : [ "p", "SPACE", "]" ] # using the quotes is neccessary.
 #
 #
 CACHE_DIR : "/path/to/the/cache/Directory" # for e.g "/home/user_name/.config/gomp/cache/"
-  # Note It is neccessary to use /home/your_user_name instead of ~
-  # Read more about it here: https://github.com/aditya-K2/gomp/issues/1#issuecomment-1205090265
   # You will have to manually create this directory.
