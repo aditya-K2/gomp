@@ -46,6 +46,7 @@ func ReadConfig() {
 	viper.Set("MUSIC_DIRECTORY", utils.ExpandHomeDir(viper.GetString("MUSIC_DIRECTORY")))
 	viper.Set("DEFAULT_IMAGE_PATH", utils.ExpandHomeDir(viper.GetString("DEFAULT_IMAGE_PATH")))
 	viper.Set("CACHE_DIR", utils.ExpandHomeDir(viper.GetString("CACHE_DIR")))
+	viper.Set("NETWORK_ADDRESS", utils.ExpandHomeDir(viper.GetString("NETWORK_ADDRESS")))
 }
 
 func GenerateKeyMap(funcMap map[string]func()) {
