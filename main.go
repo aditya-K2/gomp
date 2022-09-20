@@ -22,16 +22,7 @@ import (
 func main() {
 	config.ReadConfig()
 	var mpdConnectionError error
-	del := ""
-	nt := viper.GetString("NETWORK_TYPE")
-	port := viper.GetString("MPD_PORT")
-	if nt == "tcp" {
-		del = ":"
-	} else if nt == "unix" && port != "" {
-		port = ""
-	}
-	client.Conn, mpdConnectionError = mpd.Dial(nt,
-		viper.GetString("NETWORK_ADDRESS")+del+port)
+	client.Conn, mpdConnectionError = mpd.Dial(utils.GetNetwork())
 	if mpdConnectionError != nil {
 		utils.Print("RED", "Could Not Connect to MPD Server\n")
 		utils.Print("GREEN", "Make Sure You Mention the Correct MPD Port in the config file.\n")
@@ -59,9 +50,6 @@ func main() {
 
 	// Generating the Directory Tree for File Navigation.
 	client.DirTree = client.GenerateDirectoryTree(fileMap)
-
-	// Default View upon Opening is of Playlist.
-	views.PView.Update(ui.Ui.ExpandedView)
 
 	var Volume int64
 	var Random, Repeat bool
@@ -120,7 +108,8 @@ func main() {
 
 	// This Function Is Responsible for Changing the Focus it uses the Focus Map and Based on it Chooses
 	// the Draw Function
-	views.SetCurrentView(views.PView)
+	views.PView.StartWatcher()
+	views.SetCurrentView(&views.PView)
 	ui.Ui.ExpandedView.SetDrawFunc(func(s tcell.Screen, x, y, width, height int) (int, int, int, int) {
 		views.GetCurrentView().Update(ui.Ui.ExpandedView)
 		return ui.Ui.ExpandedView.GetInnerRect()
@@ -150,7 +139,11 @@ func main() {
 			if err := Conn.Clear(); err != nil {
 				notify.Notify.Send("Could not Clear the Playlist")
 			} else {
-				notify.Notify.Send("Playlist Cleared")
+				if views.PView.Playlist, err = client.Conn.PlaylistInfo(-1, -1); err != nil {
+					utils.Print("RED", "Couldn't get the current Playlist.\n")
+					panic(err)
+				}
+				notify.Notify.Send("Playlist Cleared!")
 			}
 		},
 		"previousSong": func() {
@@ -197,7 +190,7 @@ func main() {
 			views.FView.Update(ui.Ui.ExpandedView)
 		},
 		"navigateToPlaylist": func() {
-			views.SetCurrentView(views.PView)
+			views.SetCurrentView(&views.PView)
 			ui.Ui.Navbar.Select(0, 0)
 			views.PView.Update(ui.Ui.ExpandedView)
 		},

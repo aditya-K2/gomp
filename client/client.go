@@ -111,27 +111,31 @@ func PrintArtistTree(a map[string]map[string]map[string]string) {
 
 //  Adds All tracks from a specified album to a playlist
 func AddAlbum(a map[string]map[string]map[string]string, alb string, artist string) {
+	clist := Conn.BeginCommandList()
 	for _, v := range a[artist][alb] {
-		err := Conn.Add(v)
-		if err != nil {
-			notify.Notify.Send("Could Not Add Song : " + v)
-		}
+		clist.Add(v)
 	}
-	notify.Notify.Send("Album Added : " + alb)
+	if err := clist.End(); err != nil {
+		notify.Notify.Send("Could Not Add Album : " + alb)
+	} else {
+		notify.Notify.Send("Album Added: " + alb)
+	}
 }
 
 //  Adds All tracks from a specified artist to a playlist
 func AddArtist(a map[string]map[string]map[string]string, artist string) {
+	clist := Conn.BeginCommandList()
 	if val, ok := a[artist]; ok {
 		for _, v := range val {
 			for _, path := range v {
-				err := Conn.Add(path)
-				if err != nil {
-					notify.Notify.Send("Could Not Add Song : " + path)
-				}
+				clist.Add(path)
 			}
 		}
-		notify.Notify.Send("Artist Added : " + artist)
+		if err := clist.End(); err != nil {
+			notify.Notify.Send("Could Not Add Artist : " + artist)
+		} else {
+			notify.Notify.Send("Artist Added: " + artist)
+		}
 	}
 }
 

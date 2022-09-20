@@ -6,10 +6,12 @@ import (
 	"github.com/aditya-K2/gomp/ui"
 	"github.com/aditya-K2/gomp/utils"
 	"github.com/aditya-K2/tview"
+	"github.com/fhs/gompd/v2/mpd"
 	"github.com/gdamore/tcell/v2"
 )
 
 type PlaylistView struct {
+	Playlist []mpd.Attrs
 }
 
 func (s PlaylistView) GetViewName() string {
@@ -47,21 +49,24 @@ func (p PlaylistView) Quit() {
 
 func (p PlaylistView) FocusBuffSearchView() {}
 
-func (p PlaylistView) DeleteSongFromPlaylist() {
+func (p *PlaylistView) DeleteSongFromPlaylist() {
 	UI := ui.Ui
 	CONN := client.Conn
 	r, _ := UI.ExpandedView.GetSelection()
 	if err := CONN.Delete(r, -1); err != nil {
 		notify.Notify.Send("Could not Remove the Song from Playlist")
+	} else {
+		if p.Playlist, err = client.Conn.PlaylistInfo(-1, -1); err != nil {
+			utils.Print("RED", "Couldn't get the current Playlist.\n")
+			panic(err)
+		}
 	}
+
 }
 
 func (p PlaylistView) Update(inputTable *tview.Table) {
-	CONN := client.Conn
-	_playlistAttr, _ := CONN.PlaylistInfo(-1, -1)
-
 	inputTable.Clear()
-	for i, j := range _playlistAttr {
+	for i, j := range p.Playlist {
 		_, _, w, _ := inputTable.GetInnerRect()
 		if j["Title"] == "" || j["Artist"] == "" || j["Album"] == "" {
 			inputTable.SetCell(i, 0,
@@ -79,4 +84,39 @@ func (p PlaylistView) Update(inputTable *tview.Table) {
 				GetCell(j["Album"], tcell.ColorYellow, false))
 		}
 	}
+}
+
+func (p *PlaylistView) StartWatcher() {
+	var err error
+	if p.Playlist == nil {
+		if p.Playlist, err = client.Conn.PlaylistInfo(-1, -1); err != nil {
+			utils.Print("RED", "Watcher couldn't get the current Playlist.\n")
+			panic(err)
+		}
+	}
+
+	nt, addr := utils.GetNetwork()
+	w, err := mpd.NewWatcher(nt, addr, "", "playlist")
+	if err != nil {
+		utils.Print("RED", "Could Not Start Watcher.\n")
+		utils.Print("GREEN", "Please check your MPD Info in config File.\n")
+		panic(err)
+	}
+
+	go func() {
+		for err := range w.Error {
+			notify.Notify.Send(err.Error())
+		}
+	}()
+
+	go func() {
+		for subsystem := range w.Event {
+			if subsystem == "playlist" {
+				if p.Playlist, err = client.Conn.PlaylistInfo(-1, -1); err != nil {
+					utils.Print("RED", "Watcher couldn't get the current Playlist.\n")
+					panic(err)
+				}
+			}
+		}
+	}()
 }

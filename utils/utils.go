@@ -8,6 +8,8 @@ import (
 	"strings"
 	"syscall"
 	"unsafe"
+
+	"github.com/spf13/viper"
 )
 
 type winsize struct {
@@ -173,4 +175,16 @@ func Unique(intSlice []int) []int {
 		}
 	}
 	return list
+}
+
+func GetNetwork() (string, string) {
+	del := ""
+	nt := viper.GetString("NETWORK_TYPE")
+	port := viper.GetString("MPD_PORT")
+	if nt == "tcp" {
+		del = ":"
+	} else if nt == "unix" && port != "" {
+		port = ""
+	}
+	return nt, viper.GetString("NETWORK_ADDRESS") + del + port
 }
