@@ -1,6 +1,6 @@
 # gomp
 
-[Documentation](https://aditya-K2.github.io/gomp/) | [Chat](https://matrix.to/#/#gomp:matrix.org)
+[Documentation](https://aditya-K2.github.io/gomp/) | [Discussion](https://github.com/aditya-K2/gomp/discussions)
 
 ![](https://img.shields.io/badge/status-beta-yellow) &nbsp;&nbsp;  [<img src="https://img.shields.io/aur/version/gomp-git">](https://aur.archlinux.org/packages/gomp-git/)
 
