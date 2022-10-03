@@ -82,7 +82,7 @@ func (self *ProgressBar) Draw(screen tcell.Screen) {
 		x, y+2, _width-OFFSET, tview.AlignRight, tcell.ColorWhite)
 }
 
-func progressFunction() (string, string, string, float64) {
+func ProgressFunction() (string, string, string, float64) {
 	_currentAttributes, err := CONN.CurrentSong()
 	var song, top, text string
 	var percentage float64

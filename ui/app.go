@@ -25,7 +25,7 @@ type Application struct {
 func NewApplication() *Application {
 
 	pBar := NewProgressBar()
-	pBar.SetProgressFunc(progressFunction)
+	pBar.SetProgressFunc(ProgressFunction)
 	expandedView := tview.NewTable()
 	Navbar := tview.NewTable()
 	searchBar := tview.NewInputField()
