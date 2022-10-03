@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -39,7 +38,7 @@ func ReadConfig() {
 
 	err := viper.ReadInConfig()
 	if err != nil {
-		fmt.Println("Could Not Read Config file.")
+		utils.Print("RED", "Could Not Read Config file.\n")
 	}
 
 	// Expanding ~ to the User's Home Directory
@@ -66,7 +65,7 @@ func GenerateKeyMap(funcMap map[string]func()) {
 func getMusicDirectory() string {
 	content, err := ioutil.ReadFile(HOME_DIR + "/.config/mpd/mpd.conf")
 	if err != nil {
-		fmt.Println("No Config File for mpd Found")
+		utils.Print("RED", "No Config File for mpd Found.\n")
 		panic(err)
 	}
 	ab := string(content)
