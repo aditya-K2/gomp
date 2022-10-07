@@ -338,9 +338,8 @@ func main() {
 	})
 
 	go func() {
-		drawFunc := func() {}
 		for {
-			ui.Ui.App.QueueUpdateDraw(drawFunc)
+			ui.Ui.App.Draw()
 			time.Sleep(time.Second)
 		}
 	}()

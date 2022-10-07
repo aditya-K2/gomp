@@ -74,20 +74,17 @@ func (f FileView) Update(inputTable *tview.Table) {
 	inputTable.Clear()
 	for i, j := range client.DirTree.Children {
 		if len(j.Children) == 0 {
-			_songAttributes, err := client.Conn.ListAllInfo(j.AbsolutePath)
-			if err == nil && _songAttributes[0]["Title"] != "" {
+			if j.Title != "" {
 				_, _, w, _ := inputTable.GetInnerRect()
 				inputTable.SetCell(i, 0,
 					GetCell(
-						utils.GetFormattedString(_songAttributes[0]["Title"], w/3), tcell.ColorGreen, false))
-
+						utils.GetFormattedString(j.Title, w/3), tcell.ColorGreen, false))
 				inputTable.SetCell(i, 1,
 					GetCell(
-						utils.GetFormattedString(_songAttributes[0]["Artist"], w/3), tcell.ColorPurple, false))
+						utils.GetFormattedString(j.Artist, w/3), tcell.ColorPurple, false))
 				inputTable.SetCell(i, 2,
-					GetCell(_songAttributes[0]["Album"], tcell.ColorYellow, false))
-
-			} else if _songAttributes[0]["Title"] == "" {
+					GetCell(j.Album, tcell.ColorYellow, false))
+			} else if j.Title == "" {
 				inputTable.SetCell(i, 0,
 					GetCell(j.Path, tcell.ColorBlue, true))
 			}

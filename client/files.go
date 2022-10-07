@@ -13,6 +13,8 @@ type FileNode struct {
 	Parent       *FileNode
 	AbsolutePath string
 	Title        string
+	Artist       string
+	Album        string
 }
 
 // Source Interface For Fuzzy Searching.
@@ -29,11 +31,11 @@ func (f FileNodes) Len() int {
 	return len(f)
 }
 
-func (f *FileNode) AddChildren(path string, title string) {
+func (f *FileNode) AddChildren(path string, title string, artist string, album string) {
 	if f.Path != "" {
-		f.Children = append(f.Children, FileNode{Children: make([]FileNode, 0), Path: path, Parent: f, AbsolutePath: f.AbsolutePath + "/" + path, Title: title})
+		f.Children = append(f.Children, FileNode{Children: make([]FileNode, 0), Path: path, Parent: f, AbsolutePath: f.AbsolutePath + "/" + path, Title: title, Artist: artist, Album: album})
 	} else {
-		f.Children = append(f.Children, FileNode{Children: make([]FileNode, 0), Path: path, Parent: f, AbsolutePath: f.AbsolutePath + path, Title: title})
+		f.Children = append(f.Children, FileNode{Children: make([]FileNode, 0), Path: path, Parent: f, AbsolutePath: f.AbsolutePath + path})
 	}
 }
 
@@ -49,7 +51,7 @@ func GenerateDirectoryTree(path []mpd.Attrs) *FileNode {
 		sepPaths := strings.Split(path[i]["file"], "/")
 		for j := range sepPaths {
 			if len(head.Children) == 0 {
-				head.AddChildren(sepPaths[j], path[i]["Title"])
+				head.AddChildren(sepPaths[j], path[i]["Title"], path[i]["Artist"], path[i]["Album"])
 				head = &(head.Children[len(head.Children)-1])
 			} else {
 				var headIsChanged = false
@@ -61,7 +63,7 @@ func GenerateDirectoryTree(path []mpd.Attrs) *FileNode {
 					}
 				}
 				if !headIsChanged {
-					head.AddChildren(sepPaths[j], path[i]["Title"])
+					head.AddChildren(sepPaths[j], path[i]["Title"], path[i]["Artist"], path[i]["Album"])
 					head = &(head.Children[len(head.Children)-1])
 				}
 			}
