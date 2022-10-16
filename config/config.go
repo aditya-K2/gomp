@@ -10,9 +10,9 @@ import (
 )
 
 var (
-	HOME_DIR, _       = os.UserHomeDir()
-	USER_CACHE_DIR, _ = os.UserCacheDir()
-	defaults          = map[string]interface{}{
+	CONFIG_DIR, CONFIG_ERR    = os.UserConfigDir()
+	USER_CACHE_DIR, CACHE_ERR = os.UserCacheDir()
+	defaults                  = map[string]interface{}{
 		"ADDITIONAL_PADDING_X": 12,
 		"ADDITIONAL_PADDING_Y": 16,
 		"IMAGE_WIDTH_EXTRA_X":  -1.5,
@@ -33,8 +33,18 @@ func ReadConfig() {
 		viper.SetDefault(k, v)
 	}
 
+	if CONFIG_ERR != nil {
+		utils.Print("RED", "Couldn't get XDG_CONFIG!")
+		panic(CONFIG_ERR)
+	}
+
+	if CACHE_ERR != nil {
+		utils.Print("RED", "Couldn't get CACHE DIR!")
+		panic(CACHE_ERR)
+	}
+
 	viper.SetConfigName("config")
-	viper.AddConfigPath(HOME_DIR + "/.config/gomp")
+	viper.AddConfigPath(CONFIG_DIR + "/gomp")
 
 	err := viper.ReadInConfig()
 	if err != nil {
@@ -63,7 +73,7 @@ func GenerateKeyMap(funcMap map[string]func()) {
 }
 
 func getMusicDirectory() string {
-	content, err := ioutil.ReadFile(HOME_DIR + "/.config/mpd/mpd.conf")
+	content, err := ioutil.ReadFile(CONFIG_DIR + "/mpd/mpd.conf")
 	if err != nil {
 		utils.Print("RED", "No Config File for mpd Found.\n")
 		panic(err)
