@@ -14,12 +14,13 @@ var (
 )
 
 type Application struct {
-	App          *tview.Application
-	ExpandedView *tview.Table
-	Navbar       *tview.Table
-	SearchBar    *tview.InputField
-	ProgressBar  *ProgressBar
-	Pages        *tview.Pages
+	App            *tview.Application
+	ExpandedView   *tview.Table
+	Navbar         *tview.Table
+	SearchBar      *tview.InputField
+	ProgressBar    *ProgressBar
+	Pages          *tview.Pages
+	ImagePreviewer *tview.Box
 }
 
 func NewApplication() *Application {
@@ -32,11 +33,6 @@ func NewApplication() *Application {
 	searchBar.SetFieldBackgroundColor(tcell.ColorDefault)
 	imagePreviewer := tview.NewBox()
 	imagePreviewer.SetBorder(true)
-	imagePreviewer.SetDrawFunc(func(s tcell.Screen, x, y, width, height int) (int, int, int, int) {
-		ImgX, ImgY, ImgW, ImgH = imagePreviewer.GetRect()
-		return imagePreviewer.GetInnerRect()
-	})
-
 	expandedView.SetBackgroundColor(tcell.ColorDefault)
 	Navbar.SetBackgroundColor(tcell.ColorDefault)
 	searchBar.SetBackgroundColor(tcell.ColorDefault)
@@ -90,12 +86,13 @@ func NewApplication() *Application {
 	})
 
 	return &Application{
-		App:          App,
-		ExpandedView: expandedView,
-		Navbar:       Navbar,
-		SearchBar:    searchBar,
-		ProgressBar:  pBar,
-		Pages:        rootPages,
+		App:            App,
+		ExpandedView:   expandedView,
+		Navbar:         Navbar,
+		SearchBar:      searchBar,
+		ProgressBar:    pBar,
+		Pages:          rootPages,
+		ImagePreviewer: imagePreviewer,
 	}
 
 }

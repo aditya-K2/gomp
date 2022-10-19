@@ -85,38 +85,3 @@ func (p PlaylistView) Update(inputTable *tview.Table) {
 		}
 	}
 }
-
-func (p *PlaylistView) StartWatcher() {
-	var err error
-	if p.Playlist == nil {
-		if p.Playlist, err = client.Conn.PlaylistInfo(-1, -1); err != nil {
-			utils.Print("RED", "Watcher couldn't get the current Playlist.\n")
-			panic(err)
-		}
-	}
-
-	nt, addr := utils.GetNetwork()
-	w, err := mpd.NewWatcher(nt, addr, "", "playlist")
-	if err != nil {
-		utils.Print("RED", "Could Not Start Watcher.\n")
-		utils.Print("GREEN", "Please check your MPD Info in config File.\n")
-		panic(err)
-	}
-
-	go func() {
-		for err := range w.Error {
-			notify.Notify.Send(err.Error())
-		}
-	}()
-
-	go func() {
-		for subsystem := range w.Event {
-			if subsystem == "playlist" {
-				if p.Playlist, err = client.Conn.PlaylistInfo(-1, -1); err != nil {
-					utils.Print("RED", "Watcher couldn't get the current Playlist.\n")
-					panic(err)
-				}
-			}
-		}
-	}()
-}

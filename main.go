@@ -12,6 +12,7 @@ import (
 	"github.com/aditya-K2/gomp/ui"
 	"github.com/aditya-K2/gomp/utils"
 	"github.com/aditya-K2/gomp/views"
+	"github.com/aditya-K2/gomp/watchers"
 
 	"github.com/aditya-K2/fuzzy"
 	"github.com/fhs/gompd/v2/mpd"
@@ -39,6 +40,7 @@ func main() {
 	// Connecting the Renderer to the Main UI
 	ui.ConnectRenderer(render.Rendr)
 
+	watchers.Init()
 	ui.Ui = ui.NewApplication()
 
 	fileMap, err := Conn.ListAllInfo("/")
@@ -108,7 +110,8 @@ func main() {
 
 	// This Function Is Responsible for Changing the Focus it uses the Focus Map and Based on it Chooses
 	// the Draw Function
-	views.PView.StartWatcher()
+	watchers.StartPlaylistWatcher()
+	watchers.StartRectWatcher()
 	views.SetCurrentView(&views.PView)
 	ui.Ui.ExpandedView.SetDrawFunc(func(s tcell.Screen, x, y, width, height int) (int, int, int, int) {
 		views.GetCurrentView().Update(ui.Ui.ExpandedView)
