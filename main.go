@@ -271,13 +271,9 @@ func main() {
 		} else {
 			if views.GetCurrentView().GetViewName() == "PlaylistView" {
 				if e.Rune() == 'j' || e.Rune() == 'k' {
-					if p, err := Conn.PlaylistInfo(-1, -1); err != nil {
-						notify.Notify.Send("Error Getting PlaylistInfo")
-					} else {
-						if len(p) == 0 {
-							notify.Notify.Send("Empty Playlist")
-							return nil
-						}
+					if len(views.PView.Playlist) == 0 {
+						notify.Notify.Send("Empty Playlist")
+						return nil
 					}
 				}
 			} else if views.GetCurrentView().GetViewName() == "SearchView" {
