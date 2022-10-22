@@ -24,6 +24,7 @@ var (
 		"DEFAULT_IMAGE_PATH":   "default.jpg",
 		"CACHE_DIR":            utils.CheckDirectoryFmt(USER_CACHE_DIR),
 		"SEEK_OFFSET":          1,
+		"REDRAW_INTERVAL":      500,
 	}
 )
 

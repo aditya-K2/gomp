@@ -12,6 +12,7 @@ import (
 	"github.com/aditya-K2/gomp/utils"
 	"github.com/aditya-K2/gomp/views"
 	"github.com/fhs/gompd/v2/mpd"
+	"github.com/spf13/viper"
 )
 
 var (
@@ -26,6 +27,7 @@ func Init() {
 	}
 }
 func StartRectWatcher() {
+	redrawInterval := viper.GetInt("REDRAW_INTERVAL")
 	go func() {
 		for {
 			ImgX, ImgY, ImgW, ImgH := ui.Ui.ImagePreviewer.GetRect()
@@ -37,7 +39,7 @@ func StartRectWatcher() {
 				ui.ImgH = ImgH
 				render.DrawCover(currentSong, false)
 			}
-			time.Sleep(time.Millisecond * 500)
+			time.Sleep(time.Millisecond * time.Duration(redrawInterval))
 		}
 	}()
 }
