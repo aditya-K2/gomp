@@ -32,16 +32,13 @@ func main() {
 	Conn := client.Conn
 	defer Conn.Close()
 
-	ui.SetConnection(Conn)
-
 	cache.SetCacheDir(viper.GetString("CACHE_DIR"))
 
 	render.Rendr = render.NewRenderer()
-	// Connecting the Renderer to the Main UI
-	ui.ConnectRenderer(render.Rendr)
 
 	watchers.Init()
 	ui.Ui = ui.NewApplication()
+	ui.Ui.ProgressBar.SetProgressFunc(watchers.ProgressFunction)
 
 	fileMap, err := Conn.ListAllInfo("/")
 	if err != nil {
@@ -101,11 +98,7 @@ func main() {
 		utils.Print("RED", "Could Not Retrieve the Current Song\n")
 		panic(err)
 	} else {
-		if len(c) != 0 {
-			render.Rendr.Start(c["file"])
-		} else {
-			render.Rendr.Start("stop")
-		}
+		render.DrawCover(c, true)
 	}
 
 	// This Function Is Responsible for Changing the Focus it uses the Focus Map and Based on it Chooses

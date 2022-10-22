@@ -1,6 +1,8 @@
 package watchers
 
 import (
+	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/aditya-K2/gomp/client"
@@ -23,15 +25,6 @@ func Init() {
 		currentSong = c
 	}
 }
-
-func DrawCover(c mpd.Attrs) {
-	if len(c) == 0 {
-		render.Rendr.Send("stop")
-	} else {
-		render.Rendr.Send(c["file"])
-	}
-}
-
 func StartRectWatcher() {
 	go func() {
 		for {
@@ -42,9 +35,9 @@ func StartRectWatcher() {
 				ui.ImgY = ImgY
 				ui.ImgW = ImgW
 				ui.ImgH = ImgH
-				DrawCover(currentSong)
+				render.DrawCover(currentSong, false)
 			}
-			time.Sleep(time.Millisecond * 100)
+			time.Sleep(time.Millisecond * 500)
 		}
 	}()
 }
@@ -59,7 +52,7 @@ func StartPlaylistWatcher() {
 	}
 
 	nt, addr := utils.GetNetwork()
-	w, err := mpd.NewWatcher(nt, addr, "", "playlist")
+	w, err := mpd.NewWatcher(nt, addr, "")
 	if err != nil {
 		utils.Print("RED", "Could Not Start Watcher.\n")
 		utils.Print("GREEN", "Please check your MPD Info in config File.\n")
@@ -85,8 +78,42 @@ func StartPlaylistWatcher() {
 					panic(err)
 				} else {
 					currentSong = c
+					render.DrawCover(c, false)
 				}
 			}
 		}
 	}()
+}
+
+func ProgressFunction() (string, string, string, float64) {
+	_currentAttributes := currentSong
+	var song, top, text string
+	var percentage float64
+	song = "[green::bi]" +
+		_currentAttributes["Title"] + "[-:-:-] - " + "[blue::b]" +
+		_currentAttributes["Artist"] + "\n"
+	_status, err := client.Conn.Status()
+	el, err1 := strconv.ParseFloat(_status["elapsed"], 8)
+	du, err := strconv.ParseFloat(_status["duration"], 8)
+	top = fmt.Sprintf("[[::i] %s [-:-:-]Shuffle: %s Repeat: %s Volume: %s ]",
+		utils.FormatString(_status["state"]),
+		utils.FormatString(_status["random"]),
+		utils.FormatString(_status["repeat"]),
+		_status["volume"])
+	if du != 0 {
+		percentage = el / du * 100
+		if err == nil && err1 == nil {
+			text = utils.StrTime(el) + "/" + utils.StrTime(du) +
+				"(" + strconv.FormatFloat(percentage, 'f', 2, 32) + "%" + ")"
+		} else {
+			text = ""
+		}
+	} else {
+		text = "   ---:---"
+		percentage = 0
+	}
+	if percentage > 100 {
+		percentage = 0
+	}
+	return song, top, text, percentage
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/aditya-K2/gomp/client"
 	"github.com/aditya-K2/gomp/notify"
 	"github.com/aditya-K2/gomp/ui"
+	"github.com/fhs/gompd/v2/mpd"
 
 	"github.com/aditya-K2/gomp/cache"
 	"github.com/aditya-K2/gomp/utils"
@@ -35,8 +36,14 @@ func NewRenderer() *Renderer {
 }
 
 // Send Image Path to Renderer
-func (r *Renderer) Send(path string) {
-	r.c <- path
+// Start Initialises the Renderer and calls the go routine OpenImage and passes the channel
+// as argument.
+func (r *Renderer) Send(path string, start bool) {
+	if start {
+		go OpenImage(path, r.c)
+	} else {
+		r.c <- path
+	}
 }
 
 // OpenImage Go Routine that will Be Called and will listen on the channel c
@@ -62,12 +69,6 @@ func OpenImage(path string, c chan string) {
 	} else {
 		OpenImage("stop", c)
 	}
-}
-
-// Start Initialises the Renderer and calls the go routine OpenImage and passes the channel
-// as argument.
-func (r *Renderer) Start(path string) {
-	go OpenImage(path, r.c)
 }
 
 // GetImagePath This Function returns the path to the image that is to be
@@ -118,4 +119,12 @@ func GetImg(uri string) (image.Image, error) {
 		resize.Bilinear,
 	)
 	return img, nil
+}
+
+func DrawCover(c mpd.Attrs, start bool) {
+	if len(c) == 0 {
+		Rendr.Send("stop", start)
+	} else {
+		Rendr.Send(c["file"], start)
+	}
 }

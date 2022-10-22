@@ -1,30 +1,13 @@
 package ui
 
 import (
-	"fmt"
-	"strconv"
 	"strings"
 
-	"github.com/fhs/gompd/v2/mpd"
 	"github.com/gdamore/tcell/v2"
 
 	"github.com/aditya-K2/gomp/utils"
 	"github.com/aditya-K2/tview"
 )
-
-var (
-	CurrentSong string = ""
-	CONN        *mpd.Client
-	RENDERER    interface{ Send(string) }
-)
-
-func SetConnection(c *mpd.Client) {
-	CONN = c
-}
-
-func ConnectRenderer(r interface{ Send(string) }) {
-	RENDERER = r
-}
 
 // ProgressBar is a two-lined Box. First line is the BarTitle
 // Second being the actual progress done.
@@ -80,49 +63,4 @@ func (self *ProgressBar) Draw(screen tcell.Screen) {
 			percentage,
 			self.BarText),
 		x, y+2, _width-OFFSET, tview.AlignRight, tcell.ColorWhite)
-}
-
-func ProgressFunction() (string, string, string, float64) {
-	_currentAttributes, err := CONN.CurrentSong()
-	var song, top, text string
-	var percentage float64
-	if err == nil {
-		song = "[green::bi]" +
-			_currentAttributes["Title"] + "[-:-:-] - " + "[blue::b]" +
-			_currentAttributes["Artist"] + "\n"
-		if len(_currentAttributes) == 0 && CurrentSong != "" {
-			CurrentSong = ""
-			RENDERER.Send("stop")
-		} else if song != CurrentSong && len(_currentAttributes) != 0 {
-			RENDERER.Send(_currentAttributes["file"])
-			CurrentSong = song
-		}
-	} else {
-		utils.Print("RED", "Error Retrieving Current Song\n")
-		panic(err)
-	}
-	_status, err := CONN.Status()
-	el, err1 := strconv.ParseFloat(_status["elapsed"], 8)
-	du, err := strconv.ParseFloat(_status["duration"], 8)
-	top = fmt.Sprintf("[[::i] %s [-:-:-]Shuffle: %s Repeat: %s Volume: %s ]",
-		utils.FormatString(_status["state"]),
-		utils.FormatString(_status["random"]),
-		utils.FormatString(_status["repeat"]),
-		_status["volume"])
-	if du != 0 {
-		percentage = el / du * 100
-		if err == nil && err1 == nil {
-			text = utils.StrTime(el) + "/" + utils.StrTime(du) +
-				"(" + strconv.FormatFloat(percentage, 'f', 2, 32) + "%" + ")"
-		} else {
-			text = ""
-		}
-	} else {
-		text = "   ---:---"
-		percentage = 0
-	}
-	if percentage > 100 {
-		percentage = 0
-	}
-	return song, top, text, percentage
 }
