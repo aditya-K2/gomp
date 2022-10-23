@@ -76,6 +76,14 @@ The amount of seconds by which the current song should seek forward or backward.
 SEEK_OFFSET : 5
 ```
 
+## Redraw Interval
+
+The amount of milliseconds after which the cover art should be redrawn if there is a event.
+
+```yml
+REDRAW_INTERVAL : 500
+```
+
 ## Additional Padding and Extra Image Width
 
 ### Image Rendering

@@ -8,10 +8,10 @@ import (
 	"github.com/aditya-K2/gomp/client"
 	"github.com/aditya-K2/gomp/config"
 	"github.com/aditya-K2/gomp/notify"
-	"github.com/aditya-K2/gomp/render"
 	"github.com/aditya-K2/gomp/ui"
 	"github.com/aditya-K2/gomp/utils"
 	"github.com/aditya-K2/gomp/views"
+	"github.com/aditya-K2/gomp/watchers"
 
 	"github.com/aditya-K2/fuzzy"
 	"github.com/fhs/gompd/v2/mpd"
@@ -31,15 +31,11 @@ func main() {
 	Conn := client.Conn
 	defer Conn.Close()
 
-	ui.SetConnection(Conn)
-
 	cache.SetCacheDir(viper.GetString("CACHE_DIR"))
 
-	render.Rendr = render.NewRenderer()
-	// Connecting the Renderer to the Main UI
-	ui.ConnectRenderer(render.Rendr)
-
+	watchers.Init()
 	ui.Ui = ui.NewApplication()
+	ui.Ui.ProgressBar.SetProgressFunc(watchers.ProgressFunction)
 
 	fileMap, err := Conn.ListAllInfo("/")
 	if err != nil {
@@ -95,20 +91,10 @@ func main() {
 	notify.Notify = notify.NewNotificationServer()
 	notify.Notify.Start()
 
-	if c, err := Conn.CurrentSong(); err != nil {
-		utils.Print("RED", "Could Not Retrieve the Current Song\n")
-		panic(err)
-	} else {
-		if len(c) != 0 {
-			render.Rendr.Start(c["file"])
-		} else {
-			render.Rendr.Start("stop")
-		}
-	}
-
 	// This Function Is Responsible for Changing the Focus it uses the Focus Map and Based on it Chooses
 	// the Draw Function
-	views.PView.StartWatcher()
+	watchers.StartPlaylistWatcher()
+	watchers.StartRectWatcher()
 	views.SetCurrentView(&views.PView)
 	ui.Ui.ExpandedView.SetDrawFunc(func(s tcell.Screen, x, y, width, height int) (int, int, int, int) {
 		views.GetCurrentView().Update(ui.Ui.ExpandedView)
@@ -312,6 +298,7 @@ func main() {
 			}
 			ui.Ui.SearchBar.SetText("")
 			ui.Ui.App.SetFocus(ui.Ui.ExpandedView)
+			views.SetCurrentView(views.FView)
 		}
 	})
 
