@@ -8,7 +8,6 @@ import (
 	"github.com/aditya-K2/gomp/client"
 	"github.com/aditya-K2/gomp/config"
 	"github.com/aditya-K2/gomp/notify"
-	"github.com/aditya-K2/gomp/render"
 	"github.com/aditya-K2/gomp/ui"
 	"github.com/aditya-K2/gomp/utils"
 	"github.com/aditya-K2/gomp/views"
@@ -33,8 +32,6 @@ func main() {
 	defer Conn.Close()
 
 	cache.SetCacheDir(viper.GetString("CACHE_DIR"))
-
-	render.Rendr = render.NewRenderer()
 
 	watchers.Init()
 	ui.Ui = ui.NewApplication()
@@ -93,13 +90,6 @@ func main() {
 
 	notify.Notify = notify.NewNotificationServer()
 	notify.Notify.Start()
-
-	if c, err := Conn.CurrentSong(); err != nil {
-		utils.Print("RED", "Could Not Retrieve the Current Song\n")
-		panic(err)
-	} else {
-		render.DrawCover(c, true)
-	}
 
 	// This Function Is Responsible for Changing the Focus it uses the Focus Map and Based on it Chooses
 	// the Draw Function

@@ -17,6 +17,7 @@ import (
 
 var (
 	currentSong mpd.Attrs
+	start       bool = true
 )
 
 func Init() {
@@ -25,21 +26,45 @@ func Init() {
 	} else {
 		currentSong = c
 	}
+	render.Rendr = render.NewRenderer()
 }
 func StartRectWatcher() {
 	redrawInterval := viper.GetInt("REDRAW_INTERVAL")
+
+	// Wait Until the ImagePreviewer is drawn
+	// Ensures that cover art is not drawn before the UI is rendered.
+	// Ref Issue: #39
+	drawCh := make(chan bool)
 	go func() {
-		for {
-			ImgX, ImgY, ImgW, ImgH := ui.Ui.ImagePreviewer.GetRect()
-			if ImgX != ui.ImgX || ImgY != ui.ImgY ||
-				ImgW != ui.ImgW || ImgH != ui.ImgH {
-				ui.ImgX = ImgX
-				ui.ImgY = ImgY
-				ui.ImgW = ImgW
-				ui.ImgH = ImgH
-				render.DrawCover(currentSong, false)
-			}
-			time.Sleep(time.Millisecond * time.Duration(redrawInterval))
+		for ui.ImgX == 0 && ui.ImgY == 0 {
+			ui.ImgX, ui.ImgY, ui.ImgW, ui.ImgH = ui.Ui.ImagePreviewer.GetRect()
+		}
+		drawCh <- true
+	}()
+
+	go func() {
+		// Waiting for the draw channel
+		draw := <-drawCh
+		if draw {
+			go func() {
+				for {
+					ImgX, ImgY, ImgW, ImgH := ui.Ui.ImagePreviewer.GetRect()
+					if start {
+						fmt.Println(ui.ImgX, ui.ImgY, ui.ImgW, ui.ImgH)
+						render.DrawCover(currentSong, true)
+						start = false
+					}
+					if ImgX != ui.ImgX || ImgY != ui.ImgY ||
+						ImgW != ui.ImgW || ImgH != ui.ImgH {
+						ui.ImgX = ImgX
+						ui.ImgY = ImgY
+						ui.ImgW = ImgW
+						ui.ImgH = ImgH
+						render.DrawCover(currentSong, false)
+					}
+					time.Sleep(time.Millisecond * time.Duration(redrawInterval))
+				}
+			}()
 		}
 	}()
 }
