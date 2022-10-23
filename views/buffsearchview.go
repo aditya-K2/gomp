@@ -33,6 +33,7 @@ func (s BuffSearchView) ShowChildrenContent() {
 			}
 		}
 	} else {
+		PosStack.Push(client.Matches[r].Index)
 		client.DirTree = &client.DirTree.Children[client.Matches[r].Index]
 		FView.Update(UI.ExpandedView)
 	}

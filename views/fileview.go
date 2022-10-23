@@ -11,6 +11,10 @@ import (
 	"github.com/gdamore/tcell/v2"
 )
 
+var (
+	PosStack utils.Stack[int]
+)
+
 type FileView struct {
 }
 
@@ -34,6 +38,7 @@ func (f FileView) ShowChildrenContent() {
 			}
 		}
 	} else {
+		PosStack.Push(r)
 		client.DirTree = &client.DirTree.Children[r]
 		FView.Update(UI.ExpandedView)
 		UI.ExpandedView.Select(0, 0)
@@ -43,7 +48,18 @@ func (f FileView) ShowChildrenContent() {
 func (f FileView) ShowParentContent() {
 	UI := ui.Ui
 	if client.DirTree.Parent != nil {
+		var last bool = false
+		r := PosStack.Top()
+		PosStack.Pop()
+		ui.Ui.ExpandedView.Select(r, 0)
 		client.DirTree = client.DirTree.Parent
+		if r == len(client.DirTree.Children)-1 {
+			last = true
+		}
+		ui.Ui.App.QueueEvent(tcell.NewEventKey(tcell.KeyRune, 'j', tcell.ModNone))
+		if !last {
+			ui.Ui.App.QueueEvent(tcell.NewEventKey(tcell.KeyRune, 'k', tcell.ModNone))
+		}
 		FView.Update(UI.ExpandedView)
 	}
 }
