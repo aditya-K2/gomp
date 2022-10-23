@@ -1,31 +1,48 @@
 
 ![Sep11(Sun)11:2026PM](https://user-images.githubusercontent.com/51816057/189541853-282716f1-0515-4ee6-a19a-4989b9de5daf.png)
 
-## Table Of Contents
-
-* [Configuration](#configuration)
-	* [MPD Port](#mpd-port)
-	* [Music Directory](#music-directory)
-	* [Default Image Path](#default-image-path)
-	* [Additional Padding and Extra Image Width](#additional-padding-and-extra-image-width)
-		* [Image Rendering](#image-rendering)
-	* [Cache Directory](#cache-directory)
-	* [Key Mappings](#key-mappings)
-	* [Getting Album Art from LastFm API](#getting-album-art-from-lastfm-api)
-
 # Configuration
 
 Configuration of gomp is done through a `config.yml` file in `$HOME/.config/gomp/`
 
 It is essential to have some config options defined in order to have a smooth experience.
 
-## MPD Port
+# Essential Config Options
 
-This is the port where your Music Player Daemon Is Running
+These are the config options that you must define.
+
+### Default Image Path
+
+This is the Fallback Image that will be rendered if gomp doesn't find the embedded cover art or LastFM Cover Art.
+
+```yml
+DEFAULT_IMAGE_PATH : "/path/to/default/image"
+```
+### MPD Port
+
+This is the port where your Music Player Daemon Is Running.
+
+##### If not provided gomp looks for the port in mpd.conf in `~/.config/mpd/`
 
 ```yml
 MPD_PORT : "6600"
 ```
+
+### Music Directory
+
+The Most Essential config option is `MUSIC_DIRECTORY` It is the path to your Music Folder that you have provided to mpd
+in the `mpd.conf` file. If you do not provide the path to the `MUSIC_DIRECTORY` then gomp parses the mpd.conf file for
+the `music_directory` option ( It is to be noted that gomp assumes that your mpd.conf file is at
+`$HOME/.config/mpd/mpd.conf`
+
+```yml
+MUSIC_DIRECTORY : "~/Music"
+```
+
+The reason why you need to setup `MUSIC_DIRECTORY` manually because the paths to the songs received from mpd are relative the `MUSIC_DIRECTORY`.
+
+# Other Config Options
+
 ## Network Type
 
 By Default gomp assumes that you connect to MPD Server through tcp, But if your MPD Server is configured to expose a unix socket rather than a port, then you can specify network type to "unix"
@@ -48,26 +65,6 @@ NETWORK_ADDRESS : "/home/$USER/.mpd/socket"
 
 Read More about it in the [sample_config](https://github.com/aditya-K2/gomp/blob/master/sample_config.yml)
 
-## Music Directory
-
-The Most Essential config option is `MUSIC_DIRECTORY` It is the path to your Music Folder that you have provided to mpd
-in the `mpd.conf` file. If you do not provide the path to the `MUSIC_DIRECTORY` then gomp parses the mpd.conf file for
-the `music_directory` option ( It is to be noted that gomp assumes that your mpd.conf file is at
-`$HOME/.config/mpd/mpd.conf`
-
-```yml
-MUSIC_DIRECTORY : "~/Music"
-```
-
-The reason why you need to setup `MUSIC_DIRECTORY` manually because the paths to the songs received from mpd are relative the `MUSIC_DIRECTORY`.
-
-## Default Image Path
-
-This is the Fallback Image that will be rendered if gomp doesn't find the embedded cover art or LastFM Cover Art.
-
-```yml
-DEFAULT_IMAGE_PATH : "/path/to/default/image"
-```
 ## Seek Offset
 
 The amount of seconds by which the current song should seek forward or backward.
@@ -83,10 +80,19 @@ The amount of milliseconds after which the cover art should be redrawn if there 
 ```yml
 REDRAW_INTERVAL : 500
 ```
+## Cache Directory
+
+By Default Images are cached to avoid re-extracting images and making redundant API Calls. The Extracted Images are copied to the `CACHE_DIR`.
+
+```yml
+CACHE_DIR : "/path/to/the/cache/Directory/"
+```
+
+Read More about Caching in the [sample_config](https://github.com/aditya-K2/gomp/blob/master/sample_config.yml)
+
+# Image Rendering
 
 ## Additional Padding and Extra Image Width
-
-### Image Rendering
 
 The Default Position of the Image without any configuration assumes that you have no font or terminal padding or margin so Image will
 be rendered at different places in different terminals, Also the TUIs calculates positions with the respect to rows and columns
@@ -139,17 +145,7 @@ Read More about Additional Padding and Image Width in the [sample_config](https:
 
 Please change the configuration according to your needs.
 
-## Cache Directory
-
-By Default Images are cached to avoid re-extracting images and making redundant API Calls. The Extracted Images are copied to the `CACHE_DIR`.
-
-```yml
-CACHE_DIR : "/path/to/the/cache/Directory/"
-```
-
-Read More about Caching in the [sample_config](https://github.com/aditya-K2/gomp/blob/master/sample_config.yml)
-
-## Key Mappings
+# Key Mappings
 
 Following Keys can be used for Mappings
 
@@ -170,7 +166,7 @@ For mapping a key to some function use the following format:
 ```yml
 Function: [ firstMapping, secondMapping, thirdMapping]
 ```
-for.eg
+for e.g
 
 
 ```yml
@@ -205,7 +201,7 @@ Following functions are provided :
 |     SeekForward                    |    <kbd>f</kbd>     |
 |     SeekBackward                   |    <kbd>b</kbd>     |
 
-## Getting Album Art from [LastFm API](https://www.last.fm/api)
+# Getting Album Art from [LastFm API](https://www.last.fm/api)
 
 1. Generate API Key [here](https://www.last.fm/login?next=%2Fapi%2Faccount%2Fcreate%3F_pjax%3D%2523content)
 
