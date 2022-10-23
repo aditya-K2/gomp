@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -187,4 +188,9 @@ func GetNetwork() (string, string) {
 		port = ""
 	}
 	return nt, viper.GetString("NETWORK_ADDRESS") + del + port
+}
+
+func FileExists(path string) bool {
+	_, err := os.Stat(path)
+	return !errors.Is(err, os.ErrNotExist)
 }

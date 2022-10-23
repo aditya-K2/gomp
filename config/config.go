@@ -1,10 +1,9 @@
 package config
 
 import (
-	"io/ioutil"
 	"os"
-	"strings"
 
+	"github.com/aditya-K2/gomp/config/conf"
 	"github.com/aditya-K2/gomp/utils"
 	"github.com/spf13/viper"
 )
@@ -19,8 +18,6 @@ var (
 		"IMAGE_WIDTH_EXTRA_Y":  -3.75,
 		"NETWORK_TYPE":         "tcp",
 		"NETWORK_ADDRESS":      "localhost",
-		"MUSIC_DIRECTORY":      utils.CheckDirectoryFmt(getMusicDirectory()),
-		"PORT":                 "6600",
 		"DEFAULT_IMAGE_PATH":   "default.jpg",
 		"CACHE_DIR":            utils.CheckDirectoryFmt(USER_CACHE_DIR),
 		"SEEK_OFFSET":          1,
@@ -29,6 +26,8 @@ var (
 )
 
 func ReadConfig() {
+	// Parse mpd.conf to set default values.
+	ParseMPDConfig()
 
 	for k, v := range defaults {
 		viper.SetDefault(k, v)
@@ -73,26 +72,21 @@ func GenerateKeyMap(funcMap map[string]func()) {
 	}
 }
 
-func getMusicDirectory() string {
-	content, err := ioutil.ReadFile(CONFIG_DIR + "/mpd/mpd.conf")
-	if err != nil {
-		utils.Print("RED", "No Config File for mpd Found.\n")
-		panic(err)
-	}
-	ab := string(content)
-	maps := strings.Split(ab, "\n")
-	for _, j := range maps {
-		if strings.Contains(j, "music_directory") {
-			s := strings.SplitAfter(strings.ReplaceAll(j, " ", ""), "y")[1]
-			s = strings.ReplaceAll(s, "\t", "")
-			d := ""
-			for z, m := range s {
-				if (z != 0) && (z != (len(s) - 1)) {
-					d += string(m)
-				}
-			}
-			return d
+func ParseMPDConfig() {
+	uwconf := CONFIG_DIR + "/mpd/mpd.conf"
+	swconf := "/etc/mpd.conf"
+	set_defaults := func(path string) {
+		m := conf.GenerateMap(path)
+		if val, ok := m["music_directory"]; ok {
+			defaults["MUSIC_DIRECTORY"] = utils.CheckDirectoryFmt(val.(string))
+		}
+		if val, ok := m["port"]; ok {
+			defaults["MPD_PORT"] = val.(string)
 		}
 	}
-	return ""
+	if utils.FileExists(uwconf) {
+		set_defaults(uwconf)
+	} else {
+		set_defaults(swconf)
+	}
 }
