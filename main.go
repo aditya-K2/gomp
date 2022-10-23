@@ -298,6 +298,7 @@ func main() {
 			}
 			ui.Ui.SearchBar.SetText("")
 			ui.Ui.App.SetFocus(ui.Ui.ExpandedView)
+			views.SetCurrentView(views.FView)
 		}
 	})
 

@@ -23,7 +23,7 @@ func (s BuffSearchView) ShowChildrenContent() {
 	CONN := client.Conn
 	r, _ := UI.ExpandedView.GetSelection()
 	SetCurrentView(FView)
-	if len(client.DirTree.Children[r].Children) == 0 {
+	if len(client.DirTree.Children[client.Matches[r].Index].Children) == 0 {
 		if id, err := CONN.AddID(client.DirTree.Children[client.Matches[r].Index].AbsolutePath, -1); err != nil {
 			notify.Notify.Send(fmt.Sprintf("Could Not add the Song %s to the Playlist",
 				client.DirTree.Children[client.Matches[r].Index].AbsolutePath))
