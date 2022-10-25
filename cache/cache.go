@@ -10,8 +10,7 @@ import (
 )
 
 var (
-	CACHE_DIR   string
-	DEFAULT_IMG string
+	CACHE_DIR string
 )
 
 func SetCacheDir(path string) {

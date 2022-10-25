@@ -1,14 +1,18 @@
 package render
 
 import (
-	"github.com/aditya-K2/gomp/utils"
+	"errors"
 	"os"
 	"strings"
 
 	"github.com/bogem/id3v2"
 	"github.com/mewkiz/flac"
 	"github.com/mewkiz/flac/meta"
-	"github.com/spf13/viper"
+)
+
+var (
+	ExtractionError        = errors.New("Empty Image Extracted")
+	UnSupportedFormatError = errors.New("UnSupported File Format")
 )
 
 func GetMp3Image(songPath, imagePath string) string {
@@ -63,23 +67,17 @@ func GetFlacImage(songPath, imagePath string) string {
 	return ""
 }
 
-func ExtractImageFromFile(uri string, imagePath string) string {
-	_i := imagePath
+func ExtractImageFromFile(uri string, imagePath string) (string, error) {
+	var err error = nil
 	if strings.HasSuffix(uri, ".mp3") {
-		imagePath := GetMp3Image(uri, imagePath)
-		if imagePath == "" {
-			utils.Copy(viper.GetString("DEFAULT_IMAGE_PATH"), _i)
-			return viper.GetString("DEFAULT_IMAGE_PATH")
-		}
+		imagePath = GetMp3Image(uri, imagePath)
 	} else if strings.HasSuffix(uri, ".flac") {
-		imagePath := GetFlacImage(uri, imagePath)
-		if imagePath == "" {
-			utils.Copy(viper.GetString("DEFAULT_IMAGE_PATH"), _i)
-			return viper.GetString("DEFAULT_IMAGE_PATH")
-		}
+		imagePath = GetFlacImage(uri, imagePath)
 	} else {
-		utils.Copy(viper.GetString("DEFAULT_IMAGE_PATH"), _i)
-		return viper.GetString("DEFAULT_IMAGE_PATH")
+		err = UnSupportedFormatError
 	}
-	return imagePath
+	if imagePath == "" {
+		err = ExtractionError
+	}
+	return imagePath, err
 }
