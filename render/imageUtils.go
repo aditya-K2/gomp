@@ -2,82 +2,38 @@ package render
 
 import (
 	"errors"
+	"io/fs"
+	"io/ioutil"
 	"os"
-	"strings"
 
-	"github.com/bogem/id3v2"
-	"github.com/mewkiz/flac"
-	"github.com/mewkiz/flac/meta"
+	"github.com/dhowden/tag"
 )
 
 var (
-	ExtractionError        = errors.New("Empty Image Extracted")
-	UnSupportedFormatError = errors.New("UnSupported File Format")
+	ExtractionErr    = errors.New("Empty Image Extracted")
+	ImageNotFoundErr = errors.New("Image Not Found")
+	ImageWriteErr    = errors.New("Error Writing Image to File")
 )
 
-func GetMp3Image(songPath, imagePath string) string {
-	tag, err := id3v2.Open(songPath, id3v2.Options{Parse: true})
+func ExtractImage(path string, imagePath string) (string, error) {
+	f, err := os.Open(path)
 	if err != nil {
-		return ""
+		return "", ExtractionErr
 	}
-	defer tag.Close()
-	if err != nil {
-		return ""
-	}
-	// Read tags.
-	Frames := tag.GetFrames(tag.CommonID("Attached picture"))
-	var ImageData []byte
-	for _, er := range Frames {
-		pic, ok := er.(id3v2.PictureFrame)
-		if ok {
-			for _, i := range pic.Picture {
-				ImageData = append(ImageData, byte(i))
-			}
-			imageHandler, err := os.Create(imagePath)
-			if err != nil {
-				return ""
-			} else {
-				imageHandler.Write(ImageData)
-				return imagePath
-			}
-		}
-	}
-	return ""
-}
+	defer f.Close()
 
-func GetFlacImage(songPath, imagePath string) string {
-	stream, err := flac.ParseFile(songPath)
+	meta, err := tag.ReadFrom(f)
 	if err != nil {
-		return ""
+		return "", ExtractionErr
 	}
-	defer stream.Close()
-	for _, block := range stream.Blocks {
-		if block.Type == meta.TypePicture {
-			pic := block.Body.(*meta.Picture)
-			if pic.Type == 3 {
-				imageHandler, err := os.Create(imagePath)
-				if err != nil {
-					return ""
-				}
-				imageHandler.Write(pic.Data)
-				return imagePath
-			}
-		}
-	}
-	return ""
-}
 
-func ExtractImageFromFile(uri string, imagePath string) (string, error) {
-	var err error = nil
-	if strings.HasSuffix(uri, ".mp3") {
-		imagePath = GetMp3Image(uri, imagePath)
-	} else if strings.HasSuffix(uri, ".flac") {
-		imagePath = GetFlacImage(uri, imagePath)
+	if picture := meta.Picture(); picture == nil {
+		return "", ImageNotFoundErr
 	} else {
-		err = UnSupportedFormatError
+		if err := ioutil.WriteFile(imagePath, picture.Data, fs.ModeIrregular); err != nil {
+			return "", ImageWriteErr
+		}
 	}
-	if imagePath == "" {
-		err = ExtractionError
-	}
-	return imagePath, err
+
+	return imagePath, nil
 }

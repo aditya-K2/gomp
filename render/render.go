@@ -83,7 +83,7 @@ func GetImagePath(path string) string {
 		} else {
 			imagePath := cache.GenerateName(a[0]["artist"], a[0]["album"])
 			absPath := utils.CheckDirectoryFmt(viper.GetString("MUSIC_DIRECTORY")) + path
-			if _extractedImage, _err := ExtractImageFromFile(absPath, imagePath); _err != nil {
+			if _extractedImage, _err := ExtractImage(absPath, imagePath); _err != nil {
 				if viper.GetString("GET_COVER_ART_FROM_LAST_FM") == "TRUE" {
 					downloadedImage, err := getImageFromLastFM(a[0]["artist"], a[0]["album"], imagePath)
 					if err == nil {
@@ -91,11 +91,7 @@ func GetImagePath(path string) string {
 						extractedImage = downloadedImage
 					}
 				} else {
-					if _err == ExtractionError {
-						notify.Notify.Send("Falling Back to Default Image.")
-					} else if _err == UnSupportedFormatError {
-						notify.Notify.Send("Format Not Supported!")
-					}
+					notify.Notify.Send(_err.Error())
 					extractedImage = viper.GetString("DEFAULT_IMAGE_PATH")
 				}
 			} else {

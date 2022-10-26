@@ -3,3 +3,5 @@ gomp
 *.jpg
 e.go
 .fuse*
+.gomp_log
+config.yml
