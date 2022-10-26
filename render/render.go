@@ -55,10 +55,13 @@ func OpenImage(path string, c chan string) {
 	var im *ueberzug.Image
 	if path != "stop" {
 		extractedImage := GetImagePath(path)
-		img2, _ := GetImg(extractedImage)
-		im, _ = ueberzug.NewImage(img2,
-			int(float32(ui.ImgX)*fw)+viper.GetInt("ADDITIONAL_PADDING_X"),
-			int(float32(ui.ImgY)*fh)+viper.GetInt("ADDITIONAL_PADDING_Y"))
+		if img2, err := GetImg(extractedImage); err == nil {
+			im, _ = ueberzug.NewImage(img2,
+				int(float32(ui.ImgX)*fw)+viper.GetInt("ADDITIONAL_PADDING_X"),
+				int(float32(ui.ImgY)*fh)+viper.GetInt("ADDITIONAL_PADDING_Y"))
+		} else {
+			notify.Notify.Send("Error Rendering Image!")
+		}
 	}
 	d := <-c
 	if im != nil {
