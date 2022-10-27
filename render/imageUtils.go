@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	ExtractionErr    = errors.New("Empty Image Extracted")
+	ExtractionErr    = errors.New("No Image Extracted")
 	ImageNotFoundErr = errors.New("Image Not Found")
 	ImageWriteErr    = errors.New("Error Writing Image to File")
 )

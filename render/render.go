@@ -1,6 +1,7 @@
 package render
 
 import (
+	"fmt"
 	"image"
 	"os"
 
@@ -60,7 +61,8 @@ func OpenImage(path string, c chan string) {
 				int(float32(ui.ImgX)*fw)+viper.GetInt("ADDITIONAL_PADDING_X"),
 				int(float32(ui.ImgY)*fh)+viper.GetInt("ADDITIONAL_PADDING_Y"))
 		} else {
-			notify.Notify.Send("Error Rendering Image!")
+			notify.Notify.Send(extractedImage)
+			// notify.Notify.Send("Error Rendering Image!")
 		}
 	}
 	d := <-c
@@ -79,29 +81,30 @@ func OpenImage(path string, c chan string) {
 // else it adds the image to the cache and then extracts it and renders it.
 func GetImagePath(path string) string {
 	a, err := client.Conn.ListInfo(path)
-	var extractedImage string
+	var extractedImage string = viper.GetString("DEFAULT_IMAGE_PATH")
 	if err == nil && len(a) != 0 {
 		if cache.Exists(a[0]["artist"], a[0]["album"]) {
 			extractedImage = cache.GenerateName(a[0]["artist"], a[0]["album"])
 		} else {
 			imagePath := cache.GenerateName(a[0]["artist"], a[0]["album"])
 			absPath := utils.CheckDirectoryFmt(viper.GetString("MUSIC_DIRECTORY")) + path
-			if _extractedImage, _err := ExtractImage(absPath, imagePath); _err != nil {
+			if _eimg, exErr := ExtractImage(absPath, imagePath); exErr != nil {
 				if viper.GetString("GET_COVER_ART_FROM_LAST_FM") == "TRUE" {
-					downloadedImage, err := getImageFromLastFM(a[0]["artist"], a[0]["album"], imagePath)
-					if err == nil {
+					downloadedImage, lFmErr := getImageFromLastFM(a[0]["artist"], a[0]["album"], imagePath)
+					if lFmErr == nil {
 						notify.Notify.Send("Image From LastFM")
 						extractedImage = downloadedImage
+					} else {
+						notify.Notify.Send(exErr.Error())
 					}
-				} else {
-					notify.Notify.Send(_err.Error())
-					extractedImage = viper.GetString("DEFAULT_IMAGE_PATH")
 				}
 			} else {
 				notify.Notify.Send("Image Extracted Succesfully!")
-				extractedImage = _extractedImage
+				extractedImage = _eimg
 			}
 		}
+	} else {
+		notify.Notify.Send(fmt.Sprintf("Couldn't Get Attributes for %s", path))
 	}
 	return extractedImage
 }
