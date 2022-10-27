@@ -61,8 +61,7 @@ func OpenImage(path string, c chan string) {
 				int(float32(ui.ImgX)*fw)+viper.GetInt("ADDITIONAL_PADDING_X"),
 				int(float32(ui.ImgY)*fh)+viper.GetInt("ADDITIONAL_PADDING_Y"))
 		} else {
-			notify.Notify.Send(extractedImage)
-			// notify.Notify.Send("Error Rendering Image!")
+			notify.Notify.Send("Error Rendering Image!")
 		}
 	}
 	d := <-c

@@ -2,8 +2,6 @@ package render
 
 import (
 	"errors"
-	"io/fs"
-	"io/ioutil"
 	"os"
 
 	"github.com/dhowden/tag"
@@ -30,8 +28,10 @@ func ExtractImage(path string, imagePath string) (string, error) {
 	if picture := meta.Picture(); picture == nil {
 		return "", ImageNotFoundErr
 	} else {
-		if err := ioutil.WriteFile(imagePath, picture.Data, fs.ModeIrregular); err != nil {
+		if imHd, err := os.Create(imagePath); err != nil {
 			return "", ImageWriteErr
+		} else {
+			imHd.Write(picture.Data)
 		}
 	}
 
