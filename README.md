@@ -30,8 +30,6 @@ yay -S gomp-git
 ## Manually
 
 ```bash
-git clone https://github.com/aditya-K2/gomp &&
-cd gomp &&
-go build
+git clone https://github.com/aditya-K2/gomp && cd gomp && GOFLAGS="-buildmode=pie -trimpath -mod=readonly -modcacherw" go build
 ```
 ---
