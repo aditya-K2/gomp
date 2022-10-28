@@ -1,6 +1,7 @@
 package render
 
 import (
+	"fmt"
 	"image"
 	"os"
 
@@ -55,10 +56,13 @@ func OpenImage(path string, c chan string) {
 	var im *ueberzug.Image
 	if path != "stop" {
 		extractedImage := GetImagePath(path)
-		img2, _ := GetImg(extractedImage)
-		im, _ = ueberzug.NewImage(img2,
-			int(float32(ui.ImgX)*fw)+viper.GetInt("ADDITIONAL_PADDING_X"),
-			int(float32(ui.ImgY)*fh)+viper.GetInt("ADDITIONAL_PADDING_Y"))
+		if img2, err := GetImg(extractedImage); err == nil {
+			im, _ = ueberzug.NewImage(img2,
+				int(float32(ui.ImgX)*fw)+viper.GetInt("ADDITIONAL_PADDING_X"),
+				int(float32(ui.ImgY)*fh)+viper.GetInt("ADDITIONAL_PADDING_Y"))
+		} else {
+			notify.Notify.Send("Error Rendering Image!")
+		}
 	}
 	d := <-c
 	if im != nil {
@@ -76,33 +80,30 @@ func OpenImage(path string, c chan string) {
 // else it adds the image to the cache and then extracts it and renders it.
 func GetImagePath(path string) string {
 	a, err := client.Conn.ListInfo(path)
-	var extractedImage string
+	var extractedImage string = viper.GetString("DEFAULT_IMAGE_PATH")
 	if err == nil && len(a) != 0 {
 		if cache.Exists(a[0]["artist"], a[0]["album"]) {
 			extractedImage = cache.GenerateName(a[0]["artist"], a[0]["album"])
 		} else {
 			imagePath := cache.GenerateName(a[0]["artist"], a[0]["album"])
 			absPath := utils.CheckDirectoryFmt(viper.GetString("MUSIC_DIRECTORY")) + path
-			if _extractedImage, _err := ExtractImageFromFile(absPath, imagePath); _err != nil {
+			if _eimg, exErr := ExtractImage(absPath, imagePath); exErr != nil {
 				if viper.GetString("GET_COVER_ART_FROM_LAST_FM") == "TRUE" {
-					downloadedImage, err := getImageFromLastFM(a[0]["artist"], a[0]["album"], imagePath)
-					if err == nil {
+					downloadedImage, lFmErr := getImageFromLastFM(a[0]["artist"], a[0]["album"], imagePath)
+					if lFmErr == nil {
 						notify.Notify.Send("Image From LastFM")
 						extractedImage = downloadedImage
+					} else {
+						notify.Notify.Send(exErr.Error())
 					}
-				} else {
-					if _err == ExtractionError {
-						notify.Notify.Send("Falling Back to Default Image.")
-					} else if _err == UnSupportedFormatError {
-						notify.Notify.Send("Format Not Supported!")
-					}
-					extractedImage = viper.GetString("DEFAULT_IMAGE_PATH")
 				}
 			} else {
 				notify.Notify.Send("Image Extracted Succesfully!")
-				extractedImage = _extractedImage
+				extractedImage = _eimg
 			}
 		}
+	} else {
+		notify.Notify.Send(fmt.Sprintf("Couldn't Get Attributes for %s", path))
 	}
 	return extractedImage
 }
