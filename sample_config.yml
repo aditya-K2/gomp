@@ -20,12 +20,15 @@ ADDITIONAL_PADDING_Y : 17
   #                              |
   #                      Image Preview Box
   # Note: Padding can be negative or positive
-  # PADDING_X on decrementing will move the image to right and PADDING_Y on incrementing will move the image to left
-  # similarly PADDING_Y on decrementing will move the image UP and on incrementing will move the image DOWN
+  # PADDING_X on decrementing will move the image to right and PADDING_Y on
+  # incrementing will move the image to left
+  # similarly PADDING_Y on decrementing will move the image UP and on
+  # incrementing will move the image DOWN
 
 IMAGE_WIDTH_EXTRA_X  : -1.1
 IMAGE_WIDTH_EXTRA_Y  : -3.75
-  # Add extra IMAGE_WIDTH to the image so that it fits perfectly in the image preview box
+  # Add extra IMAGE_WIDTH to the image so that it fits perfectly
+  # in the image preview box
   #
   # |-----------------------------------------------------------|
   # |                      -  IMAGE_WIDTH_EXTRA_Y               |
@@ -48,16 +51,20 @@ MPD_PORT : "6600"
   # Port on which music player daemon is running
   # Do not provide this if you are connecting through a unix socket
 
-NETWORK_TYPE : "tcp" # Defaults to tcp if not provided, use "unix" if MPD Server is configured to expose
+NETWORK_TYPE : "tcp" # Defaults to tcp if not provided, use "unix"
+  # if MPD Server is configured to expose
   # a unix socket rather than a port
-  # Known networks are "tcp", "tcp4" (IPv4-only), "tcp6" (IPv6-only), "udp", "udp4" (IPv4-only), "udp6" (IPv6-only),
+  # Known networks are "tcp", "tcp4" (IPv4-only), "tcp6" (IPv6-only), "udp",
+  # "udp4" (IPv4-only), "udp6" (IPv6-only),
   # "ip", "ip4" (IPv4-only), "ip6" (IPv6-only), "unix" and "unixpacket".
 
 NETWORK_ADDRESS : "localhost" # Defaults to localhost if not provided,
-  # This is the address of the host, for e.g "localhost"/ "127.0.0.1" / a Unix Socket "/home/$USER/.mpd/socket"
+  # This is the address of the host,
+  # for e.g "localhost"/ "127.0.0.1" / a Unix Socket "~/.mpd/socket"
 
 DEFAULT_IMAGE_PATH:   "~/default.jpg"
-# Read more about it here: https://github.com/aditya-K2/gomp/issues/1#issuecomment-1205090265
+# Read more about it here:
+# https://github.com/aditya-K2/gomp/issues/1#issuecomment-1205090265
 
 SEEK_OFFSET : 1
 # The amount of seconds by which the song should seek forward or backward
@@ -68,7 +75,8 @@ LASTFM_API_KEY: "YOUR API KEY HERE"
 LASTFM_API_SECRET: "YOUR API SECRET HERE"
 LASTFM_AUTO_CORRECT: 1  # 0 means it is turned off
   # according to lastfm documentation
-  # autocorrect[0|1] (Optional) : Transform misspelled artist names into correct artist names, returning the correct version instead.
+  # autocorrect[0|1] (Optional) : Transform misspelled artist names into
+  # correct artist names, returning the correct version instead.
 
 # Mappings
 #
@@ -77,17 +85,19 @@ LASTFM_AUTO_CORRECT: 1  # 0 means it is turned off
 # for e.g
 togglePlayBack : [ "p", "SPACE", "]" ] # using the quotes is neccessary.
   # all the three keys now have the same function.
-  # To see Availabe Keys and Functions : https://github.com/aditya-K2/gomp#key-mappings
+  # To see Availabe Keys and Functions :
+  # https://github.com/aditya-K2/gomp#key-mappings
 
 # Caching
 #
-# The Covert arts that are extracted from the file or downloaded from lastfm are cached.
-# It Is neccessary to define a cache directory to store all the cover arts.
-# The Caching works as follows
+# The Covert arts that are extracted from the file or downloaded from lastfm
+# are cached. It Is neccessary to define a cache directory to store all
+# the cover arts. The Caching works as follows
 # 1. Check if there is an embedded cover art if not then 2
 # 2. Check if lastfm has album art if not then 3
 # 3. Fallback to the default image.
 #
 #
-CACHE_DIR : "/path/to/the/cache/Directory" # for e.g "/home/user_name/.config/gomp/cache/"
+CACHE_DIR : "/path/to/the/cache/Directory"
+  # for e.g "~/.config/gomp/cache/"
   # You will have to manually create this directory.
