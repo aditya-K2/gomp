@@ -24,10 +24,8 @@ var (
 )
 
 func Init() {
-	_m := MaxNotifications
-	for _m != 0 {
+	for _m := MaxNotifications; _m != 0; _m-- {
 		posArr = append(posArr, true)
-		_m--
 	}
 	Notify = NewNotificationServer()
 	NQueue = &NotificationQueue{}
@@ -114,20 +112,20 @@ func NewNotification(s string) *Notification {
 /* Draw Function for the Notification Primitive */
 func (self *Notification) Draw(screen tcell.Screen) {
 	termDetails := utils.GetWidth()
-	var padding = self.Position * 5
+	pos := (self.Position*5 + self.Position)
 
 	var (
 		COL          int = int(termDetails.Col)
 		TEXTLENGTH   int = len(self.Text)
 		HEIGHT       int = 3
-		TEXTPOSITION int = 2
+		TextPosition int = 1
 	)
 
 	self.Box.SetBackgroundColor(tcell.ColorBlack)
-	self.SetRect(COL-(TEXTLENGTH+7), self.Position+padding, TEXTLENGTH+4, HEIGHT)
+	self.SetRect(COL-(TEXTLENGTH+7), pos, TEXTLENGTH+4, HEIGHT)
 	self.DrawForSubclass(screen, self.Box)
 	tview.Print(screen, self.Text,
-		COL-(TEXTLENGTH+5), TEXTPOSITION+padding, TEXTLENGTH,
+		COL-(TEXTLENGTH+5), pos+TextPosition, TEXTLENGTH,
 		tview.AlignCenter, tcell.ColorWhite)
 }
 
