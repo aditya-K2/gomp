@@ -88,8 +88,7 @@ func main() {
 	// Used for Fuzzy Searching
 	ArtistTreeContent := utils.ConvertToArray(ArtistTree)
 
-	notify.Notify = notify.NewNotificationServer()
-	notify.Notify.Start()
+	notify.Init()
 
 	// This Function Is Responsible for Changing the Focus it uses the Focus Map and Based on it Chooses
 	// the Draw Function

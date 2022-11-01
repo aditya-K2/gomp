@@ -1,6 +1,8 @@
 package notify
 
 import (
+	"container/heap"
+	"sync"
 	"time"
 
 	"github.com/aditya-K2/gomp/ui"
@@ -11,26 +13,108 @@ import (
 )
 
 var (
-	Notify *NotificationServer
+	Notify            *NotificationServer
+	MaxNotifications                = 3
+	EmptyNotification *Notification = NewNotification(
+		"gomp.notify.Notifcation.Empty")
+	NQueue       *NotificationQueue
+	qm, pm       sync.Mutex
+	NotAvailable = -1
+	posArr       = PositionArray{}
 )
+
+func Init() {
+	_m := MaxNotifications
+	for _m != 0 {
+		posArr = append(posArr, true)
+		_m--
+	}
+	Notify = NewNotificationServer()
+	NQueue = &NotificationQueue{}
+	heap.Init(NQueue)
+	Notify.QueueRoutine()
+	Notify.Start()
+}
 
 /* Notification Primitive */
 type Notification struct {
 	*tview.Box
-	Text string
+	Text     string
+	TimeRecv time.Time
+	Position int
+}
+
+type NotificationQueue []*Notification
+
+func (n NotificationQueue) Len() int { return len(n) }
+func (n NotificationQueue) Less(i, j int) bool {
+	ctime := time.Now()
+	return ctime.Sub(n[i].TimeRecv) < ctime.Sub(n[j].TimeRecv)
+}
+func (n NotificationQueue) Swap(i, j int) { n[i], n[j] = n[j], n[i] }
+
+func (n *NotificationQueue) Push(x any) {
+	*n = append(*n, x.(*Notification))
+}
+
+func (n *NotificationQueue) Pop() any {
+	old := *n
+	_n := len(old)
+	x := old[_n-1]
+	*n = old[0 : _n-1]
+	return x
+}
+
+func (n NotificationQueue) Empty() bool {
+	return len(n) == 0
+}
+
+type PositionArray []bool
+
+func (p *PositionArray) Available() bool {
+	var t = false
+	pm.Lock()
+	for _, v := range *p {
+		t = t || v
+	}
+	pm.Unlock()
+	return t
+}
+
+func (p *PositionArray) GetNextPosition() int {
+	pm.Lock()
+	v := *p
+	for k := range v {
+		if v[k] {
+			v[k] = false
+			pm.Unlock()
+			return k
+		}
+	}
+	pm.Unlock()
+	return NotAvailable
+}
+
+func (p *PositionArray) Free(i int) {
+	pm.Lock()
+	v := *p
+	v[i] = true
+	pm.Unlock()
 }
 
 /* Get A Pointer to A Notification Struct */
 func NewNotification(s string) *Notification {
 	return &Notification{
-		Box:  tview.NewBox(),
-		Text: s,
+		Box:      tview.NewBox(),
+		Text:     s,
+		TimeRecv: time.Now(),
 	}
 }
 
 /* Draw Function for the Notification Primitive */
 func (self *Notification) Draw(screen tcell.Screen) {
 	termDetails := utils.GetWidth()
+	var padding = self.Position * 5
 
 	var (
 		COL          int = int(termDetails.Col)
@@ -40,56 +124,84 @@ func (self *Notification) Draw(screen tcell.Screen) {
 	)
 
 	self.Box.SetBackgroundColor(tcell.ColorBlack)
-	self.SetRect(COL-(TEXTLENGTH+7), 1, TEXTLENGTH+4, HEIGHT)
+	self.SetRect(COL-(TEXTLENGTH+7), self.Position+padding, TEXTLENGTH+4, HEIGHT)
 	self.DrawForSubclass(screen, self.Box)
 	tview.Print(screen, self.Text,
-		COL-(TEXTLENGTH+5), TEXTPOSITION, TEXTLENGTH,
+		COL-(TEXTLENGTH+5), TEXTPOSITION+padding, TEXTLENGTH,
 		tview.AlignCenter, tcell.ColorWhite)
 }
 
 /* Notification Server : Not an actual Server*/
 type NotificationServer struct {
-	c chan string
+	c chan *Notification
 }
 
 /* Get A Pointer to a NotificationServer Struct */
 func NewNotificationServer() *NotificationServer {
 	return &NotificationServer{
-		c: make(chan string),
+		c: make(chan *Notification, MaxNotifications),
 	}
 }
 
 /* This Method Starts the go routine for the NotificationServer */
 func (self *NotificationServer) Start() {
-	go NotificationRoutine(self.c, "EMPTY NOTIFICATION")
+	go NotificationRoutine(self.c, EmptyNotification)
 }
 
-/* The Notification Server is just a string channel and the NotificationRoutine
-the channel is used to receive the Notification Data through the Send Function
-The Channel keeps listening for the Notification when it receives a Notification it checks if it
-is Empty or not if it is an empty Notification it calls the NotificationRoutine with the empty routine else
-it will call the go routine that renders the Notification for the Notification Interval and agains start listening
-for the notfications sort of works like a que */
-func NotificationRoutine(c chan string, s string) {
-	if s != "EMPTY NOTIFICATION" {
+func (self NotificationServer) QueueRoutine() {
+	go func() {
+		for {
+			if len(self.c) <= MaxNotifications {
+				if !NQueue.Empty() {
+					qm.Lock()
+					n := heap.Pop(NQueue).(*Notification)
+					self.c <- n
+					qm.Unlock()
+				}
+			}
+		}
+	}()
+}
+
+/* The Notification Server is just a *Notification channel and the
+NotificationRoutine the channel is used to receive the Notification Data
+through the Send Function The Channel keeps listening for the Notification
+when it receives a Notification it checks if it is Empty or not if it is an
+empty Notification it calls the NotificationRoutine with the empty routine else
+it will call the go routine that renders the Notification for the Notification
+Interval and agains start listening for the notfications sort of works like
+a queue*/
+func NotificationRoutine(c chan *Notification, s *Notification) {
+	if s != EmptyNotification {
 		go func() {
 			currentTime := time.Now().String()
-			ui.Ui.Pages.AddPage(currentTime, NewNotification(s), false, true)
+			np := posArr.GetNextPosition()
+			if np == NotAvailable {
+				for !posArr.Available() {
+				}
+				np = posArr.GetNextPosition()
+			}
+			s.Position = np
+			ui.Ui.Pages.AddPage(currentTime, s, false, true)
 			ui.Ui.App.SetFocus(ui.Ui.ExpandedView)
 			time.Sleep(time.Second * 1)
 			ui.Ui.Pages.RemovePage(currentTime)
+			posArr.Free(np)
 			ui.Ui.App.SetFocus(ui.Ui.ExpandedView)
 		}()
 	}
-	NewNotification := <-c
-	if NewNotification == "EMPTY NOTIFICATION" {
-		NotificationRoutine(c, "EMPTY NOTIFICATION")
-	} else {
-		NotificationRoutine(c, NewNotification)
+	for !posArr.Available() {
+		continue
 	}
+	_new := <-c
+	NotificationRoutine(c, _new)
 }
 
 /* Sends the Notification to the Notification Server */
 func (self NotificationServer) Send(text string) {
-	self.c <- text
+	go func() {
+		qm.Lock()
+		heap.Push(NQueue, NewNotification(text))
+		qm.Unlock()
+	}()
 }
