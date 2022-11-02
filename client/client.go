@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/aditya-K2/fuzzy"
-	"github.com/aditya-K2/gomp/ui"
+	"github.com/aditya-K2/gomp/ui/notify"
 	"github.com/fhs/gompd/v2/mpd"
 
 	"strings"
@@ -36,7 +36,7 @@ func TogglePlayBack() error {
 func GenerateContentSlice(selectedSuggestion string) ([]interface{}, error) {
 	var ContentSlice []interface{}
 	if strings.TrimRight(selectedSuggestion, " ") == "" {
-		ui.Notify.Send("Empty Search!")
+		notify.Send("Empty Search!")
 		return nil, errors.New("empty Search String Provided")
 	}
 	if _, ok := ArtistTree[selectedSuggestion]; ok {
@@ -116,9 +116,9 @@ func AddAlbum(a map[string]map[string]map[string]string, alb string, artist stri
 		clist.Add(v)
 	}
 	if err := clist.End(); err != nil {
-		ui.Notify.Send("Could Not Add Album : " + alb)
+		notify.Send("Could Not Add Album : " + alb)
 	} else {
-		ui.Notify.Send("Album Added: " + alb)
+		notify.Send("Album Added: " + alb)
 	}
 }
 
@@ -132,9 +132,9 @@ func AddArtist(a map[string]map[string]map[string]string, artist string) {
 			}
 		}
 		if err := clist.End(); err != nil {
-			ui.Notify.Send("Could Not Add Artist : " + artist)
+			notify.Send("Could Not Add Artist : " + artist)
 		} else {
-			ui.Notify.Send("Artist Added: " + artist)
+			notify.Send("Artist Added: " + artist)
 		}
 	}
 }
@@ -145,15 +145,15 @@ func AddTitle(a map[string]map[string]map[string]string, artist, alb, track stri
 		id, err := Conn.AddID(a[artist][alb][track], -1)
 		Conn.PlayID(id)
 		if err != nil {
-			ui.Notify.Send("Could Not Add Track : " + track)
+			notify.Send("Could Not Add Track : " + track)
 		}
 	} else {
 		err := Conn.Add(a[artist][alb][track])
 		if err != nil {
-			ui.Notify.Send("Could Not Add Track : " + track)
+			notify.Send("Could Not Add Track : " + track)
 		}
 	}
-	ui.Notify.Send("Track Added : " + track)
+	notify.Send("Track Added : " + track)
 }
 
 /* Querys the Artist Tree for a track and returns a TrackMap (i.e [3]string{artist, album, track} -> Path) which will help us

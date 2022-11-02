@@ -8,6 +8,7 @@ import (
 	"github.com/aditya-K2/gomp/client"
 	"github.com/aditya-K2/gomp/render"
 	"github.com/aditya-K2/gomp/ui"
+	"github.com/aditya-K2/gomp/ui/notify"
 	"github.com/aditya-K2/gomp/utils"
 	"github.com/aditya-K2/gomp/views"
 	"github.com/fhs/gompd/v2/mpd"
@@ -21,7 +22,7 @@ var (
 
 func Init() {
 	if c, err := client.Conn.CurrentSong(); err != nil {
-		ui.Notify.Send("Couldn't get current song from MPD")
+		notify.Send("Couldn't get current song from MPD")
 	} else {
 		currentSong = c
 	}
@@ -87,7 +88,7 @@ func StartPlaylistWatcher() {
 
 	go func() {
 		for err := range w.Error {
-			ui.Notify.Send(err.Error())
+			notify.Send(err.Error())
 		}
 	}()
 

@@ -9,6 +9,7 @@ import (
 	"github.com/aditya-K2/gomp/cache"
 	"github.com/aditya-K2/gomp/client"
 	"github.com/aditya-K2/gomp/ui"
+	"github.com/aditya-K2/gomp/ui/notify"
 	"github.com/aditya-K2/gomp/utils"
 	"github.com/dhowden/tag"
 	"github.com/nfnt/resize"
@@ -62,19 +63,19 @@ func GetImagePath(path string) string {
 				if viper.GetString("GET_COVER_ART_FROM_LAST_FM") == "TRUE" {
 					downloadedImage, lFmErr := getImageFromLastFM(a[0]["artist"], a[0]["album"], imagePath)
 					if lFmErr == nil {
-						ui.Notify.Send("Image From LastFM")
+						notify.Send("Image From LastFM")
 						extractedImage = downloadedImage
 					} else {
-						ui.Notify.Send(exErr.Error())
+						notify.Send(exErr.Error())
 					}
 				}
 			} else {
-				ui.Notify.Send("Image Extracted Succesfully!")
+				notify.Send("Image Extracted Succesfully!")
 				extractedImage = _eimg
 			}
 		}
 	} else {
-		ui.Notify.Send(fmt.Sprintf("Couldn't Get Attributes for %s", path))
+		notify.Send(fmt.Sprintf("Couldn't Get Attributes for %s", path))
 	}
 	return extractedImage
 }

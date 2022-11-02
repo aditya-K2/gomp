@@ -5,6 +5,7 @@ import (
 
 	"github.com/aditya-K2/gomp/client"
 	"github.com/aditya-K2/gomp/ui"
+	"github.com/aditya-K2/gomp/ui/notify"
 	"github.com/aditya-K2/gomp/utils"
 	"github.com/aditya-K2/tview"
 	"github.com/gdamore/tcell/v2"
@@ -24,11 +25,11 @@ func (s BuffSearchView) ShowChildrenContent() {
 	SetCurrentView(FView)
 	if len(client.DirTree.Children[client.Matches[r].Index].Children) == 0 {
 		if id, err := CONN.AddID(client.DirTree.Children[client.Matches[r].Index].AbsolutePath, -1); err != nil {
-			ui.Notify.Send(fmt.Sprintf("Could Not add the Song %s to the Playlist",
+			notify.Send(fmt.Sprintf("Could Not add the Song %s to the Playlist",
 				client.DirTree.Children[client.Matches[r].Index].AbsolutePath))
 		} else {
 			if err := CONN.PlayID(id); err != nil {
-				ui.Notify.Send("Could not Play the Song")
+				notify.Send("Could not Play the Song")
 			}
 		}
 	} else {
@@ -42,7 +43,7 @@ func (s BuffSearchView) ShowChildrenContent() {
 }
 
 func (s BuffSearchView) ShowParentContent() {
-	ui.Notify.Send("Not Allowed in this View")
+	notify.Send("Not Allowed in this View")
 	return
 }
 
@@ -51,11 +52,11 @@ func (s BuffSearchView) AddToPlaylist() {
 	CONN := client.Conn
 	r, _ := UI.ExpandedView.GetSelection()
 	if err := CONN.Add(client.DirTree.Children[client.Matches[r].Index].AbsolutePath); err != nil {
-		ui.Notify.Send(fmt.Sprintf("Could Not Add URI %s to the Playlist",
+		notify.Send(fmt.Sprintf("Could Not Add URI %s to the Playlist",
 			client.DirTree.Children[client.Matches[r].Index].Path))
 	} else {
 		SetCurrentView(FView)
-		ui.Notify.Send(fmt.Sprintf("URI Added %s to the Playlist",
+		notify.Send(fmt.Sprintf("URI Added %s to the Playlist",
 			client.DirTree.Children[client.Matches[r].Index].Path))
 		SetCurrentView(BuffSView)
 	}

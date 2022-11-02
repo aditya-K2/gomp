@@ -2,6 +2,7 @@ package render
 
 import (
 	"github.com/aditya-K2/gomp/ui"
+	"github.com/aditya-K2/gomp/ui/notify"
 	"github.com/fhs/gompd/v2/mpd"
 
 	"github.com/aditya-K2/gomp/utils"
@@ -53,7 +54,7 @@ func OpenImage(path string, c chan string) {
 				int(float32(ui.ImgX)*fw)+viper.GetInt("ADDITIONAL_PADDING_X"),
 				int(float32(ui.ImgY)*fh)+viper.GetInt("ADDITIONAL_PADDING_Y"))
 		} else {
-			ui.Notify.Send("Error Rendering Image!")
+			notify.Send("Error Rendering Image!")
 		}
 	}
 	d := <-c

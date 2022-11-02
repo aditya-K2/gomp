@@ -14,7 +14,7 @@ var (
 		{true,
 			func() bool {
 				exArr := []int{1, 2, 3}
-				var s Queue[int]
+				var s Stack[int]
 				s.Push(1)
 				s.Push(2)
 				s.Push(3)
@@ -24,7 +24,7 @@ var (
 		{false,
 			func() bool {
 				exArr := []int{1, 2}
-				var s Queue[int]
+				var s Stack[int]
 				s.Push(1)
 				s.Push(2)
 				s.Push(3)
@@ -39,7 +39,7 @@ var (
 		{false,
 			func() bool {
 				exArr := []int{4}
-				var s Queue[int]
+				var s Stack[int]
 				s.Push(1)
 				s.Push(2)
 				s.Push(3)
@@ -53,7 +53,7 @@ var (
 		{true,
 			func() bool {
 				exArr := []int{1, 2}
-				var s Queue[int]
+				var s Stack[int]
 				s.Push(1)
 				s.Push(2)
 				s.Push(3)
@@ -69,7 +69,7 @@ var (
 )
 
 func TestSPush(t *testing.T) {
-	for _, v := range pushTests {
+	for _, v := range spushTests {
 		if v.eval != v.fun() {
 			t.Errorf("Receieved %v, expected : %v for %v", v.eval, v.fun(), v)
 		}
@@ -77,7 +77,7 @@ func TestSPush(t *testing.T) {
 }
 
 func TestSPop(t *testing.T) {
-	for _, v := range popTests {
+	for _, v := range spopTests {
 		if v.eval != v.fun() {
 			t.Errorf("Receieved %v, expected : %v for %v", v.fun(), v.eval, v)
 		}

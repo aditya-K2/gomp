@@ -19,3 +19,7 @@ func (s *Stack[T]) Top() T {
 func (s *Stack[T]) Empty() bool {
 	return len(s.arr) == 0
 }
+
+func (s Stack[T]) GetArray() []T {
+	return s.arr
+}
