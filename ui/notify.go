@@ -1,11 +1,10 @@
-package notify
+package ui
 
 import (
 	"container/heap"
 	"sync"
 	"time"
 
-	"github.com/aditya-K2/gomp/ui"
 	"github.com/aditya-K2/gomp/utils"
 
 	"github.com/aditya-K2/tview"
@@ -180,12 +179,12 @@ func NotificationRoutine(c chan *Notification, s *Notification) {
 				np = posArr.GetNextPosition()
 			}
 			s.Position = np
-			ui.Ui.Pages.AddPage(currentTime, s, false, true)
-			ui.Ui.App.SetFocus(ui.Ui.ExpandedView)
+			Ui.Pages.AddPage(currentTime, s, false, true)
+			Ui.App.SetFocus(Ui.ExpandedView)
 			time.Sleep(time.Second * 1)
-			ui.Ui.Pages.RemovePage(currentTime)
+			Ui.Pages.RemovePage(currentTime)
 			posArr.Free(np)
-			ui.Ui.App.SetFocus(ui.Ui.ExpandedView)
+			Ui.App.SetFocus(Ui.ExpandedView)
 		}()
 	}
 	for !posArr.Available() {

@@ -7,7 +7,6 @@ import (
 	"github.com/aditya-K2/gomp/cache"
 	"github.com/aditya-K2/gomp/client"
 	"github.com/aditya-K2/gomp/config"
-	"github.com/aditya-K2/gomp/notify"
 	"github.com/aditya-K2/gomp/ui"
 	"github.com/aditya-K2/gomp/utils"
 	"github.com/aditya-K2/gomp/views"
@@ -52,7 +51,7 @@ func main() {
 	var SeekOffset = viper.GetInt("SEEK_OFFSET")
 	var SeekFunc = func(back bool) {
 		if status, err := Conn.Status(); err != nil {
-			notify.Notify.Send("Could not get MPD Status")
+			ui.Notify.Send("Could not get MPD Status")
 		} else {
 			if status["state"] == "play" {
 				var stime time.Duration
@@ -62,7 +61,7 @@ func main() {
 					stime = time.Second * time.Duration(SeekOffset)
 				}
 				if err := Conn.SeekCur(stime, true); err != nil {
-					notify.Notify.Send("Could Not Seek Forward in the Song")
+					ui.Notify.Send("Could Not Seek Forward in the Song")
 				}
 			}
 		}
@@ -88,7 +87,7 @@ func main() {
 	// Used for Fuzzy Searching
 	ArtistTreeContent := utils.ConvertToArray(ArtistTree)
 
-	notify.Init()
+	ui.Init()
 
 	// This Function Is Responsible for Changing the Focus it uses the Focus Map and Based on it Chooses
 	// the Draw Function
@@ -109,7 +108,7 @@ func main() {
 		},
 		"togglePlayBack": func() {
 			if err := client.TogglePlayBack(); err != nil {
-				notify.Notify.Send("Could not Toggle Play Back")
+				ui.Notify.Send("Could not Toggle Play Back")
 			}
 		},
 		"showParentContent": func() {
@@ -117,23 +116,23 @@ func main() {
 		},
 		"nextSong": func() {
 			if err := Conn.Next(); err != nil {
-				notify.Notify.Send("Could not Select the Next Song")
+				ui.Notify.Send("Could not Select the Next Song")
 			}
 		},
 		"clearPlaylist": func() {
 			if err := Conn.Clear(); err != nil {
-				notify.Notify.Send("Could not Clear the Playlist")
+				ui.Notify.Send("Could not Clear the Playlist")
 			} else {
 				if views.PView.Playlist, err = client.Conn.PlaylistInfo(-1, -1); err != nil {
 					utils.Print("RED", "Couldn't get the current Playlist.\n")
 					panic(err)
 				}
-				notify.Notify.Send("Playlist Cleared!")
+				ui.Notify.Send("Playlist Cleared!")
 			}
 		},
 		"previousSong": func() {
 			if err := Conn.Previous(); err != nil {
-				notify.Notify.Send("Could Not Select the Previous Song")
+				ui.Notify.Send("Could Not Select the Previous Song")
 			}
 		},
 		"addToPlaylist": func() {
@@ -156,7 +155,7 @@ func main() {
 				Volume -= 10
 			}
 			if err := Conn.SetVolume(int(Volume)); err != nil {
-				notify.Notify.Send("Could Not Decrease the Volume")
+				ui.Notify.Send("Could Not Decrease the Volume")
 			}
 		},
 		"increaseVolume": func() {
@@ -166,7 +165,7 @@ func main() {
 				Volume += 10
 			}
 			if err := Conn.SetVolume(int(Volume)); err != nil {
-				notify.Notify.Send("Could Not Increase the Volume")
+				ui.Notify.Send("Could Not Increase the Volume")
 			}
 		},
 		"navigateToFiles": func() {
@@ -192,17 +191,17 @@ func main() {
 		},
 		"stop": func() {
 			if err := Conn.Stop(); err != nil {
-				notify.Notify.Send("Could not Stop the Playback")
+				ui.Notify.Send("Could not Stop the Playback")
 			} else {
-				notify.Notify.Send("Playback Stopped")
+				ui.Notify.Send("Playback Stopped")
 			}
 		},
 		"updateDB": func() {
 			_, err = Conn.Update("")
 			if err != nil {
-				notify.Notify.Send("Could Not Update the Database")
+				ui.Notify.Send("Could Not Update the Database")
 			} else {
-				notify.Notify.Send("Database Updated")
+				ui.Notify.Send("Database Updated")
 			}
 		},
 		"deleteSongFromPlaylist": func() {
@@ -257,14 +256,14 @@ func main() {
 			if views.GetCurrentView().GetViewName() == "PlaylistView" {
 				if e.Rune() == 'j' || e.Rune() == 'k' {
 					if len(views.PView.Playlist) == 0 {
-						notify.Notify.Send("Empty Playlist")
+						ui.Notify.Send("Empty Playlist")
 						return nil
 					}
 				}
 			} else if views.GetCurrentView().GetViewName() == "SearchView" {
 				if e.Rune() == 'j' || e.Rune() == 'k' {
 					if client.SearchContentSlice == nil || len(client.SearchContentSlice) == 0 {
-						notify.Notify.Send("No Search Results")
+						ui.Notify.Send("No Search Results")
 						return nil
 					}
 				}
@@ -283,7 +282,7 @@ func main() {
 				client.SearchContentSlice = nil
 				client.SearchContentSlice, err = client.GenerateContentSlice(ui.Ui.SearchBar.GetText())
 				if err != nil {
-					notify.Notify.Send("Could Not Retrieve the Results")
+					ui.Notify.Send("Could Not Retrieve the Results")
 				} else {
 					ui.Ui.SearchBar.SetText("")
 					ui.Ui.App.SetFocus(ui.Ui.ExpandedView)
