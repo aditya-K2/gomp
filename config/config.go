@@ -22,6 +22,7 @@ var (
 		"CACHE_DIR":            utils.CheckDirectoryFmt(USER_CACHE_DIR),
 		"SEEK_OFFSET":          1,
 		"REDRAW_INTERVAL":      500,
+		"DB_PATH":              utils.CheckDirectoryFmt(USER_CACHE_DIR + "/gompDB"),
 	}
 )
 
@@ -56,6 +57,7 @@ func ReadConfig() {
 	viper.Set("DEFAULT_IMAGE_PATH", utils.ExpandHomeDir(viper.GetString("DEFAULT_IMAGE_PATH")))
 	viper.Set("CACHE_DIR", utils.ExpandHomeDir(viper.GetString("CACHE_DIR")))
 	viper.Set("NETWORK_ADDRESS", utils.ExpandHomeDir(viper.GetString("NETWORK_ADDRESS")))
+	viper.Set("DB_PATH", utils.ExpandHomeDir(viper.GetString("DB_PATH")))
 }
 
 func GenerateKeyMap(funcMap map[string]func()) {

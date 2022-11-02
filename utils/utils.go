@@ -206,3 +206,7 @@ func IsSame[K comparable](a []K, b []K) bool {
 	}
 	return true
 }
+
+func Pop[T comparable](index int, a []T) []T {
+	return append(a[0:index], a[index+1:]...)
+}

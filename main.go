@@ -7,6 +7,7 @@ import (
 	"github.com/aditya-K2/gomp/cache"
 	"github.com/aditya-K2/gomp/client"
 	"github.com/aditya-K2/gomp/config"
+	"github.com/aditya-K2/gomp/database"
 	"github.com/aditya-K2/gomp/ui"
 	"github.com/aditya-K2/gomp/ui/notify"
 	"github.com/aditya-K2/gomp/utils"
@@ -93,7 +94,10 @@ func main() {
 	// This Function Is Responsible for Changing the Focus it uses the Focus Map and Based on it Chooses
 	// the Draw Function
 	watchers.StartPlaylistWatcher()
+	watchers.StartMPListener()
 	watchers.StartRectWatcher()
+	database.Publish()
+
 	views.SetCurrentView(&views.PView)
 	ui.Ui.ExpandedView.SetDrawFunc(func(s tcell.Screen, x, y, width, height int) (int, int, int, int) {
 		views.GetCurrentView().Update(ui.Ui.ExpandedView)
@@ -180,7 +184,9 @@ func main() {
 			views.PView.Update(ui.Ui.ExpandedView)
 		},
 		"navigateToMostPlayed": func() {
+			views.SetCurrentView(&views.MPView)
 			ui.Ui.Navbar.Select(2, 0)
+			views.MPView.Update(ui.Ui.ExpandedView)
 		},
 		"navigateToSearch": func() {
 			views.SetCurrentView(views.SView)
@@ -329,4 +335,6 @@ func main() {
 	if err := ui.Ui.App.Run(); err != nil {
 		panic(err)
 	}
+	defer watchers.DBCheck()
+
 }

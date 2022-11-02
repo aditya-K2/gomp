@@ -18,15 +18,6 @@ func (s PlaylistView) GetViewName() string {
 	return "PlaylistView"
 }
 
-func GetCell(text string, foreground tcell.Color, bold bool) *tview.TableCell {
-	return tview.NewTableCell(text).
-		SetAlign(tview.AlignLeft).
-		SetStyle(tcell.StyleDefault.
-			Foreground(foreground).
-			Background(tcell.ColorBlack).
-			Bold(bold))
-}
-
 func (p PlaylistView) ShowChildrenContent() {
 	UI := ui.Ui
 	CONN := client.Conn

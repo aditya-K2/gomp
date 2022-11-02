@@ -11,7 +11,9 @@
 # Roadmap
 
 
-- [ ] Add Functionality to Sort out most played songs
+- [x] Add Functionality to Sort out most played songs
+    - Right Now the progress is only recorded if `gomp` is running.
+    Working on daemonising `gomp` or a `headless` flag
 - [x] Add a config parser
 - [x] Image Previews
 - [x] User Key Mappings

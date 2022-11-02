@@ -80,6 +80,14 @@ The amount of milliseconds after which the cover art should be redrawn if there 
 ```yml
 REDRAW_INTERVAL : 500
 ```
+
+## Database Path
+
+The path where the database of playtime of all the songs is stored.
+
+```yml
+DB_PATH : "~/.cache/gompDB"
+```
 ## Cache Directory
 
 By Default Images are cached to avoid re-extracting images and making redundant API Calls. The Extracted Images are copied to the `CACHE_DIR`.

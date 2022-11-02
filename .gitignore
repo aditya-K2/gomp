@@ -1,7 +1,7 @@
 gomp
 .idea
 *.jpg
-e.go
+e.*
 .fuse*
 .gomp_log
 config.yml
