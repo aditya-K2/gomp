@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/aditya-K2/gomp/client"
-	"github.com/aditya-K2/gomp/notify"
 	"github.com/aditya-K2/gomp/ui"
 	"github.com/aditya-K2/gomp/utils"
 	"github.com/aditya-K2/tview"
@@ -29,11 +28,11 @@ func (f FileView) ShowChildrenContent() {
 	SetCurrentView(FView)
 	if len(client.DirTree.Children[r].Children) == 0 {
 		if id, err := CONN.AddID(client.DirTree.Children[r].AbsolutePath, -1); err != nil {
-			notify.Notify.Send(fmt.Sprintf("Could not Add Song %s",
+			ui.Notify.Send(fmt.Sprintf("Could not Add Song %s",
 				client.DirTree.Children[r].Path))
 		} else {
 			if err := CONN.PlayID(id); err != nil {
-				notify.Notify.Send(fmt.Sprintf("Could Not Play Song %s",
+				ui.Notify.Send(fmt.Sprintf("Could Not Play Song %s",
 					client.DirTree.Children[r].Path))
 			}
 		}
@@ -69,7 +68,7 @@ func (f FileView) AddToPlaylist() {
 	CONN := client.Conn
 	r, _ := UI.ExpandedView.GetSelection()
 	if err := CONN.Add(client.DirTree.Children[r].AbsolutePath); err != nil {
-		notify.Notify.Send(fmt.Sprintf("Could not add %s to the Playlist",
+		ui.Notify.Send(fmt.Sprintf("Could not add %s to the Playlist",
 			client.DirTree.Children[r].Path))
 	}
 }

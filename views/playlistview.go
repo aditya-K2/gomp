@@ -2,7 +2,6 @@ package views
 
 import (
 	"github.com/aditya-K2/gomp/client"
-	"github.com/aditya-K2/gomp/notify"
 	"github.com/aditya-K2/gomp/ui"
 	"github.com/aditya-K2/gomp/utils"
 	"github.com/aditya-K2/tview"
@@ -32,13 +31,13 @@ func (p PlaylistView) ShowChildrenContent() {
 	CONN := client.Conn
 	r, _ := UI.ExpandedView.GetSelection()
 	if err := CONN.Play(r); err != nil {
-		notify.Notify.Send("Could Not Play the Song")
+		ui.Notify.Send("Could Not Play the Song")
 		return
 	}
 }
 
 func (s PlaylistView) ShowParentContent() {
-	notify.Notify.Send("Not Allowed in this View")
+	ui.Notify.Send("Not Allowed in this View")
 	return
 }
 func (p PlaylistView) AddToPlaylist() {}
@@ -54,7 +53,7 @@ func (p *PlaylistView) DeleteSongFromPlaylist() {
 	CONN := client.Conn
 	r, _ := UI.ExpandedView.GetSelection()
 	if err := CONN.Delete(r, -1); err != nil {
-		notify.Notify.Send("Could not Remove the Song from Playlist")
+		ui.Notify.Send("Could not Remove the Song from Playlist")
 	} else {
 		if p.Playlist, err = client.Conn.PlaylistInfo(-1, -1); err != nil {
 			utils.Print("RED", "Couldn't get the current Playlist.\n")
