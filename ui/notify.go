@@ -111,7 +111,7 @@ func NewNotification(s string) *Notification {
 /* Draw Function for the Notification Primitive */
 func (self *Notification) Draw(screen tcell.Screen) {
 	termDetails := utils.GetWidth()
-	pos := (self.Position*5 + self.Position)
+	pos := (self.Position*3 + self.Position + 1)
 
 	var (
 		COL          int = int(termDetails.Col)
