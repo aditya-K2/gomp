@@ -22,7 +22,7 @@ var (
 		"CACHE_DIR":            utils.CheckDirectoryFmt(USER_CACHE_DIR),
 		"SEEK_OFFSET":          1,
 		"REDRAW_INTERVAL":      500,
-		"DB_PATH":              utils.CheckDirectoryFmt(USER_CACHE_DIR + "/gompDB"),
+		"DB_PATH":              (USER_CACHE_DIR + "/gompDB"),
 	}
 )
 

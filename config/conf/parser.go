@@ -3,7 +3,6 @@ package conf
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 )
@@ -47,7 +46,7 @@ func Dequote(s string) string {
 
 func GenerateMap(path string) map[string]interface{} {
 	m := make(map[string]interface{})
-	content, err := ioutil.ReadFile(path)
+	content, err := os.ReadFile(path)
 	if err != nil {
 		fmt.Println("No File Found at path : " + path)
 		os.Exit(-1)

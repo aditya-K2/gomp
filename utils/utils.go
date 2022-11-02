@@ -2,7 +2,6 @@ package utils
 
 import (
 	"errors"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -92,16 +91,20 @@ func FormatString(a interface{}) string {
 }
 
 func Copy(sourceImage, destinationImage string) error {
-	source, err := ioutil.ReadFile(sourceImage)
-	if err != nil {
-		return err
+	if source, rerr := os.ReadFile(sourceImage); rerr != nil {
+		return rerr
 	} else {
-		err = ioutil.WriteFile(destinationImage, source, 0644)
-		if err != nil {
-			return err
+		if f, cerr := os.Create(destinationImage); cerr != nil {
+			defer f.Close()
+			return cerr
+		} else {
+			defer f.Close()
+			if _, werr := f.Write(source); werr != nil {
+				return werr
+			}
 		}
-		return nil
 	}
+	return nil
 }
 
 func GetFormattedString(s string, width int) string {

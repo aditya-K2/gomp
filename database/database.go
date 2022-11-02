@@ -3,7 +3,7 @@ package database
 import (
 	"fmt"
 	"io/fs"
-	"io/ioutil"
+	"os"
 	"sort"
 	"strings"
 	"time"
@@ -53,16 +53,18 @@ func ValidRow(row []string) bool {
 
 func Read() {
 	if !utils.FileExists(dbPath) {
-		if err := ioutil.WriteFile(dbPath, []byte{}, fs.ModeAppend); err != nil {
+		if f, err := os.Create(dbPath); err != nil {
 			utils.Print("RED", fmt.Sprintf("Error Creating Database: %s\n", dbPath))
 			panic(err)
+		} else {
+			f.Close()
 		}
 	}
 	var (
 		readErr error
 		content []byte
 	)
-	if content, readErr = ioutil.ReadFile(dbPath); readErr != nil {
+	if content, readErr = os.ReadFile(dbPath); readErr != nil {
 		utils.Print("RED", fmt.Sprintf("Error Reading Database: %s\n", dbPath))
 		panic(readErr)
 	} else {
@@ -85,7 +87,7 @@ func Write() {
 	for k, v := range fmap {
 		content += fmt.Sprintf("%s%s%s\n", k, dbSep, v.String())
 	}
-	ioutil.WriteFile(dbPath, []byte(content), fs.ModeAppend)
+	os.WriteFile(dbPath, []byte(content), fs.ModeAppend)
 }
 
 func Start() {

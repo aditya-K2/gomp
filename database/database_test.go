@@ -2,7 +2,6 @@ package database
 
 import (
 	"bytes"
-	"io/ioutil"
 	"os"
 	"testing"
 	"time"
@@ -47,9 +46,9 @@ func TestWrite(t *testing.T) {
 	dbPath = "./testdata/test_db_write"
 	fmap = readTMap
 	Write()
-	content1, cerr1 := ioutil.ReadFile(dbPath)
+	content1, cerr1 := os.ReadFile(dbPath)
 	_dbPath := "./testdata/test_db"
-	content2, cerr2 := ioutil.ReadFile(_dbPath)
+	content2, cerr2 := os.ReadFile(_dbPath)
 	if cerr1 != nil {
 		t.Error(cerr1)
 	}
