@@ -22,6 +22,7 @@ var (
 	posArr       = positionArray{}
 )
 
+// Start Notification Service
 func Init() {
 	for _m := maxNotifications; _m != 0; _m-- {
 		posArr = append(posArr, true)
@@ -29,7 +30,6 @@ func Init() {
 	nQueue = &notificationQueue{}
 	heap.Init(nQueue)
 	queueRoutine()
-	startNotificationService()
 }
 
 /* notification Primitive */
@@ -45,7 +45,8 @@ type notificationQueue []*notification
 func (n notificationQueue) Len() int { return len(n) }
 func (n notificationQueue) Less(i, j int) bool {
 	ctime := time.Now()
-	return ctime.Sub(n[i].TimeRecv) < ctime.Sub(n[j].TimeRecv)
+	// Return the Oldest One.
+	return ctime.Sub(n[i].TimeRecv) > ctime.Sub(n[j].TimeRecv)
 }
 func (n notificationQueue) Swap(i, j int) { n[i], n[j] = n[j], n[i] }
 
@@ -65,8 +66,10 @@ func (n notificationQueue) Empty() bool {
 	return len(n) == 0
 }
 
+// Array for all available positions where the notification can be displayed.
 type positionArray []bool
 
+// Check If there is a position available.
 func (p *positionArray) Available() bool {
 	var t = false
 	pm.Lock()
@@ -91,6 +94,7 @@ func (p *positionArray) GetNextPosition() int {
 	return notAvailable
 }
 
+// Free a position
 func (p *positionArray) Free(i int) {
 	pm.Lock()
 	v := *p
@@ -127,10 +131,10 @@ func (self *notification) Draw(screen tcell.Screen) {
 		tview.AlignCenter, tcell.ColorWhite)
 }
 
-func startNotificationService() {
-	go notificationRoutine(EmptyNotification)
-}
-
+/*
+this routine checks for available position and then sends
+the notification at the top of the queue to the notificationRoutine
+*/
 func queueRoutine() {
 	go func() {
 		for {
@@ -152,6 +156,7 @@ func notificationRoutine(s *notification) {
 		go func() {
 			currentTime := time.Now().String()
 			np := posArr.GetNextPosition()
+			// Ensure a position is available.
 			if np == notAvailable {
 				for !posArr.Available() {
 				}
