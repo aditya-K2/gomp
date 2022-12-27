@@ -18,6 +18,9 @@
 - [x] User Key Mappings
 - [x] Querying LastFM API for getting Album Art
 - [x] Fuzzy Searching
+- Config Related Changes
+    - [x] Support Live Changes in the Config File
+    - [ ] Aesthetic Customisability ***(colors etc.)***
 - [ ] Visual Mode (like vim) for updating playlists
 
 # Installing / Building
