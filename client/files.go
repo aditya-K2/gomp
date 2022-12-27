@@ -33,9 +33,22 @@ func (f FileNodes) Len() int {
 
 func (f *FileNode) AddChildren(path string, title string, artist string, album string) {
 	if f.Path != "" {
-		f.Children = append(f.Children, FileNode{Children: make([]FileNode, 0), Path: path, Parent: f, AbsolutePath: f.AbsolutePath + "/" + path, Title: title, Artist: artist, Album: album})
+		f.Children = append(f.Children,
+			FileNode{
+				Children:     make([]FileNode, 0),
+				Path:         path,
+				Parent:       f,
+				AbsolutePath: f.AbsolutePath + "/" + path,
+				Title:        title,
+				Artist:       artist,
+				Album:        album})
 	} else {
-		f.Children = append(f.Children, FileNode{Children: make([]FileNode, 0), Path: path, Parent: f, AbsolutePath: f.AbsolutePath + path})
+		f.Children = append(f.Children,
+			FileNode{
+				Children:     make([]FileNode, 0),
+				Path:         path,
+				Parent:       f,
+				AbsolutePath: f.AbsolutePath + path})
 	}
 }
 

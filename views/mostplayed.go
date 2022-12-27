@@ -82,7 +82,8 @@ func (s MostPlayedView) Update(inputTable *tview.Table) {
 					GetCell(s.FMap[path].String(), tcell.ColorGreen, false))
 			} else {
 				inputTable.SetCell(i, 0,
-					GetCell(path, tcell.ColorBlue, true))
+					GetCell(
+						utils.GetFormattedString(attr[0]["Album"], width/n), tcell.ColorBlue, true))
 				inputTable.SetCell(i, 3,
 					GetCell(s.FMap[path].String(), tcell.ColorGreen, false))
 			}
