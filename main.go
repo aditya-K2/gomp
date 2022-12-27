@@ -17,13 +17,15 @@ import (
 	"github.com/aditya-K2/fuzzy"
 	"github.com/fhs/gompd/v2/mpd"
 	"github.com/gdamore/tcell/v2"
-	"github.com/spf13/viper"
 )
 
 func main() {
 	config.ReadConfig()
 	var mpdConnectionError error
-	client.Conn, mpdConnectionError = mpd.Dial(utils.GetNetwork())
+	client.Conn, mpdConnectionError = mpd.Dial(
+		utils.GetNetwork(config.Config.NetworkType,
+			config.Config.Port,
+			config.Config.NetworkAddress))
 	if mpdConnectionError != nil {
 		utils.Print("RED", "Could Not Connect to MPD Server\n")
 		utils.Print("GREEN", "Make Sure You Mention the Correct MPD Port in the config file.\n")
@@ -32,7 +34,7 @@ func main() {
 	Conn := client.Conn
 	defer Conn.Close()
 
-	cache.SetCacheDir(viper.GetString("CACHE_DIR"))
+	cache.SetCacheDir(config.Config.CacheDir)
 
 	watchers.Init()
 	ui.Ui = ui.NewApplication()
@@ -50,7 +52,7 @@ func main() {
 
 	var Volume int64
 	var Random, Repeat bool
-	var SeekOffset = viper.GetInt("SEEK_OFFSET")
+	var SeekOffset = config.Config.SeekOffset
 	var SeekFunc = func(back bool) {
 		if status, err := Conn.Status(); err != nil {
 			notify.Send("Could not get MPD Status")

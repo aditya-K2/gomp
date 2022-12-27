@@ -8,8 +8,6 @@ import (
 	"strings"
 	"syscall"
 	"unsafe"
-
-	"github.com/spf13/viper"
 )
 
 type winsize struct {
@@ -181,16 +179,16 @@ func Unique(intSlice []int) []int {
 	return list
 }
 
-func GetNetwork() (string, string) {
+func GetNetwork(ntype, mport, naddress string) (string, string) {
 	del := ""
-	nt := viper.GetString("NETWORK_TYPE")
-	port := viper.GetString("MPD_PORT")
+	nt := ntype
+	port := mport
 	if nt == "tcp" {
 		del = ":"
 	} else if nt == "unix" && port != "" {
 		port = ""
 	}
-	return nt, viper.GetString("NETWORK_ADDRESS") + del + port
+	return nt, naddress + del + port
 }
 
 func FileExists(path string) bool {

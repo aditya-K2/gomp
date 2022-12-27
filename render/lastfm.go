@@ -8,16 +8,16 @@ import (
 	"os"
 	"strings"
 
+	"github.com/aditya-K2/gomp/config"
 	"github.com/shkh/lastfm-go/lastfm"
-	"github.com/spf13/viper"
 )
 
 func getImageFromLastFM(artist, album, imagePath string) (string, error) {
-	api := lastfm.New(viper.GetString("LASTFM_API_KEY"), viper.GetString("LASTFM_API_SECRET"))
+	api := lastfm.New(config.Config.LastFmAPIKey, config.Config.LastFmAPISecret)
 	v, err := api.Album.GetInfo(map[string]interface{}{
 		"artist":      artist,
 		"album":       album,
-		"autocorrect": viper.GetInt("LASTFM_AUTO_CORRECT"),
+		"autocorrect": config.Config.LastFmAPIAutoCorrect,
 	})
 	if err != nil {
 		return "", err
