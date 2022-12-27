@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/aditya-K2/gomp/config/conf"
@@ -73,7 +72,6 @@ func ReadConfig() {
 		utils.Print("RED", "Could Not Read Config file.\n")
 	}
 	viper.Unmarshal(Config)
-	fmt.Println(Config.DBPath)
 
 	// Expanding ~ to the User's Home Directory
 	Config.MusicDirectory = utils.ExpandHomeDir(Config.MusicDirectory)

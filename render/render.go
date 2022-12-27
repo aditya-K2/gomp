@@ -52,7 +52,7 @@ func OpenImage(path string, c chan string) {
 		if img2, err := GetImg(extractedImage); err == nil {
 			im, _ = ueberzug.NewImage(img2,
 				int(float32(ui.ImgX)*fw)+config.Config.AdditionalPaddingX,
-				int(float32(ui.ImgY)*fh)+config.Config.AdditionalPaddingX)
+				int(float32(ui.ImgY)*fh)+config.Config.AdditionalPaddingY)
 		} else {
 			notify.Send("Error Rendering Image!")
 		}
