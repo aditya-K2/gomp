@@ -5,6 +5,7 @@ import (
 
 	"github.com/aditya-K2/gomp/config/conf"
 	"github.com/aditya-K2/gomp/utils"
+	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
 )
 
@@ -32,6 +33,7 @@ var (
 	ConfigDir, configErr   = os.UserConfigDir()
 	UserCacheDir, cacheErr = os.UserCacheDir()
 	Config                 = NewConfigS()
+	OnConfigChange         func()
 )
 
 func NewConfigS() *ConfigS {
@@ -74,11 +76,22 @@ func ReadConfig() {
 	viper.Unmarshal(Config)
 
 	// Expanding ~ to the User's Home Directory
-	Config.MusicDirectory = utils.ExpandHomeDir(Config.MusicDirectory)
-	Config.DefaultImagePath = utils.ExpandHomeDir(Config.DefaultImagePath)
-	Config.CacheDir = utils.ExpandHomeDir(Config.CacheDir)
-	Config.NetworkAddress = utils.ExpandHomeDir(Config.NetworkAddress)
-	Config.DBPath = utils.ExpandHomeDir(Config.DBPath)
+	expandHome := func() {
+		Config.MusicDirectory = utils.ExpandHomeDir(Config.MusicDirectory)
+		Config.DefaultImagePath = utils.ExpandHomeDir(Config.DefaultImagePath)
+		Config.CacheDir = utils.ExpandHomeDir(Config.CacheDir)
+		Config.NetworkAddress = utils.ExpandHomeDir(Config.NetworkAddress)
+		Config.DBPath = utils.ExpandHomeDir(Config.DBPath)
+	}
+
+	viper.OnConfigChange(func(e fsnotify.Event) {
+		viper.Unmarshal(Config)
+		expandHome()
+		OnConfigChange()
+	})
+	viper.WatchConfig()
+
+	expandHome()
 }
 
 func GenerateKeyMap(funcMap map[string]func()) {

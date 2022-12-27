@@ -23,6 +23,10 @@ var (
 	status      mpd.Attrs
 )
 
+func OnConfigChange() {
+	render.DrawCover(currentSong, false)
+}
+
 func Skip() bool {
 	skip := false
 	if _status, err := client.Conn.Status(); err != nil {
