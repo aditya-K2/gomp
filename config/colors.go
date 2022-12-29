@@ -42,11 +42,15 @@ type Color struct {
 }
 
 type Colors struct {
-	Artist Color `mapstructure:"artist"`
-	Album  Color `mapstructure:"album"`
-	Track  Color `mapstructure:"track"`
-	File   Color `mapstructure:"file"`
-	Folder Color `mapstructure:"folder"`
+	Artist        Color `mapstructure:"artist"`
+	Album         Color `mapstructure:"album"`
+	Track         Color `mapstructure:"track"`
+	File          Color `mapstructure:"file"`
+	Folder        Color `mapstructure:"folder"`
+	Timestamp     Color `mapstructure:"timestamp"`
+	MatchedTitle  Color `mapstructure:"matched_title"`
+	MatchedFolder Color `mapstructure:"matched_folder"`
+	Null          Color
 }
 
 func (c Color) Color() tcell.Color {
@@ -100,6 +104,11 @@ func NewColors() *Colors {
 			Bold:       false,
 			Italic:     false,
 		},
+		Timestamp: Color{
+			Foreground: "Green",
+			Bold:       false,
+			Italic:     true,
+		},
 		File: Color{
 			Foreground: "Blue",
 			Bold:       true,
@@ -107,6 +116,21 @@ func NewColors() *Colors {
 		},
 		Folder: Color{
 			Foreground: "Yellow",
+			Bold:       true,
+			Italic:     false,
+		},
+		MatchedFolder: Color{
+			Foreground: "Blue",
+			Bold:       true,
+			Italic:     true,
+		},
+		MatchedTitle: Color{
+			Foreground: "Yellow",
+			Bold:       true,
+			Italic:     true,
+		},
+		Null: Color{
+			Foreground: "White",
 			Bold:       true,
 			Italic:     false,
 		},
