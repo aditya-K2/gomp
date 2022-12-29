@@ -94,19 +94,19 @@ func (f FileView) Update(inputTable *tview.Table) {
 				_, _, w, _ := inputTable.GetInnerRect()
 				inputTable.SetCell(i, 0,
 					GetCell(
-						utils.GetFormattedString(j.Title, w/3), tcell.ColorGreen, false))
+						utils.GetFormattedString(j.Title, w/3), clr.Track))
 				inputTable.SetCell(i, 1,
 					GetCell(
-						utils.GetFormattedString(j.Artist, w/3), tcell.ColorPurple, false))
+						utils.GetFormattedString(j.Artist, w/3), clr.Artist))
 				inputTable.SetCell(i, 2,
-					GetCell(j.Album, tcell.ColorYellow, false))
+					GetCell(j.Album, clr.Album))
 			} else if j.Title == "" {
 				inputTable.SetCell(i, 0,
-					GetCell(j.Path, tcell.ColorBlue, true))
+					GetCell(j.Path, clr.File))
 			}
 		} else {
 			inputTable.SetCell(i, 0,
-				GetCell(j.Path, tcell.ColorYellow, true))
+				GetCell(j.Path, clr.Folder))
 		}
 	}
 }

@@ -8,7 +8,6 @@ import (
 	"github.com/aditya-K2/gomp/ui/notify"
 	"github.com/aditya-K2/gomp/utils"
 	"github.com/aditya-K2/tview"
-	"github.com/gdamore/tcell/v2"
 )
 
 type SearchView struct {
@@ -61,31 +60,31 @@ func (s SearchView) Update(inputTable *tview.Table) {
 			{
 				inputTable.SetCell(i, 0,
 					GetCell(
-						utils.GetFormattedString(content.([3]string)[0], width/3), tcell.ColorGreen, false))
+						utils.GetFormattedString(content.([3]string)[0], width/3), clr.Track))
 				inputTable.SetCell(i, 1,
 					GetCell(
-						utils.GetFormattedString(content.([3]string)[1], width/3), tcell.ColorPurple, false))
+						utils.GetFormattedString(content.([3]string)[1], width/3), clr.Artist))
 				inputTable.SetCell(i, 2,
-					GetCell(content.([3]string)[2], tcell.ColorYellow, false))
+					GetCell(content.([3]string)[2], clr.Album))
 			}
 		case [2]string:
 			{
 				inputTable.SetCell(i, 0,
 					GetCell(
-						utils.GetFormattedString(content.([2]string)[0], width/3), tcell.ColorYellow, false))
+						utils.GetFormattedString(content.([2]string)[0], width/3), clr.Album))
 				inputTable.SetCell(i, 1,
 					GetCell(
-						utils.GetFormattedString(content.([2]string)[1], width/3), tcell.ColorPurple, false))
+						utils.GetFormattedString(content.([2]string)[1], width/3), clr.Artist))
 			}
 		case string:
 			{
 				b := content.(string)
 				if !strings.HasPrefix(b, client.WHITE_AND_BOLD) {
 					inputTable.SetCell(i, 0,
-						GetCell(content.(string), tcell.ColorPurple, false))
+						GetCell(content.(string), clr.Artist))
 				} else {
 					inputTable.SetCell(i, 0,
-						GetCell(content.(string), tcell.ColorWhite, true).SetSelectable(false))
+						GetCell(content.(string), clr.Null).SetSelectable(false))
 				}
 			}
 		}

@@ -7,7 +7,6 @@ import (
 	"github.com/aditya-K2/gomp/utils"
 	"github.com/aditya-K2/tview"
 	"github.com/fhs/gompd/v2/mpd"
-	"github.com/gdamore/tcell/v2"
 )
 
 type PlaylistView struct {
@@ -62,17 +61,17 @@ func (p PlaylistView) Update(inputTable *tview.Table) {
 		if j["Title"] == "" || j["Artist"] == "" || j["Album"] == "" {
 			inputTable.SetCell(i, 0,
 				GetCell(
-					utils.GetFormattedString(j["file"], w/3), tcell.ColorBlue, true))
+					utils.GetFormattedString(j["file"], w/3), clr.File))
 
 		} else {
 			inputTable.SetCell(i, 0,
 				GetCell(
-					utils.GetFormattedString(j["Title"], w/3), tcell.ColorGreen, false))
+					utils.GetFormattedString(j["Title"], w/3), clr.Track))
 			inputTable.SetCell(i, 1,
 				GetCell(
-					utils.GetFormattedString(j["Artist"], w/3), tcell.ColorPurple, false))
+					utils.GetFormattedString(j["Artist"], w/3), clr.Artist))
 			inputTable.SetCell(i, 2,
-				GetCell(j["Album"], tcell.ColorYellow, false))
+				GetCell(j["Album"], clr.Album))
 		}
 	}
 }

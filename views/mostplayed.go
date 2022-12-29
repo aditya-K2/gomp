@@ -9,7 +9,6 @@ import (
 	"github.com/aditya-K2/gomp/ui/notify"
 	"github.com/aditya-K2/gomp/utils"
 	"github.com/aditya-K2/tview"
-	"github.com/gdamore/tcell/v2"
 )
 
 type MostPlayedView struct {
@@ -71,21 +70,21 @@ func (s MostPlayedView) Update(inputTable *tview.Table) {
 			if attr[0]["Title"] != "" {
 				inputTable.SetCell(i, 0,
 					GetCell(
-						utils.GetFormattedString(attr[0]["Title"], width/n), tcell.ColorGreen, false))
+						utils.GetFormattedString(attr[0]["Title"], width/n), clr.Track))
 				inputTable.SetCell(i, 1,
 					GetCell(
-						utils.GetFormattedString(attr[0]["Artist"], width/n), tcell.ColorPurple, false))
+						utils.GetFormattedString(attr[0]["Artist"], width/n), clr.Artist))
 				inputTable.SetCell(i, 2,
 					GetCell(
-						utils.GetFormattedString(attr[0]["Album"], width/n), tcell.ColorYellow, false))
+						utils.GetFormattedString(attr[0]["Album"], width/n), clr.Album))
 				inputTable.SetCell(i, 3,
-					GetCell(s.FMap[path].String(), tcell.ColorGreen, false))
+					GetCell(s.FMap[path].String(), clr.Timestamp))
 			} else {
 				inputTable.SetCell(i, 0,
 					GetCell(
-						utils.GetFormattedString(attr[0]["Album"], width/n), tcell.ColorBlue, true))
+						utils.GetFormattedString(attr[0]["Album"], width/n), clr.Album))
 				inputTable.SetCell(i, 3,
-					GetCell(s.FMap[path].String(), tcell.ColorGreen, false))
+					GetCell(s.FMap[path].String(), clr.Timestamp))
 			}
 		}
 		i++

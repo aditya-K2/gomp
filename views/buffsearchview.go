@@ -8,7 +8,6 @@ import (
 	"github.com/aditya-K2/gomp/ui/notify"
 	"github.com/aditya-K2/gomp/utils"
 	"github.com/aditya-K2/tview"
-	"github.com/gdamore/tcell/v2"
 )
 
 type BuffSearchView struct {
@@ -89,14 +88,14 @@ func (s BuffSearchView) Update(inputTable *tview.Table) {
 				inputTable.SetCell(k, 0,
 					GetCell(
 						utils.GetMatchedString(
-							utils.Unique(v.MatchedIndexes), f[v.Index].Path, "[blue:-:bi]"),
-						tcell.ColorYellow, true))
+							utils.Unique(v.MatchedIndexes), f[v.Index].Path, clr.MatchedFolder.String()),
+						clr.Folder))
 			} else {
 				inputTable.SetCell(k, 0,
 					GetCell(
 						utils.GetMatchedString(
-							utils.Unique(v.MatchedIndexes), f[v.Index].Title, "[yellow:-:bi]"),
-						tcell.ColorGreen, true))
+							utils.Unique(v.MatchedIndexes), f[v.Index].Title, clr.MatchedTitle.String()),
+						clr.Track))
 			}
 			if k == 15 {
 				break
