@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/aditya-K2/gomp/config/conf"
@@ -23,10 +24,11 @@ type ConfigS struct {
 	DBPath                string  `mapstructure:"DB_PATH"`
 	LastFmAPIKey          string  `mapstructure:"LASTFM_API_KEY"`
 	LastFmAPISecret       string  `mapstructure:"LASTFM_API_SECRET"`
-	LastFmAPIAutoCorrect  bool    `mapstructure:"LASTFM_AUTO_CORRECT"`
+	LastFmAPIAutoCorrect  int     `mapstructure:"LASTFM_AUTO_CORRECT"`
 	GetCoverArtFromLastFm string  `mapstructure:"GET_COVER_ART_FROM_LAST_FM"`
 	Port                  string  `mapstructure:"MPD_PORT"`
 	MusicDirectory        string  `mapstructure:"MUSIC_DIRECTORY"`
+	Colors                *Colors `mapstructure:"COLORS"`
 }
 
 var (
@@ -49,6 +51,7 @@ func NewConfigS() *ConfigS {
 		SeekOffset:         1,
 		RedrawInterval:     500,
 		DBPath:             (UserCacheDir + "/gompDB"),
+		Colors:             NewColors(),
 	}
 }
 
@@ -74,6 +77,7 @@ func ReadConfig() {
 		utils.Print("RED", "Could Not Read Config file.\n")
 	}
 	viper.Unmarshal(Config)
+	fmt.Println(Config.Colors.Artist)
 
 	// Expanding ~ to the User's Home Directory
 	expandHome := func() {
