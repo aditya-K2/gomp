@@ -20,7 +20,6 @@ import (
 )
 
 func main() {
-	config.OnConfigChange = watchers.OnConfigChange
 	config.ReadConfig()
 	var mpdConnectionError error
 	client.Conn, mpdConnectionError = mpd.Dial(

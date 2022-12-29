@@ -41,6 +41,7 @@ func Skip() bool {
 }
 
 func Init() {
+	config.OnConfigChange = OnConfigChange
 	database.SetDB(config.Config.DBPath)
 	database.Read()
 	database.Start()
