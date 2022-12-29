@@ -105,7 +105,7 @@ func NewColors() *Colors {
 			Italic:     false,
 		},
 		Timestamp: Color{
-			Foreground: "Green",
+			Foreground: "Red",
 			Bold:       false,
 			Italic:     true,
 		},
