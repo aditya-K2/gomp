@@ -249,6 +249,8 @@ COLORS:
     bold: True # Changes the Style
     italic: False
 ```
+![Dec30(Fri)012241PM](https://user-images.githubusercontent.com/51816057/210048064-b2816095-10f2-4f0b-83ed-0e87d636b894.png)
+![Dec30(Fri)012315PM](https://user-images.githubusercontent.com/51816057/210048069-8e91509a-17a5-46da-a65e-ff8f427dde17.png)
 
 Following Aspects can be changed:
 
