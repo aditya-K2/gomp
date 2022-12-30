@@ -2,14 +2,27 @@ package utils
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"syscall"
 	"unsafe"
+)
 
-	"github.com/spf13/viper"
+var (
+	COLORS map[string]string = map[string]string{
+		"RESET":  "\033[0m",
+		"RED":    "\033[31m",
+		"GREEN":  "\033[32m",
+		"YELLOW": "\033[33m",
+		"BLUE":   "\033[34m",
+		"PURPLE": "\033[35m",
+		"CYAN":   "\033[36m",
+		"GRAY":   "\033[37m",
+		"WHITE":  "\033[97m",
+	}
 )
 
 type winsize struct {
@@ -181,16 +194,16 @@ func Unique(intSlice []int) []int {
 	return list
 }
 
-func GetNetwork() (string, string) {
+func GetNetwork(ntype, mport, naddress string) (string, string) {
 	del := ""
-	nt := viper.GetString("NETWORK_TYPE")
-	port := viper.GetString("MPD_PORT")
+	nt := ntype
+	port := mport
 	if nt == "tcp" {
 		del = ":"
 	} else if nt == "unix" && port != "" {
 		port = ""
 	}
-	return nt, viper.GetString("NETWORK_ADDRESS") + del + port
+	return nt, naddress + del + port
 }
 
 func FileExists(path string) bool {
@@ -212,4 +225,8 @@ func IsSame[K comparable](a []K, b []K) bool {
 
 func Pop[T comparable](index int, a []T) []T {
 	return append(a[0:index], a[index+1:]...)
+}
+
+func Print(color, text string) {
+	fmt.Print(COLORS[color] + text + COLORS["RESET"])
 }

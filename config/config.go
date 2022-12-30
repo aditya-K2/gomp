@@ -5,59 +5,95 @@ import (
 
 	"github.com/aditya-K2/gomp/config/conf"
 	"github.com/aditya-K2/gomp/utils"
+	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
 )
 
+type ConfigS struct {
+	AdditionalPaddingX    int     `mapstructure:"ADDITIONAL_PADDING_X"`
+	AdditionalPaddingY    int     `mapstructure:"ADDITIONAL_PADDING_Y"`
+	ExtraImageWidthX      float64 `mapstructure:"IMAGE_WIDTH_EXTRA_X"`
+	ExtraImageWidthY      float64 `mapstructure:"IMAGE_WIDTH_EXTRA_Y"`
+	NetworkType           string  `mapstructure:"NETWORK_TYPE"`
+	NetworkAddress        string  `mapstructure:"NETWORK_ADDRESS"`
+	DefaultImagePath      string  `mapstructure:"DEFAULT_IMAGE_PATH"`
+	CacheDir              string  `mapstructure:"CACHE_DIR"`
+	SeekOffset            int     `mapstructure:"SEEK_OFFSET"`
+	RedrawInterval        int     `mapstructure:"REDRAW_INTERVAL"`
+	DBPath                string  `mapstructure:"DB_PATH"`
+	LastFmAPIKey          string  `mapstructure:"LASTFM_API_KEY"`
+	LastFmAPISecret       string  `mapstructure:"LASTFM_API_SECRET"`
+	LastFmAPIAutoCorrect  int     `mapstructure:"LASTFM_AUTO_CORRECT"`
+	GetCoverArtFromLastFm string  `mapstructure:"GET_COVER_ART_FROM_LAST_FM"`
+	Port                  string  `mapstructure:"MPD_PORT"`
+	MusicDirectory        string  `mapstructure:"MUSIC_DIRECTORY"`
+	Colors                *Colors `mapstructure:"COLORS"`
+}
+
 var (
-	CONFIG_DIR, CONFIG_ERR    = os.UserConfigDir()
-	USER_CACHE_DIR, CACHE_ERR = os.UserCacheDir()
-	defaults                  = map[string]interface{}{
-		"ADDITIONAL_PADDING_X": 12,
-		"ADDITIONAL_PADDING_Y": 16,
-		"IMAGE_WIDTH_EXTRA_X":  -1.5,
-		"IMAGE_WIDTH_EXTRA_Y":  -3.75,
-		"NETWORK_TYPE":         "tcp",
-		"NETWORK_ADDRESS":      "localhost",
-		"DEFAULT_IMAGE_PATH":   "default.jpg",
-		"CACHE_DIR":            utils.CheckDirectoryFmt(USER_CACHE_DIR),
-		"SEEK_OFFSET":          1,
-		"REDRAW_INTERVAL":      500,
-		"DB_PATH":              (USER_CACHE_DIR + "/gompDB"),
-	}
+	ConfigDir, configErr   = os.UserConfigDir()
+	UserCacheDir, cacheErr = os.UserCacheDir()
+	Config                 = NewConfigS()
+	OnConfigChange         func()
 )
+
+func NewConfigS() *ConfigS {
+	return &ConfigS{
+		AdditionalPaddingX: 12,
+		AdditionalPaddingY: 16,
+		ExtraImageWidthX:   -1.5,
+		ExtraImageWidthY:   -3.75,
+		NetworkType:        "tcp",
+		NetworkAddress:     "localhost",
+		DefaultImagePath:   "default.jpg",
+		CacheDir:           utils.CheckDirectoryFmt(UserCacheDir),
+		SeekOffset:         1,
+		RedrawInterval:     500,
+		DBPath:             (UserCacheDir + "/gompDB"),
+		Colors:             NewColors(),
+	}
+}
 
 func ReadConfig() {
 	// Parse mpd.conf to set default values.
 	ParseMPDConfig()
 
-	for k, v := range defaults {
-		viper.SetDefault(k, v)
+	if configErr != nil {
+		utils.Print("RED", "Couldn't get $XDG_CONFIG!")
+		panic(configErr)
 	}
 
-	if CONFIG_ERR != nil {
-		utils.Print("RED", "Couldn't get XDG_CONFIG!")
-		panic(CONFIG_ERR)
-	}
-
-	if CACHE_ERR != nil {
+	if cacheErr != nil {
 		utils.Print("RED", "Couldn't get CACHE DIR!")
-		panic(CACHE_ERR)
+		panic(cacheErr)
 	}
 
 	viper.SetConfigName("config")
-	viper.AddConfigPath(CONFIG_DIR + "/gomp")
+	viper.AddConfigPath(ConfigDir + "/gomp")
 
 	err := viper.ReadInConfig()
 	if err != nil {
 		utils.Print("RED", "Could Not Read Config file.\n")
 	}
+	viper.Unmarshal(Config)
 
 	// Expanding ~ to the User's Home Directory
-	viper.Set("MUSIC_DIRECTORY", utils.ExpandHomeDir(viper.GetString("MUSIC_DIRECTORY")))
-	viper.Set("DEFAULT_IMAGE_PATH", utils.ExpandHomeDir(viper.GetString("DEFAULT_IMAGE_PATH")))
-	viper.Set("CACHE_DIR", utils.ExpandHomeDir(viper.GetString("CACHE_DIR")))
-	viper.Set("NETWORK_ADDRESS", utils.ExpandHomeDir(viper.GetString("NETWORK_ADDRESS")))
-	viper.Set("DB_PATH", utils.ExpandHomeDir(viper.GetString("DB_PATH")))
+	expandHome := func() {
+		Config.MusicDirectory = utils.ExpandHomeDir(Config.MusicDirectory)
+		Config.DefaultImagePath = utils.ExpandHomeDir(Config.DefaultImagePath)
+		Config.CacheDir = utils.ExpandHomeDir(Config.CacheDir)
+		Config.NetworkAddress = utils.ExpandHomeDir(Config.NetworkAddress)
+		Config.DBPath = utils.ExpandHomeDir(Config.DBPath)
+	}
+
+	viper.OnConfigChange(func(e fsnotify.Event) {
+		viper.Unmarshal(Config)
+		expandHome()
+		OnConfigChange()
+	})
+	viper.WatchConfig()
+
+	expandHome()
 }
 
 func GenerateKeyMap(funcMap map[string]func()) {
@@ -75,15 +111,15 @@ func GenerateKeyMap(funcMap map[string]func()) {
 }
 
 func ParseMPDConfig() {
-	uwconf := CONFIG_DIR + "/mpd/mpd.conf"
+	uwconf := ConfigDir + "/mpd/mpd.conf"
 	swconf := "/etc/mpd.conf"
 	set_defaults := func(path string) {
 		m := conf.GenerateMap(path)
 		if val, ok := m["music_directory"]; ok {
-			defaults["MUSIC_DIRECTORY"] = utils.CheckDirectoryFmt(val.(string))
+			Config.MusicDirectory = utils.CheckDirectoryFmt(val.(string))
 		}
 		if val, ok := m["port"]; ok {
-			defaults["MPD_PORT"] = val.(string)
+			Config.Port = val.(string)
 		}
 	}
 	if utils.FileExists(uwconf) {

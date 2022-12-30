@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/aditya-K2/gomp/client"
+	"github.com/aditya-K2/gomp/config"
 	"github.com/aditya-K2/gomp/database"
 	"github.com/aditya-K2/gomp/render"
 	"github.com/aditya-K2/gomp/ui"
@@ -13,7 +14,6 @@ import (
 	"github.com/aditya-K2/gomp/utils"
 	"github.com/aditya-K2/gomp/views"
 	"github.com/fhs/gompd/v2/mpd"
-	"github.com/spf13/viper"
 )
 
 var (
@@ -22,6 +22,10 @@ var (
 	ctime       time.Time
 	status      mpd.Attrs
 )
+
+func OnConfigChange() {
+	render.DrawCover(currentSong, false)
+}
 
 func Skip() bool {
 	skip := false
@@ -37,7 +41,8 @@ func Skip() bool {
 }
 
 func Init() {
-	database.SetDB(viper.GetString("DB_PATH"))
+	config.OnConfigChange = OnConfigChange
+	database.SetDB(config.Config.DBPath)
 	database.Read()
 	database.Start()
 	if c, err := client.Conn.CurrentSong(); err != nil {
@@ -50,7 +55,7 @@ func Init() {
 	ctime = time.Now()
 }
 func StartRectWatcher() {
-	redrawInterval := viper.GetInt("REDRAW_INTERVAL")
+	redrawInterval := config.Config.RedrawInterval
 
 	// Wait Until the ImagePreviewer is drawn
 	// Ensures that cover art is not drawn before the UI is rendered.
@@ -99,7 +104,7 @@ func StartPlaylistWatcher() {
 		}
 	}
 
-	nt, addr := utils.GetNetwork()
+	nt, addr := utils.GetNetwork(config.Config.NetworkType, config.Config.Port, config.Config.NetworkAddress)
 	w, err := mpd.NewWatcher(nt, addr, "")
 	if err != nil {
 		utils.Print("RED", "Could Not Start Watcher.\n")
@@ -155,8 +160,8 @@ func ProgressFunction() (string, string, string, float64) {
 	_currentAttributes := currentSong
 	var song, top, text string
 	var percentage float64
-	song = "[green::bi]" +
-		_currentAttributes["Title"] + "[-:-:-] - " + "[blue::b]" +
+	song = config.Config.Colors.PBarTrack.String() +
+		_currentAttributes["Title"] + "[-:-:-] - " + config.Config.Colors.PBarArtist.String() +
 		_currentAttributes["Artist"] + "\n"
 	_status, err := client.Conn.Status()
 	el, err1 := strconv.ParseFloat(_status["elapsed"], 8)

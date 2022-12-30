@@ -1,12 +1,12 @@
 package render
 
 import (
+	"github.com/aditya-K2/gomp/config"
 	"github.com/aditya-K2/gomp/ui"
 	"github.com/aditya-K2/gomp/ui/notify"
 	"github.com/fhs/gompd/v2/mpd"
 
 	"github.com/aditya-K2/gomp/utils"
-	"github.com/spf13/viper"
 	"gitlab.com/diamondburned/ueberzug-go"
 )
 
@@ -51,8 +51,8 @@ func OpenImage(path string, c chan string) {
 		extractedImage := GetImagePath(path)
 		if img2, err := GetImg(extractedImage); err == nil {
 			im, _ = ueberzug.NewImage(img2,
-				int(float32(ui.ImgX)*fw)+viper.GetInt("ADDITIONAL_PADDING_X"),
-				int(float32(ui.ImgY)*fh)+viper.GetInt("ADDITIONAL_PADDING_Y"))
+				int(float32(ui.ImgX)*fw)+config.Config.AdditionalPaddingX,
+				int(float32(ui.ImgY)*fh)+config.Config.AdditionalPaddingY)
 		} else {
 			notify.Send("Error Rendering Image!")
 		}

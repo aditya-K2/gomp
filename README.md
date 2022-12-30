@@ -8,17 +8,18 @@
 
 ![Sep11(Sun)11:2026PM](https://user-images.githubusercontent.com/51816057/189541853-282716f1-0515-4ee6-a19a-4989b9de5daf.png)
 
+# Features
+
+- **Functionality to Sort out most played songs**
+- **Live Config Changes**
+- **Cover Art View**
+- **LastFM Integration** *(Cover Art)*
+- **Fuzzy Searching** *(Global and Buffer Specific)*
+
 # Roadmap
 
-
-- [x] Add Functionality to Sort out most played songs
-    - [ ] daemonising `gomp` or a `headless` flag
-- [x] Add a config parser
-- [x] Image Previews
-- [x] User Key Mappings
-- [x] Querying LastFM API for getting Album Art
-- [x] Fuzzy Searching
-- [ ] Visual Mode (like vim) for updating playlists
+- [ ] daemonising `gomp` or a `headless` flag
+- [ ] Vim-like Visual Mode
 
 # Installing / Building
 
