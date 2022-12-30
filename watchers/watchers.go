@@ -160,8 +160,8 @@ func ProgressFunction() (string, string, string, float64) {
 	_currentAttributes := currentSong
 	var song, top, text string
 	var percentage float64
-	song = config.Config.Colors.Track.String() +
-		_currentAttributes["Title"] + "[-:-:-] - " + config.Config.Colors.Artist.String() +
+	song = config.Config.Colors.PBarTrack.String() +
+		_currentAttributes["Title"] + "[-:-:-] - " + config.Config.Colors.PBarArtist.String() +
 		_currentAttributes["Artist"] + "\n"
 	_status, err := client.Conn.Status()
 	el, err1 := strconv.ParseFloat(_status["elapsed"], 8)

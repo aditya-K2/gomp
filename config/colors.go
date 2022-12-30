@@ -1,8 +1,8 @@
 package config
 
 import (
-	"errors"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/aditya-K2/gomp/utils"
@@ -11,9 +11,9 @@ import (
 
 var (
 	ColorError = func(s string) {
-		_s := fmt.Sprintf("Wrong Color Provided: %s\n", s)
+		_s := fmt.Sprintf("Wrong Color Provided: %s", s)
 		utils.Print("RED", _s)
-		panic(errors.New(_s))
+		os.Exit(-1)
 	}
 	DColors = map[string]tcell.Color{
 		"Black":   tcell.ColorBlack,
@@ -50,6 +50,8 @@ type Colors struct {
 	Timestamp     Color `mapstructure:"timestamp"`
 	MatchedTitle  Color `mapstructure:"matched_title"`
 	MatchedFolder Color `mapstructure:"matched_folder"`
+	PBarArtist    Color `mapstructure:"pbar_artist"`
+	PBarTrack     Color `mapstructure:"pbar_track"`
 	Null          Color
 }
 
@@ -126,6 +128,16 @@ func NewColors() *Colors {
 		},
 		MatchedTitle: Color{
 			Foreground: "Yellow",
+			Bold:       true,
+			Italic:     true,
+		},
+		PBarArtist: Color{
+			Foreground: "Blue",
+			Bold:       true,
+			Italic:     false,
+		},
+		PBarTrack: Color{
+			Foreground: "Green",
 			Bold:       true,
 			Italic:     true,
 		},
