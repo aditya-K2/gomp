@@ -218,7 +218,7 @@ Following functions are provided :
 2. Add the api key and api secret to config.yml
 
 ```yml
-GET_COVER_ART_FROM_LAST_FM : "TRUE" # Turn On Getting Album art from lastfm api
+GET_COVER_ART_FROM_LAST_FM : True # Turn On Getting Album art from lastfm api
 LASTFM_API_KEY: "YOUR API KEY HERE"
 LASTFM_API_SECRET: "YOUR API SECRET HERE"
 ```

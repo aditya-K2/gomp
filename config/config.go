@@ -24,7 +24,7 @@ type ConfigS struct {
 	LastFmAPIKey          string  `mapstructure:"LASTFM_API_KEY"`
 	LastFmAPISecret       string  `mapstructure:"LASTFM_API_SECRET"`
 	LastFmAPIAutoCorrect  int     `mapstructure:"LASTFM_AUTO_CORRECT"`
-	GetCoverArtFromLastFm string  `mapstructure:"GET_COVER_ART_FROM_LAST_FM"`
+	GetCoverArtFromLastFm bool    `mapstructure:"GET_COVER_ART_FROM_LAST_FM"`
 	Port                  string  `mapstructure:"MPD_PORT"`
 	MusicDirectory        string  `mapstructure:"MUSIC_DIRECTORY"`
 	Colors                *Colors `mapstructure:"COLORS"`
@@ -39,18 +39,19 @@ var (
 
 func NewConfigS() *ConfigS {
 	return &ConfigS{
-		AdditionalPaddingX: 12,
-		AdditionalPaddingY: 16,
-		ExtraImageWidthX:   -1.5,
-		ExtraImageWidthY:   -3.75,
-		NetworkType:        "tcp",
-		NetworkAddress:     "localhost",
-		DefaultImagePath:   "default.jpg",
-		CacheDir:           utils.CheckDirectoryFmt(UserCacheDir),
-		SeekOffset:         1,
-		RedrawInterval:     500,
-		DBPath:             (UserCacheDir + "/gompDB"),
-		Colors:             NewColors(),
+		AdditionalPaddingX:    12,
+		AdditionalPaddingY:    16,
+		ExtraImageWidthX:      -1.5,
+		ExtraImageWidthY:      -3.75,
+		NetworkType:           "tcp",
+		NetworkAddress:        "localhost",
+		DefaultImagePath:      "default.jpg",
+		CacheDir:              utils.CheckDirectoryFmt(UserCacheDir),
+		SeekOffset:            1,
+		RedrawInterval:        500,
+		DBPath:                (UserCacheDir + "/gompDB"),
+		Colors:                NewColors(),
+		GetCoverArtFromLastFm: false,
 	}
 }
 

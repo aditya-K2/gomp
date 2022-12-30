@@ -60,7 +60,7 @@ func GetImagePath(path string) string {
 			imagePath := cache.GenerateName(a[0]["artist"], a[0]["album"])
 			absPath := utils.CheckDirectoryFmt(config.Config.MusicDirectory) + path
 			if _eimg, exErr := ExtractImage(absPath, imagePath); exErr != nil {
-				if config.Config.GetCoverArtFromLastFm == "TRUE" {
+				if config.Config.GetCoverArtFromLastFm {
 					downloadedImage, lFmErr := getImageFromLastFM(a[0]["artist"], a[0]["album"], imagePath)
 					if lFmErr == nil {
 						notify.Send("Image From LastFM")
