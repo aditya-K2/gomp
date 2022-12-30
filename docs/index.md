@@ -230,3 +230,35 @@ LASTFM_API_SECRET: "YOUR API SECRET HERE"
 ```yml
 LASTFM_AUTO_CORRECT: 1  # 0 means it is turned off
 ```
+
+# Colors and Style
+
+You can change `colors` and `styles` for some of the aspects of `gomp`
+
+Let's say to you want to change Color of Artist from the default Purple to Red
+
+In your `config.yml`
+```yml
+COLORS:
+  artist:
+    foreground: Red
+
+  # Another Example
+  pbar_artist:
+    foreground: "#ff0000" # For Hex Values
+    bold: True # Changes the Style
+    italic: False
+```
+
+Following Aspects can be changed:
+
+- `artist`
+- `album`
+- `track`
+- `file`
+- `folder`
+- `timestamp`
+- `matched_title`
+- `matched_folder`
+- `pbar_artist`
+- `pbar_track`
