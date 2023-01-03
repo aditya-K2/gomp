@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"strconv"
 	"time"
 
@@ -27,9 +28,10 @@ func main() {
 			config.Config.Port,
 			config.Config.NetworkAddress))
 	if mpdConnectionError != nil {
-		utils.Print("RED", "Could Not Connect to MPD Server\n")
-		utils.Print("GREEN", "Make Sure You Mention the Correct MPD Port in the config file.\n")
-		panic(mpdConnectionError)
+		utils.Print("RED", "There was a Problem Connecting to the MPD Server\nTry Checking:\n")
+		utils.Print("GREEN", "- if MPD Server is up and running.\n")
+		utils.Print("GREEN", "- if you have provided correct port in the config.yml\n")
+		os.Exit(-1)
 	}
 	Conn := client.Conn
 	defer Conn.Close()

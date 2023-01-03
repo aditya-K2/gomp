@@ -74,11 +74,11 @@ func ReadConfig() {
 	viper.SetConfigName("config")
 	viper.AddConfigPath(ConfigDir + "/gomp")
 
-	err := viper.ReadInConfig()
-	if err != nil {
+	if err := viper.ReadInConfig(); err != nil {
 		utils.Print("RED", "Could Not Read Config file.\n")
+	} else {
+		viper.Unmarshal(Config)
 	}
-	viper.Unmarshal(Config)
 
 	// Expanding ~ to the User's Home Directory
 	expandHome := func() {
