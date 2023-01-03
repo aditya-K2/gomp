@@ -29,6 +29,17 @@
 yay -S gomp-git
 ```
 
+## Exodia OS
+
+```bash
+install gomp-git
+```
+### OR
+```bash
+wget https://github.com/Exodia-OS/exodia-repo/blob/d639e402a32384e244e58cdbd697ea5f247edf7a/x86_64/gomp-git-r329.0c0cbbf-3-any.pkg.tar.zst
+sudo pacman -U gomp-git-r329.0c0cbbf-3-any.pkg.tar.zst
+```
+
 ## Manually
 
 ```bash

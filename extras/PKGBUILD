@@ -1,34 +1,64 @@
-# Maintainer: aditya-K2 <adityakurdunkar2@gmail.com>
-# Contributor: Luis Martinez <luis dot martinez at disroot dot org>
+#
+# Maintainer: Mahmoud Mohamed (00xWolf) <mmsaeed509@gmail.com> , <https://github.com/mmsaeed509>
+#
 
 pkgname=gomp-git
-pkgver=r292.e5cdea3
-pkgrel=1
+pkgver=r329.0c0cbbf
+pkgrel=3
 pkgdesc='MPD client inspired by ncmpcpp written in GO.'
-arch=('x86_64')
+arch=('any')
 url="https://github.com/aditya-K2/gomp"
 license=('GPL3')
-makedepends=('git' 'go')
-source=("$pkgname::git+$url")
-sha256sums=('SKIP')
+
+makedepends=(
+  'git'
+   'go'
+   )
+
+source=(
+  "${pkgname}::git+${url}"
+  "config.yml"
+  "cover.jpg"
+  )
+
+sha256sums=(
+  'SKIP'
+  'SKIP'
+  'SKIP'
+  )
+
+groups=('Exodia-TUI-Apps')
+install=${pkgname}.install
 
 pkgver() {
-  cd "$pkgname"
+
+  cd ${pkgname}
   printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+
 }
 
 prepare() {
-   cd "$pkgname"
+
+   cp config.yml ${pkgname}
+   cp cover.jpg ${pkgname}
+   cd ${pkgname}
    mkdir -p build
+
 }
 
 build() {
+
     export GOFLAGS="-buildmode=pie -trimpath -mod=readonly -modcacherw"
-    cd "$pkgname"
+    cd ${pkgname}
     go build -o build
+
 }
 
 package() {
-    cd "$pkgname"
-    install -D build/gomp -t "$pkgdir/usr/bin/"
+
+    cd ${pkgname}
+    install -D build/gomp -t "${pkgdir}/usr/bin/"
+    install -D config.yml -t "${pkgdir}/etc/skel/.config/gomp"
+    install -D cover.jpg -t "${pkgdir}/etc/skel/.config/gomp"
+
 }
