@@ -47,7 +47,7 @@ func NewConfigS() *ConfigS {
 		ExtraImageWidthY:      -3.75,
 		NetworkType:           "tcp",
 		NetworkAddress:        "localhost",
-		DefaultImagePath:      DefaultImageLink,
+		DefaultImagePath:      DefaultImagePath,
 		CacheDir:              utils.CheckDirectoryFmt(UserCacheDir),
 		SeekOffset:            1,
 		RedrawInterval:        500,
@@ -96,7 +96,7 @@ func ReadConfig() {
 	})
 	viper.WatchConfig()
 
-	if Config.DefaultImagePath == DefaultImageLink {
+	if Config.DefaultImagePath == DefaultImagePath {
 		if !utils.FileExists(DefaultImagePath) {
 			utils.Print("BLUE", "Default Image Not Provided Downloading Default Image From: ")
 			utils.Print("YELLOW", DefaultImageLink+"\n")
@@ -108,7 +108,6 @@ func ReadConfig() {
 				utils.Print("PURPLE", DefaultImagePath+"\n")
 			}
 		}
-		Config.DefaultImagePath = DefaultImagePath
 	}
 
 	expandHome()
