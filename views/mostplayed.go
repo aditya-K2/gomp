@@ -82,7 +82,7 @@ func (s MostPlayedView) Update(inputTable *tview.Table) {
 			} else {
 				inputTable.SetCell(i, 0,
 					GetCell(
-						utils.GetFormattedString(attr[0]["Album"], width/n), clr.Album))
+						utils.GetFormattedString(attr[0]["file"], width/n), clr.File))
 				inputTable.SetCell(i, 3,
 					GetCell(s.FMap[path].String(), clr.Timestamp))
 			}
