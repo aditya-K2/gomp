@@ -35,6 +35,8 @@ var (
 	UserCacheDir, cacheErr = os.UserCacheDir()
 	Config                 = NewConfigS()
 	OnConfigChange         func()
+	DefaultImageLink       = "https://go.dev/blog/gopher/plush.jpg"
+	DefaultImagePath       = UserCacheDir + "/gomp_default.jpg"
 )
 
 func NewConfigS() *ConfigS {
@@ -45,7 +47,7 @@ func NewConfigS() *ConfigS {
 		ExtraImageWidthY:      -3.75,
 		NetworkType:           "tcp",
 		NetworkAddress:        "localhost",
-		DefaultImagePath:      "default.jpg",
+		DefaultImagePath:      DefaultImageLink,
 		CacheDir:              utils.CheckDirectoryFmt(UserCacheDir),
 		SeekOffset:            1,
 		RedrawInterval:        500,
@@ -93,6 +95,21 @@ func ReadConfig() {
 		OnConfigChange()
 	})
 	viper.WatchConfig()
+
+	if Config.DefaultImagePath == DefaultImageLink {
+		if !utils.FileExists(DefaultImagePath) {
+			utils.Print("BLUE", "Default Image Not Provided Downloading Default Image From: ")
+			utils.Print("YELLOW", DefaultImageLink+"\n")
+			if _, err := utils.DownloadImage(DefaultImageLink, DefaultImagePath); err != nil {
+				utils.Print("RED", "Couldn't Download Default Image!\n")
+				os.Exit(-1)
+			} else {
+				utils.Print("CYAN", "Downloaded @ ")
+				utils.Print("PURPLE", DefaultImagePath+"\n")
+			}
+		}
+		Config.DefaultImagePath = DefaultImagePath
+	}
 
 	expandHome()
 }

@@ -3,6 +3,8 @@ package utils
 import (
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -229,4 +231,33 @@ func Pop[T comparable](index int, a []T) []T {
 
 func Print(color, text string) {
 	fmt.Print(COLORS[color] + text + COLORS["RESET"])
+}
+
+func DownloadImage(url string, imagePath string) (string, error) {
+	var reader io.Reader
+	if strings.HasPrefix(url, "http") {
+		r, err := http.Get(url)
+		if err != nil {
+			return "", err
+		}
+		defer r.Body.Close()
+		reader = r.Body
+		v, err := io.ReadAll(reader)
+		if err == nil {
+			b, err := os.Create(imagePath)
+			if err == nil {
+				if _, err := b.Write(v); err == nil {
+					return imagePath, nil
+				} else {
+					return "", errors.New("could Not Write Image")
+				}
+			} else {
+				b.Close()
+				return "", err
+			}
+		} else {
+			return "", err
+		}
+	}
+	return "", errors.New("image Not Received")
 }
