@@ -1,0 +1,82 @@
+MUSIC_DIRECTORY: "~/Music/"
+  # Your Music Directory (i.e music_directory in mpd.conf)
+
+ADDITIONAL_PADDING_X : 20
+ADDITIONAL_PADDING_Y : 23
+
+  # Extra padding for the placement of the image
+  # |---------------------------------------------------------|
+  # |          ADDITIONAL_PADDING_Y                           |
+  # |                      |                                  |
+  # |                      v                                  |
+  # |                      |---------------|                  |
+  # |ADDITIONAL_PADDING_X->|               |                  |
+  # |                      |     IMAGE     |                  |
+  # |                      |               |                  |
+  # |                      |---------------|                  |
+  # |                                                         |
+  # |                                                         |
+  # |---------------------------------------------------------|
+  #                              ^
+  #                              |
+  #                      Image Preview Box
+  # Note: Padding can be negative or positive
+  # PADDING_X on decrementing will move the image to right and PADDING_Y on incrementing will move the image to left
+  # similarly PADDING_Y on decrementing will move the image UP and on incrementing will move the image DOWN
+
+IMAGE_WIDTH_EXTRA_X  : -1.2
+IMAGE_WIDTH_EXTRA_Y  : -3
+ 
+  # Add extra IMAGE_WIDTH to the image so that it fits perfectly in the image preview box
+  #
+  # |-----------------------------------------------------------|
+  # |                      -  IMAGE_WIDTH_EXTRA_Y               |
+  # |                      -         |                          |
+  # |                      -         v                          |
+  # |-----------------------------------------------------------|
+  # |                      -                                    |
+  # |                      -                                    |
+  # | IMAGE_WIDTH_EXTRA_X  -                                    |
+  # |          ->          -                                    |
+  # |                      -      IMAGE                         |
+  # |                      -                                    |
+  # |                      -                                    |
+  # |                      -                                    |
+  # |                      -                                    |
+  # |-----------------------------------------------------------|
+  # Note: IMAGE_WIDTH_EXTRA_X and IMAGE_WIDTH_EXTRA_Y can be positive or negative
+
+MPD_PORT : "6600"
+  # Port on which music player daemon is running
+
+
+DEFAULT_IMAGE_PATH:   "~/.config/gomp/cover.jpg"
+
+GET_COVER_ART_FROM_LAST_FM : "TRUE" # Turn On Getting Album art from lastfm api
+LASTFM_API_KEY: "[Masked]"
+LASTFM_API_SECRET: "[Masked]"
+LASTFM_AUTO_CORRECT: 1  # 0 means it is turned off
+  # according to lastfm documentation
+  # autocorrect[0|1] (Optional) : Transform misspelled artist names into correct artist names, returning the correct version instead.
+
+# Mappings
+#
+# Mapping works in the following way:
+# Function: [ firstMapping, secondMapping, thirdMapping, ...... ]
+# for e.g
+togglePlayBack : [ "p", "SPACE", "]" ] # using the quotes is neccessary.
+  # all the three keys now have the same function.
+  # To see Availabe Keys and Functions : https://github.com/aditya-K2/gomp#key-mappings
+
+# Caching
+#
+# The Covert arts that are extracted from the file or downloaded from lastfm are cached.
+# It Is neccessary to define a cache directory to store all the cover arts.
+# The Caching works as follows
+# 1. Check if there is an embedded cover art if not then 2
+# 2. Check if lastfm has album art if not then 3
+# 3. Fallback to the default image.
+#
+#
+CACHE_DIR : "~/.config/gomp/cache/" # for e.g "~/.config/gomp/cache/"
+  # You will have to manually create this directory.
