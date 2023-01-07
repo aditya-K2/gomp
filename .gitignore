@@ -5,3 +5,5 @@ e.*
 .fuse*
 .gomp_log
 config.yml
+generate
+docs/index.md

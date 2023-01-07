@@ -9,27 +9,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-type ConfigS struct {
-	AdditionalPaddingX    int     `mapstructure:"ADDITIONAL_PADDING_X"`
-	AdditionalPaddingY    int     `mapstructure:"ADDITIONAL_PADDING_Y"`
-	ExtraImageWidthX      float64 `mapstructure:"IMAGE_WIDTH_EXTRA_X"`
-	ExtraImageWidthY      float64 `mapstructure:"IMAGE_WIDTH_EXTRA_Y"`
-	NetworkType           string  `mapstructure:"NETWORK_TYPE"`
-	NetworkAddress        string  `mapstructure:"NETWORK_ADDRESS"`
-	DefaultImagePath      string  `mapstructure:"DEFAULT_IMAGE_PATH"`
-	CacheDir              string  `mapstructure:"CACHE_DIR"`
-	SeekOffset            int     `mapstructure:"SEEK_OFFSET"`
-	RedrawInterval        int     `mapstructure:"REDRAW_INTERVAL"`
-	DBPath                string  `mapstructure:"DB_PATH"`
-	LastFmAPIKey          string  `mapstructure:"LASTFM_API_KEY"`
-	LastFmAPISecret       string  `mapstructure:"LASTFM_API_SECRET"`
-	LastFmAPIAutoCorrect  int     `mapstructure:"LASTFM_AUTO_CORRECT"`
-	GetCoverArtFromLastFm bool    `mapstructure:"GET_COVER_ART_FROM_LAST_FM"`
-	Port                  string  `mapstructure:"MPD_PORT"`
-	MusicDirectory        string  `mapstructure:"MUSIC_DIRECTORY"`
-	Colors                *Colors `mapstructure:"COLORS"`
-}
-
 var (
 	ConfigDir, configErr   = os.UserConfigDir()
 	UserCacheDir, cacheErr = os.UserCacheDir()
@@ -38,24 +17,6 @@ var (
 	DefaultImageLink       = "https://go.dev/blog/gopher/plush.jpg"
 	DefaultImagePath       = UserCacheDir + "/gomp_default.jpg"
 )
-
-func NewConfigS() *ConfigS {
-	return &ConfigS{
-		AdditionalPaddingX:    12,
-		AdditionalPaddingY:    16,
-		ExtraImageWidthX:      -1.5,
-		ExtraImageWidthY:      -3.75,
-		NetworkType:           "tcp",
-		NetworkAddress:        "localhost",
-		DefaultImagePath:      DefaultImagePath,
-		CacheDir:              utils.CheckDirectoryFmt(UserCacheDir),
-		SeekOffset:            1,
-		RedrawInterval:        500,
-		DBPath:                (UserCacheDir + "/gompDB"),
-		Colors:                NewColors(),
-		GetCoverArtFromLastFm: false,
-	}
-}
 
 func ReadConfig() {
 	// Parse mpd.conf to set default values.

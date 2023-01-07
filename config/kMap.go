@@ -4,6 +4,60 @@ import (
 	"errors"
 )
 
+// # Key Mappings
+//
+// # Following Keys can be used for Mappings
+//
+// | Keys            | Using them in Config  |
+// |-----------------|-----------------------|
+// | a-z             | a-z                   |
+// | A-Z             | A-z                   |
+// | {,},(,),[,],<,> | {,},(,),[,],<,>       |
+// | Enter(Return)   | ENTER/RETURN          |
+// | Tab             | TAB                   |
+// | Space           | SPACE                 |
+//
+// See config/kMap.go for more information
+//
+// For mapping a key to some function use the following format:
+//
+// ```yml
+// Function: [ firstMapping, secondMapping, thirdMapping]
+// ```
+// for e.g
+//
+// ```yml
+// togglePlayBack : [ "p", "TAB", "[" ] # using the quotes is neccessary.
+// ```
+//
+// Following functions are provided :
+//
+// |          Functions                 | Default Key Mapping |
+// |------------------------------------|---------------------|
+// |     showChildrenContent            |    <kbd>l</kbd>     |
+// |     togglePlayBack                 |    <kbd>p</kbd>     |
+// |     showParentContent              |    <kbd>h</kbd>     |
+// |     nextSong                       |    <kbd>n</kbd>     |
+// |     clearPlaylist                  |    <kbd>c</kbd>     |
+// |     previousSong                   |    <kbd>N</kbd>     |
+// |     addToPlaylist                  |    <kbd>a</kbd>     |
+// |     toggleRandom                   |    <kbd>z</kbd>     |
+// |     toggleRepeat                   |    <kbd>r</kbd>     |
+// |     decreaseVolume                 |    <kbd>-</kbd>     |
+// |     increaseVolume                 |    <kbd>+</kbd>     |
+// |     navigateToFiles                |    <kbd>2</kbd>     |
+// |     navigateToPlaylist             |    <kbd>1</kbd>     |
+// |     navigateToMostPlayed           |    <kbd>3</kbd>     |
+// |     navigateToSearch               |    <kbd>4</kbd>     |
+// |     quit                           |    <kbd>q</kbd>     |
+// |     stop                           |    <kbd>s</kbd>     |
+// |     updateDB                       |    <kbd>u</kbd>     |
+// |     deleteSongFromPlaylist         |    <kbd>d</kbd>     |
+// |     FocusSearch                    |    <kbd>?</kbd>     |
+// |     FocusBuffSearch                |    <kbd>/</kbd>     |
+// |     SeekForward                    |    <kbd>f</kbd>     |
+// |     SeekBackward                   |    <kbd>b</kbd>     |
+
 var (
 	SPECIAL_KEYS = map[string]int{
 		"TAB":    9,
@@ -26,7 +80,7 @@ var (
 		"\"":     34,
 	}
 
-	// Generating Default KEY_MAP which will then later be changed by GenerateKeyMap
+	/*Generating Default KEY_MAP which will then later be changed by GenerateKeyMap*/
 
 	KEY_MAP = map[int]string{
 		108: "showChildrenContent",
