@@ -29,11 +29,6 @@ import (
 // ```yml
 // togglePlayBack : [ "p", "SPACE", "[" ] # using the quotes is neccessary.
 // ```
-//
-// Following functions are provided :
-//
-// |          Functions                 | Default Key Mapping |
-// |------------------------------------|---------------------|
 
 var (
 	SPECIAL_KEYS = map[string]int{
@@ -59,6 +54,11 @@ var (
 
 	/*Generating Default KEY_MAP which will then later be changed by GenerateKeyMap*/
 
+	//
+	// Following functions are provided :
+	//
+	// |          Functions                 | Default Key Mapping |
+	// |------------------------------------|---------------------|
 	KEY_MAP = map[int]string{
 		// |     showChildrenContent            |    <kbd>l</kbd>     |
 		108: "showChildrenContent",
@@ -106,6 +106,9 @@ var (
 		98: "SeekBackward",
 		// |     SeekForward                    |    <kbd>f</kbd>     |
 		102: "SeekForward",
+		//
+		//
+		// -------
 	}
 )
 

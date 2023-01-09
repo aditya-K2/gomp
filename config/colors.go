@@ -20,21 +20,9 @@
 //	italic: False
 //
 // ```
+//
 // ![Dec30(Fri)012241PM](https://user-images.githubusercontent.com/51816057/210048064-b2816095-10f2-4f0b-83ed-0e87d636b894.png)
 // ![Dec30(Fri)012315PM](https://user-images.githubusercontent.com/51816057/210048069-8e91509a-17a5-46da-a65e-ff8f427dde17.png)
-//
-// Following Aspects can be changed:
-//
-// - `artist`
-// - `album`
-// - `track`
-// - `file`
-// - `folder`
-// - `timestamp`
-// - `matched_title`
-// - `matched_folder`
-// - `pbar_artist`
-// - `pbar_track`
 package config
 
 import (
@@ -78,18 +66,29 @@ type Color struct {
 	Italic     bool   `mapstructure:"italic"`
 }
 
+// ### Following Aspects can be changed:
 type Colors struct {
-	Artist        Color `mapstructure:"artist"`
-	Album         Color `mapstructure:"album"`
-	Track         Color `mapstructure:"track"`
-	File          Color `mapstructure:"file"`
-	Folder        Color `mapstructure:"folder"`
-	Timestamp     Color `mapstructure:"timestamp"`
-	MatchedTitle  Color `mapstructure:"matched_title"`
+	// - `album`
+	Artist Color `mapstructure:"artist"`
+	// - `artist`
+	Album Color `mapstructure:"album"`
+	// - `track`
+	Track Color `mapstructure:"track"`
+	// - `file`
+	File Color `mapstructure:"file"`
+	// - `folder`
+	Folder Color `mapstructure:"folder"`
+	// - `timestamp`
+	Timestamp Color `mapstructure:"timestamp"`
+	// - `matched_title`
+	MatchedTitle Color `mapstructure:"matched_title"`
+	// - `matched_folder`
 	MatchedFolder Color `mapstructure:"matched_folder"`
-	PBarArtist    Color `mapstructure:"pbar_artist"`
-	PBarTrack     Color `mapstructure:"pbar_track"`
-	Null          Color
+	// - `pbar_artist`
+	PBarArtist Color `mapstructure:"pbar_artist"`
+	// - `pbar_track`
+	PBarTrack Color `mapstructure:"pbar_track"`
+	Null      Color
 }
 
 func (c Color) Color() tcell.Color {
