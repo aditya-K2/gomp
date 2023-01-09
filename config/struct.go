@@ -5,7 +5,7 @@ package config
 
 //
 // ## Note
-// #### About Music Directory and MPD_PORT
+// - About Music Directory and MPD_PORT
 //
 // `gomp` reads your mpd.conf file for setting the defaults.
 //
@@ -13,7 +13,7 @@ package config
 // if that doesn't exists it checks for `/etc/mpd.conf`
 // if there it doesn't find anything (Which shouldn't happen) it uses the
 // `MUSIC-DIRECTORY` from config.yml
-// #### Default Image
+// - Default Image
 //
 // If there is no `DEFAULT_IMAGE_PATH` key in the `config.yml` it downloads a
 // default image @ ~/$USER_CACHE_DIR/gomp_default.jpg
