@@ -31,6 +31,8 @@ yay -S gomp-git
 
 ## Manually
 
+- Install `go` and `git` through your package manager and then
+
 ```bash
 git clone https://github.com/aditya-K2/gomp && cd gomp && GOFLAGS="-buildmode=pie -trimpath -mod=readonly -modcacherw" go build && sudo install -D gomp -t "/usr/bin/"
 ```
