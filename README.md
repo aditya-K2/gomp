@@ -1,31 +1,11 @@
 # gomp
 
-<div class="top">
-    <style>
-        .info {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-        }
-        .links{
-            padding: 4px;
-            padding-top: 0px;
-            padding-left: 12px;
-        }
-        .top {
-            display: flex;
-            justify-content: center;
-        }
-    </style>
-    <div class="info">
-        <img src="docs/assets/logo.png" alt="mascot" width="200" class="mascot"/>
-        <div class="links">
-            MPD client inspired by ncmpcpp <br>
-            builtin <b>cover-art view</b> and <b>LastFM integration.</b> <br>
-            <a href="https://aditya-K2.github.io/gomp/"> Documentation </a> |
-            <a href="https://github.com/aditya-K2/gomp/discussions">Discussion</a>
-        </div>
-    </div>
+<div class="info" align="center">
+    <br><img src="docs/assets/logo.png" alt="mascot" width="200" class="mascot"/><br>
+    MPD client inspired by ncmpcpp <br>
+    with builtin <b>cover-art view</b> and <b>LastFM integration.</b> <br>
+    <a href="https://aditya-K2.github.io/gomp/"> Documentation </a> |
+    <a href="https://github.com/aditya-K2/gomp/discussions">Discussion</a>
 </div>
 
 ----
