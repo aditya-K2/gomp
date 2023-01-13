@@ -1,11 +1,9 @@
-package views
+package ui
 
 import (
 	"strings"
 
 	"github.com/aditya-K2/gomp/client"
-	"github.com/aditya-K2/gomp/ui"
-	"github.com/aditya-K2/gomp/ui/notify"
 	"github.com/aditya-K2/gomp/utils"
 	"github.com/aditya-K2/tview"
 )
@@ -13,38 +11,62 @@ import (
 type SearchView struct {
 }
 
+func addToPlaylist(a interface{}, addAndPlay bool) {
+	switch a.(type) {
+	case [3]string:
+		{
+			b := a.([3]string)
+			if err := client.AddTitle(client.ArtistTree, b[1], b[2], b[0], addAndPlay); err != nil {
+				SendNotification(err.Error())
+			}
+		}
+	case [2]string:
+		{
+			b := a.([2]string)
+			if err := client.AddAlbum(client.ArtistTree, b[0], b[1]); err != nil {
+				SendNotification(err.Error())
+			}
+		}
+	case string:
+		{
+			b := a.(string)
+			if err := client.AddArtist(client.ArtistTree, b); err != nil {
+				SendNotification(err.Error())
+			}
+		}
+	}
+}
+
 func (s SearchView) GetViewName() string {
 	return "SearchView"
 }
 func (s SearchView) ShowChildrenContent() {
-	UI := ui.Ui
 	SearchContentSlice := client.SearchContentSlice
 	if len(client.SearchContentSlice) <= 0 || client.SearchContentSlice == nil {
-		notify.Send("No Search Results")
+		SendNotification("No Search Results")
 	} else {
-		r, _ := UI.ExpandedView.GetSelection()
-		client.AddToPlaylist(SearchContentSlice[r], true)
+		r, _ := Ui.MainS.GetSelection()
+		addToPlaylist(SearchContentSlice[r], true)
 	}
 }
 
 func (s SearchView) ShowParentContent() {
-	notify.Send("Not Allowed in this View")
+	SendNotification("Not Allowed in this View")
 	return
 }
 
 func (s SearchView) AddToPlaylist() {
-	UI := ui.Ui
 	SearchContentSlice := client.SearchContentSlice
 	if len(client.SearchContentSlice) <= 0 || client.SearchContentSlice == nil {
-		notify.Send("No Search Results")
+		SendNotification("No Search Results")
 	} else {
-		r, _ := UI.ExpandedView.GetSelection()
-		client.AddToPlaylist(SearchContentSlice[r], false)
+		r, _ := Ui.MainS.GetSelection()
+		addToPlaylist(SearchContentSlice[r], false)
 	}
 }
 
 func (p SearchView) Quit() {
-	ui.Ui.App.Stop()
+	Ui.App.Stop()
 }
 
 func (s SearchView) FocusBuffSearchView()    {}

@@ -1,12 +1,10 @@
-package views
+package ui
 
 import (
 	"fmt"
 	"time"
 
 	"github.com/aditya-K2/gomp/client"
-	"github.com/aditya-K2/gomp/ui"
-	"github.com/aditya-K2/gomp/ui/notify"
 	"github.com/aditya-K2/gomp/utils"
 	"github.com/aditya-K2/tview"
 )
@@ -21,11 +19,11 @@ func (s MostPlayedView) GetViewName() string {
 }
 func (s MostPlayedView) ShowChildrenContent() {
 	if len(s.FSlice) <= 0 || s.FSlice == nil {
-		notify.Send("No Search Results")
+		SendNotification("No Search Results")
 	} else {
-		r, _ := ui.Ui.ExpandedView.GetSelection()
+		r, _ := Ui.MainS.GetSelection()
 		if id, err := client.Conn.AddID(s.FSlice[r], -1); err != nil {
-			notify.Send(fmt.Sprintf("Couldn't Add %s to playlist", s.FSlice[r]))
+			SendNotification(fmt.Sprintf("Couldn't Add %s to playlist", s.FSlice[r]))
 		} else {
 			client.Conn.PlayID(id)
 		}
@@ -33,22 +31,21 @@ func (s MostPlayedView) ShowChildrenContent() {
 }
 
 func (s MostPlayedView) ShowParentContent() {
-	notify.Send("Not Allowed in this View")
+	SendNotification("Not Allowed in this View")
 	return
 }
 
 func (s MostPlayedView) AddToPlaylist() {
-	UI := ui.Ui
 	if len(s.FSlice) <= 0 || s.FSlice == nil {
-		notify.Send("No Search Results")
+		SendNotification("No Search Results")
 	} else {
-		r, _ := UI.ExpandedView.GetSelection()
-		client.AddToPlaylist(s.FSlice[r], false)
+		r, _ := Ui.MainS.GetSelection()
+		addToPlaylist(s.FSlice[r], false)
 	}
 }
 
 func (p MostPlayedView) Quit() {
-	ui.Ui.App.Stop()
+	Ui.App.Stop()
 }
 
 func (s MostPlayedView) FocusBuffSearchView()    {}

@@ -1,9 +1,7 @@
-package views
+package ui
 
 import (
 	"github.com/aditya-K2/gomp/client"
-	"github.com/aditya-K2/gomp/ui"
-	"github.com/aditya-K2/gomp/ui/notify"
 	"github.com/aditya-K2/gomp/utils"
 	"github.com/aditya-K2/tview"
 	"github.com/fhs/gompd/v2/mpd"
@@ -18,33 +16,31 @@ func (s PlaylistView) GetViewName() string {
 }
 
 func (p PlaylistView) ShowChildrenContent() {
-	UI := ui.Ui
 	CONN := client.Conn
-	r, _ := UI.ExpandedView.GetSelection()
+	r, _ := Ui.MainS.GetSelection()
 	if err := CONN.Play(r); err != nil {
-		notify.Send("Could Not Play the Song")
+		SendNotification("Could Not Play the Song")
 		return
 	}
 }
 
 func (s PlaylistView) ShowParentContent() {
-	notify.Send("Not Allowed in this View")
+	SendNotification("Not Allowed in this View")
 	return
 }
 func (p PlaylistView) AddToPlaylist() {}
 
 func (p PlaylistView) Quit() {
-	ui.Ui.App.Stop()
+	Ui.App.Stop()
 }
 
 func (p PlaylistView) FocusBuffSearchView() {}
 
 func (p *PlaylistView) DeleteSongFromPlaylist() {
-	UI := ui.Ui
 	CONN := client.Conn
-	r, _ := UI.ExpandedView.GetSelection()
+	r, _ := Ui.MainS.GetSelection()
 	if err := CONN.Delete(r, -1); err != nil {
-		notify.Send("Could not Remove the Song from Playlist")
+		SendNotification("Could not Remove the Song from Playlist")
 	} else {
 		if p.Playlist, err = client.Conn.PlaylistInfo(-1, -1); err != nil {
 			utils.Print("RED", "Couldn't get the current Playlist.\n")

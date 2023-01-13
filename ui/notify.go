@@ -1,11 +1,10 @@
-package notify
+package ui
 
 import (
 	"container/heap"
 	"sync"
 	"time"
 
-	"github.com/aditya-K2/gomp/ui"
 	"github.com/aditya-K2/gomp/utils"
 
 	"github.com/aditya-K2/tview"
@@ -23,7 +22,7 @@ var (
 )
 
 // Start Notification Service
-func Init() {
+func InitNotifier() {
 	for _m := maxNotifications; _m != 0; _m-- {
 		posArr = append(posArr, true)
 	}
@@ -32,7 +31,7 @@ func Init() {
 	queueRoutine()
 }
 
-/* notification Primitive */
+// notification Primitive
 type notification struct {
 	*tview.Box
 	Text     string
@@ -102,7 +101,7 @@ func (p *positionArray) Free(i int) {
 	pm.Unlock()
 }
 
-/* Get A Pointer to A Notification Struct */
+// Get A Pointer to A Notification Struct
 func newNotifcation(s string) *notification {
 	return &notification{
 		Box:      tview.NewBox(),
@@ -111,7 +110,7 @@ func newNotifcation(s string) *notification {
 	}
 }
 
-/* Draw Function for the Notification Primitive */
+// Draw Function for the Notification Primitive
 func (self *notification) Draw(screen tcell.Screen) {
 	termDetails := utils.GetWidth()
 	pos := (self.Position*3 + self.Position + 1)
@@ -131,10 +130,8 @@ func (self *notification) Draw(screen tcell.Screen) {
 		tview.AlignCenter, tcell.ColorWhite)
 }
 
-/*
-this routine checks for available position and then sends
-the notification at the top of the queue to the notificationRoutine
-*/
+// this routine checks for available position and then sends
+// the notification at the top of the queue to the notificationRoutine
 func queueRoutine() {
 	go func() {
 		for {
@@ -163,17 +160,17 @@ func notificationRoutine(s *notification) {
 				np = posArr.GetNextPosition()
 			}
 			s.Position = np
-			ui.Ui.Pages.AddPage(currentTime, s, false, true)
-			ui.Ui.App.SetFocus(ui.Ui.ExpandedView)
+			Ui.Pages.AddPage(currentTime, s, false, true)
+			Ui.App.SetFocus(Ui.MainS)
 			time.Sleep(time.Second * 1)
-			ui.Ui.Pages.RemovePage(currentTime)
+			Ui.Pages.RemovePage(currentTime)
 			posArr.Free(np)
-			ui.Ui.App.SetFocus(ui.Ui.ExpandedView)
+			Ui.App.SetFocus(Ui.MainS)
 		}()
 	}
 }
 
-func Send(text string) {
+func SendNotification(text string) {
 	go func() {
 		qm.Lock()
 		heap.Push(nQueue, newNotifcation(text))

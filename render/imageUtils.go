@@ -10,7 +10,6 @@ import (
 	"github.com/aditya-K2/gomp/client"
 	"github.com/aditya-K2/gomp/config"
 	"github.com/aditya-K2/gomp/ui"
-	"github.com/aditya-K2/gomp/ui/notify"
 	"github.com/aditya-K2/gomp/utils"
 	"github.com/dhowden/tag"
 	"github.com/nfnt/resize"
@@ -65,19 +64,19 @@ func GetImagePath(path string) string {
 				if config.Config.GetCoverArtFromLastFm {
 					downloadedImage, lFmErr := getImageFromLastFM(a[0]["artist"], a[0]["album"], imagePath)
 					if lFmErr == nil {
-						notify.Send("Image From LastFM")
+						ui.SendNotification("Image From LastFM")
 						extractedImage = downloadedImage
 					} else {
-						notify.Send(exErr.Error())
+						ui.SendNotification(exErr.Error())
 					}
 				}
 			} else {
-				notify.Send("Image Extracted Succesfully!")
+				ui.SendNotification("Image Extracted Succesfully!")
 				extractedImage = _eimg
 			}
 		}
 	} else {
-		notify.Send(fmt.Sprintf("Couldn't Get Attributes for %s", path))
+		ui.SendNotification(fmt.Sprintf("Couldn't Get Attributes for %s", path))
 	}
 	return extractedImage
 }

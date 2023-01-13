@@ -1,4 +1,4 @@
-package views
+package ui
 
 import (
 	"github.com/aditya-K2/gomp/config"

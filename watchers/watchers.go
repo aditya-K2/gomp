@@ -10,9 +10,7 @@ import (
 	"github.com/aditya-K2/gomp/database"
 	"github.com/aditya-K2/gomp/render"
 	"github.com/aditya-K2/gomp/ui"
-	"github.com/aditya-K2/gomp/ui/notify"
 	"github.com/aditya-K2/gomp/utils"
-	"github.com/aditya-K2/gomp/views"
 	"github.com/fhs/gompd/v2/mpd"
 )
 
@@ -46,7 +44,7 @@ func Init() {
 	database.Read()
 	database.Start()
 	if c, err := client.Conn.CurrentSong(); err != nil {
-		notify.Send("Couldn't get current song from MPD")
+		ui.SendNotification("Couldn't get current song from MPD")
 	} else {
 		currentSong = c
 		database.Send(currentSong, time.Second*0)
@@ -97,8 +95,8 @@ func StartRectWatcher() {
 
 func StartPlaylistWatcher() {
 	var err error
-	if views.PView.Playlist == nil {
-		if views.PView.Playlist, err = client.Conn.PlaylistInfo(-1, -1); err != nil {
+	if ui.PView.Playlist == nil {
+		if ui.PView.Playlist, err = client.Conn.PlaylistInfo(-1, -1); err != nil {
 			utils.Print("RED", "Watcher couldn't get the current Playlist.\n")
 			panic(err)
 		}
@@ -114,14 +112,14 @@ func StartPlaylistWatcher() {
 
 	go func() {
 		for err := range w.Error {
-			notify.Send(err.Error())
+			ui.SendNotification(err.Error())
 		}
 	}()
 
 	go func() {
 		for subsystem := range w.Event {
 			if subsystem == "playlist" {
-				if views.PView.Playlist, err = client.Conn.PlaylistInfo(-1, -1); err != nil {
+				if ui.PView.Playlist, err = client.Conn.PlaylistInfo(-1, -1); err != nil {
 					utils.Print("RED", "Watcher couldn't get the current Playlist.\n")
 					panic(err)
 				}
@@ -144,14 +142,14 @@ func StartPlaylistWatcher() {
 }
 
 func StartMPListener() {
-	views.MPView.FSlice = []string{}
+	ui.MPView.FSlice = []string{}
 	mch := make(chan database.SubPayload)
 	database.Subscribe(mch)
 	go func() {
 		for {
 			sp := <-mch
-			views.MPView.FMap = sp.Fmap
-			views.MPView.FSlice = sp.Slice
+			ui.MPView.FMap = sp.Fmap
+			ui.MPView.FSlice = sp.Slice
 		}
 	}()
 }

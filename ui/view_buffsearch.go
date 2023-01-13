@@ -1,11 +1,9 @@
-package views
+package ui
 
 import (
 	"fmt"
 
 	"github.com/aditya-K2/gomp/client"
-	"github.com/aditya-K2/gomp/ui"
-	"github.com/aditya-K2/gomp/ui/notify"
 	"github.com/aditya-K2/gomp/utils"
 	"github.com/aditya-K2/tview"
 )
@@ -18,23 +16,23 @@ func (s BuffSearchView) GetViewName() string {
 }
 
 func (s BuffSearchView) ShowChildrenContent() {
-	UI := ui.Ui
+	UI := Ui
 	CONN := client.Conn
-	r, _ := UI.ExpandedView.GetSelection()
+	r, _ := UI.MainS.GetSelection()
 	SetCurrentView(FView)
 	if len(client.DirTree.Children[client.Matches[r].Index].Children) == 0 {
 		if id, err := CONN.AddID(client.DirTree.Children[client.Matches[r].Index].AbsolutePath, -1); err != nil {
-			notify.Send(fmt.Sprintf("Could Not add the Song %s to the Playlist",
+			SendNotification(fmt.Sprintf("Could Not add the Song %s to the Playlist",
 				client.DirTree.Children[client.Matches[r].Index].AbsolutePath))
 		} else {
 			if err := CONN.PlayID(id); err != nil {
-				notify.Send("Could not Play the Song")
+				SendNotification("Could not Play the Song")
 			}
 		}
 	} else {
 		PosStack.Push(client.Matches[r].Index)
 		client.DirTree = &client.DirTree.Children[client.Matches[r].Index]
-		FView.Update(UI.ExpandedView)
+		FView.Update(UI.MainS)
 	}
 	UI.SearchBar.SetText("")
 	// Resetting client.Matches
@@ -42,34 +40,33 @@ func (s BuffSearchView) ShowChildrenContent() {
 }
 
 func (s BuffSearchView) ShowParentContent() {
-	notify.Send("Not Allowed in this View")
+	SendNotification("Not Allowed in this View")
 	return
 }
 
 func (s BuffSearchView) AddToPlaylist() {
-	UI := ui.Ui
+	UI := Ui
 	CONN := client.Conn
-	r, _ := UI.ExpandedView.GetSelection()
+	r, _ := UI.MainS.GetSelection()
 	if err := CONN.Add(client.DirTree.Children[client.Matches[r].Index].AbsolutePath); err != nil {
-		notify.Send(fmt.Sprintf("Could Not Add URI %s to the Playlist",
+		SendNotification(fmt.Sprintf("Could Not Add URI %s to the Playlist",
 			client.DirTree.Children[client.Matches[r].Index].Path))
 	} else {
 		SetCurrentView(FView)
-		notify.Send(fmt.Sprintf("URI Added %s to the Playlist",
+		SendNotification(fmt.Sprintf("URI Added %s to the Playlist",
 			client.DirTree.Children[client.Matches[r].Index].Path))
 		SetCurrentView(BuffSView)
 	}
 }
 
 func (s BuffSearchView) Quit() {
-	UI := ui.Ui
 	SetCurrentView(FView)
-	UI.SearchBar.SetText("")
+	Ui.SearchBar.SetText("")
 	client.Matches = nil
 }
 
 func (f BuffSearchView) FocusBuffSearchView() {
-	UI := ui.Ui
+	UI := Ui
 	SetCurrentView(BuffSView)
 	UI.App.SetFocus(UI.SearchBar)
 }

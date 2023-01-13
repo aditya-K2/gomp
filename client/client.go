@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/aditya-K2/fuzzy"
-	"github.com/aditya-K2/gomp/ui/notify"
 	"github.com/fhs/gompd/v2/mpd"
 
 	"strings"
@@ -18,6 +17,7 @@ var (
 	DirTree            *FileNode
 	Matches            fuzzy.Matches
 	SearchContentSlice []interface{}
+	EmptySearchErr     = errors.New("empty Search String Provided")
 )
 
 func TogglePlayBack() error {
@@ -36,8 +36,7 @@ func TogglePlayBack() error {
 func GenerateContentSlice(selectedSuggestion string) ([]interface{}, error) {
 	var ContentSlice []interface{}
 	if strings.TrimRight(selectedSuggestion, " ") == "" {
-		notify.Send("Empty Search!")
-		return nil, errors.New("empty Search String Provided")
+		return nil, EmptySearchErr
 	}
 	if _, ok := ArtistTree[selectedSuggestion]; ok {
 		ContentSlice = append(ContentSlice, WHITE_AND_BOLD+"Artists :")
@@ -109,21 +108,21 @@ func PrintArtistTree(a map[string]map[string]map[string]string) {
 	}
 }
 
-//  Adds All tracks from a specified album to a playlist
-func AddAlbum(a map[string]map[string]map[string]string, alb string, artist string) {
+// Adds All tracks from a specified album to a playlist
+func AddAlbum(a map[string]map[string]map[string]string, alb string, artist string) error {
 	clist := Conn.BeginCommandList()
 	for _, v := range a[artist][alb] {
 		clist.Add(v)
 	}
 	if err := clist.End(); err != nil {
-		notify.Send("Could Not Add Album : " + alb)
+		return errors.New("Could Not Add Album : " + alb)
 	} else {
-		notify.Send("Album Added: " + alb)
+		return nil
 	}
 }
 
-//  Adds All tracks from a specified artist to a playlist
-func AddArtist(a map[string]map[string]map[string]string, artist string) {
+// Adds All tracks from a specified artist to a playlist
+func AddArtist(a map[string]map[string]map[string]string, artist string) error {
 	clist := Conn.BeginCommandList()
 	if val, ok := a[artist]; ok {
 		for _, v := range val {
@@ -132,32 +131,37 @@ func AddArtist(a map[string]map[string]map[string]string, artist string) {
 			}
 		}
 		if err := clist.End(); err != nil {
-			notify.Send("Could Not Add Artist : " + artist)
+			return errors.New("Could Not Add Artist : " + artist)
 		} else {
-			notify.Send("Artist Added: " + artist)
+			return nil
 		}
+	} else {
+		return errors.New("Could Not Add Artist : " + artist)
 	}
 }
 
-//  Adds Specified Track to the Playlist
-func AddTitle(a map[string]map[string]map[string]string, artist, alb, track string, addAndPlay bool) {
+// Adds Specified Track to the Playlist
+func AddTitle(a map[string]map[string]map[string]string, artist, alb, track string, addAndPlay bool) error {
 	if addAndPlay {
 		id, err := Conn.AddID(a[artist][alb][track], -1)
 		Conn.PlayID(id)
 		if err != nil {
-			notify.Send("Could Not Add Track : " + track)
+			return errors.New("Could Not Add Track : " + track)
 		}
 	} else {
 		err := Conn.Add(a[artist][alb][track])
 		if err != nil {
-			notify.Send("Could Not Add Track : " + track)
+			return errors.New("Could Not Add Track : " + track)
 		}
 	}
-	notify.Send("Track Added : " + track)
+	return nil
 }
 
-/* Querys the Artist Tree for a track and returns a TrackMap (i.e [3]string{artist, album, track} -> Path) which will help us
-to add tracks to the playlist */
+/*
+	Querys the Artist Tree for a track and returns a TrackMap (i.e [3]string{artist, album, track} -> Path) which will help us
+
+to add tracks to the playlist
+*/
 func QueryArtistTreeForTracks(a map[string]map[string]map[string]string, track string) map[[3]string]string {
 	TrackMap := make(map[[3]string]string)
 	for artistName, albumMap := range a {
@@ -172,8 +176,8 @@ func QueryArtistTreeForTracks(a map[string]map[string]map[string]string, track s
 	return TrackMap
 }
 
-/* Querys the Artist Tree for an album and returns a AlbumMap (i.e [3]string{artist, album } ->[]Path of songs in the album)
-which will help us to add all album tracks to the playlist */
+// Querys the Artist Tree for an album and returns a AlbumMap (i.e [3]string{artist, album } ->[]Path of songs in the album)
+// which will help us to add all album tracks to the playlist
 func QueryArtistTreeForAlbums(a map[string]map[string]map[string]string, album string) map[[2]string][][2]string {
 	AlbumMap := make(map[[2]string][][2]string)
 	for artistName, albumMap := range a {
@@ -188,24 +192,4 @@ func QueryArtistTreeForAlbums(a map[string]map[string]map[string]string, album s
 		}
 	}
 	return AlbumMap
-}
-
-func AddToPlaylist(a interface{}, addAndPlay bool) {
-	switch a.(type) {
-	case [3]string:
-		{
-			b := a.([3]string)
-			AddTitle(ArtistTree, b[1], b[2], b[0], addAndPlay)
-		}
-	case [2]string:
-		{
-			b := a.([2]string)
-			AddAlbum(ArtistTree, b[0], b[1])
-		}
-	case string:
-		{
-			b := a.(string)
-			AddArtist(ArtistTree, b)
-		}
-	}
 }
