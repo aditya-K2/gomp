@@ -14,7 +14,7 @@ var (
 	UserCacheDir, cacheErr = os.UserCacheDir()
 	Config                 = NewConfigS()
 	OnConfigChange         func()
-	DefaultImageLink       = "https://go.dev/blog/gopher/plush.jpg"
+	DefaultImageLink       = "https://raw.githubusercontent.com/aditya-K2/gomp/master/docs/assets/logo.png"
 	DefaultImagePath       = UserCacheDir + "/gomp_default.jpg"
 )
 
