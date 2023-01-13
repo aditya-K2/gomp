@@ -11,7 +11,7 @@ type PlaylistView struct {
 	Playlist []mpd.Attrs
 }
 
-func (s PlaylistView) GetViewName() string {
+func (s PlaylistView) Name() string {
 	return "PlaylistView"
 }
 

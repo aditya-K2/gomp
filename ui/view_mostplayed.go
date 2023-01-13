@@ -14,7 +14,7 @@ type MostPlayedView struct {
 	FSlice []string
 }
 
-func (s MostPlayedView) GetViewName() string {
+func (s MostPlayedView) Name() string {
 	return "MostPlayedView"
 }
 func (s MostPlayedView) ShowChildrenContent() {

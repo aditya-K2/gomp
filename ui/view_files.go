@@ -16,7 +16,7 @@ var (
 type FileView struct {
 }
 
-func (f FileView) GetViewName() string {
+func (f FileView) Name() string {
 	return "FileView"
 }
 

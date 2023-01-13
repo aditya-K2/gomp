@@ -24,7 +24,7 @@ type View interface {
 	Quit()
 	FocusBuffSearchView()
 	DeleteSongFromPlaylist()
-	GetViewName() string
+	Name() string
 }
 
 func SetCurrentView(v View) {

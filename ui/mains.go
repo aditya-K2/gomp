@@ -29,14 +29,14 @@ func NewMainS() *tview.Table {
 			FuncMap[val]()
 			return nil
 		} else {
-			if GetCurrentView().GetViewName() == "PlaylistView" {
+			if GetCurrentView().Name() == "PlaylistView" {
 				if e.Rune() == 'j' || e.Rune() == 'k' {
 					if len(PView.Playlist) == 0 {
 						SendNotification("Empty Playlist")
 						return nil
 					}
 				}
-			} else if GetCurrentView().GetViewName() == "SearchView" {
+			} else if GetCurrentView().Name() == "SearchView" {
 				if e.Rune() == 'j' || e.Rune() == 'k' {
 					if client.SearchContentSlice == nil || len(client.SearchContentSlice) == 0 {
 						SendNotification("No Search Results")
@@ -50,7 +50,7 @@ func NewMainS() *tview.Table {
 
 	mains.SetDoneFunc(func(e tcell.Key) {
 		if e == tcell.KeyEscape {
-			if GetCurrentView().GetViewName() == "BuffSearchView" {
+			if GetCurrentView().Name() == "BuffSearchView" {
 				SetCurrentView(FView)
 				Ui.SearchBar.SetText("")
 				client.Matches = nil

@@ -38,7 +38,7 @@ func NewSearchBar() *tview.InputField {
 		if GetCurrentView() == nil {
 			return []string{}
 		}
-		if GetCurrentView().GetViewName() == "BuffSearchView" {
+		if GetCurrentView().Name() == "BuffSearchView" {
 			return nil
 		} else {
 			if c != "" && c != " " && c != "  " {
@@ -62,7 +62,7 @@ func NewSearchBar() *tview.InputField {
 		var err error
 		if e == tcell.KeyEnter {
 			Ui.MainS.Select(0, 0)
-			if GetCurrentView().GetViewName() == "BuffSearchView" {
+			if GetCurrentView().Name() == "BuffSearchView" {
 				Ui.App.SetFocus(Ui.MainS)
 			} else {
 				SetCurrentView(SView)
@@ -78,7 +78,7 @@ func NewSearchBar() *tview.InputField {
 			}
 		}
 		if e == tcell.KeyEscape {
-			if GetCurrentView().GetViewName() == "BuffSearchView" {
+			if GetCurrentView().Name() == "BuffSearchView" {
 				client.Matches = nil
 			}
 			searchbar.SetText("")
@@ -88,7 +88,7 @@ func NewSearchBar() *tview.InputField {
 	})
 
 	searchbar.SetChangedFunc(func(text string) {
-		if GetCurrentView().GetViewName() == "BuffSearchView" {
+		if GetCurrentView().Name() == "BuffSearchView" {
 			var f client.FileNodes = client.DirTree.Children
 			client.Matches = fuzzy.FindFrom(text, f)
 			BuffSView.Update(Ui.MainS)

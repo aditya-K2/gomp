@@ -11,7 +11,7 @@ import (
 type BuffSearchView struct {
 }
 
-func (s BuffSearchView) GetViewName() string {
+func (s BuffSearchView) Name() string {
 	return "BuffSearchView"
 }
 

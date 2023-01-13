@@ -47,7 +47,7 @@ func addToPlaylist(a interface{}, addAndPlay bool) {
 	}
 }
 
-func (s SearchView) GetViewName() string {
+func (s SearchView) Name() string {
 	return "SearchView"
 }
 func (s SearchView) ShowChildrenContent() {
