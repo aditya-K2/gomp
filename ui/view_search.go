@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/aditya-K2/gomp/client"
@@ -18,6 +19,9 @@ func addToPlaylist(a interface{}, addAndPlay bool) {
 			b := a.([3]string)
 			if err := client.AddTitle(client.ArtistTree, b[1], b[2], b[0], addAndPlay); err != nil {
 				SendNotification(err.Error())
+			} else {
+				SendNotification(fmt.Sprintf(
+					"%s Added Succesfully!", b[0]))
 			}
 		}
 	case [2]string:
@@ -25,6 +29,9 @@ func addToPlaylist(a interface{}, addAndPlay bool) {
 			b := a.([2]string)
 			if err := client.AddAlbum(client.ArtistTree, b[0], b[1]); err != nil {
 				SendNotification(err.Error())
+			} else {
+				SendNotification(fmt.Sprintf(
+					"%s Added Succesfully!", b[0]))
 			}
 		}
 	case string:
@@ -32,6 +39,9 @@ func addToPlaylist(a interface{}, addAndPlay bool) {
 			b := a.(string)
 			if err := client.AddArtist(client.ArtistTree, b); err != nil {
 				SendNotification(err.Error())
+			} else {
+				SendNotification(fmt.Sprintf(
+					"%s Added Succesfully!", b))
 			}
 		}
 	}
