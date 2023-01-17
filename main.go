@@ -7,7 +7,6 @@ import (
 	"github.com/aditya-K2/gomp/cache"
 	"github.com/aditya-K2/gomp/client"
 	"github.com/aditya-K2/gomp/config"
-	"github.com/aditya-K2/gomp/database"
 	"github.com/aditya-K2/gomp/ui"
 	"github.com/aditya-K2/gomp/utils"
 	"github.com/aditya-K2/gomp/watchers"
@@ -51,13 +50,27 @@ func main() {
 
 	// Generating the Directory Tree for File Navigation.
 
-	if ArtistTree, err := client.GenerateArtistTree(); err != nil {
+	var err error
+	if err = client.GenerateArtistMap(); err != nil {
 		utils.Print("RED", "Could Not Generate the ArtistTree\n")
 		utils.Print("GREEN", "Make Sure You Mention the Correct MPD Port in the config file.\n")
 		panic(err)
 	} else {
+		getContent := func() []string {
+			var p []string
+			for k2, v := range client.ArtistM {
+				p = append(p, k2)
+				for k1, v1 := range v {
+					p = append(p, k1)
+					for k := range v1 {
+						p = append(p, k)
+					}
+				}
+			}
+			return p
+		}
 		// Used for Fuzzy Searching
-		ArtistTreeContent := utils.ConvertToArray(ArtistTree)
+		ArtistTreeContent := getContent()
 		ui.SetArtistTreeContent(ArtistTreeContent)
 	}
 
@@ -68,7 +81,6 @@ func main() {
 	watchers.StartPlaylistWatcher()
 	watchers.StartMPListener()
 	watchers.StartRectWatcher()
-	database.Publish()
 
 	ui.SetCurrentView(&ui.PView)
 

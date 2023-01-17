@@ -77,20 +77,6 @@ func InsertAt(inputString, stringTobeInserted string, index int) string {
 	return s
 }
 
-func ConvertToArray(ArtistTree map[string]map[string]map[string]string) []string {
-	var p []string
-	for k2, v := range ArtistTree {
-		p = append(p, k2)
-		for k1, v1 := range v {
-			p = append(p, k1)
-			for k := range v1 {
-				p = append(p, k)
-			}
-		}
-	}
-	return p
-}
-
 func FormatString(a interface{}) string {
 	if a == "play" {
 		return "Playing"

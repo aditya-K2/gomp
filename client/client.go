@@ -2,7 +2,6 @@ package client
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/aditya-K2/fuzzy"
 	"github.com/fhs/gompd/v2/mpd"
@@ -12,7 +11,6 @@ import (
 
 var (
 	Conn               *mpd.Client
-	ArtistTree         map[string]map[string]map[string]string
 	WHITE_AND_BOLD     string = "[white::b]"
 	DirTree            *FileNode
 	Matches            fuzzy.Matches
@@ -38,21 +36,21 @@ func GenerateContentSlice(selectedSuggestion string) ([]interface{}, error) {
 	if strings.TrimRight(selectedSuggestion, " ") == "" {
 		return nil, EmptySearchErr
 	}
-	if _, ok := ArtistTree[selectedSuggestion]; ok {
+	if _, ok := ArtistM[selectedSuggestion]; ok {
 		ContentSlice = append(ContentSlice, WHITE_AND_BOLD+"Artists :")
 		ContentSlice = append(ContentSlice, selectedSuggestion)
 		ContentSlice = append(ContentSlice, WHITE_AND_BOLD+"Artist Albums :")
-		for albumName := range ArtistTree[selectedSuggestion] {
+		for albumName := range ArtistM[selectedSuggestion] {
 			ContentSlice = append(ContentSlice, [2]string{albumName, selectedSuggestion})
 		}
 		ContentSlice = append(ContentSlice, WHITE_AND_BOLD+"Artist Tracks :")
-		for albumName, trackList := range ArtistTree[selectedSuggestion] {
+		for albumName, trackList := range ArtistM[selectedSuggestion] {
 			for track := range trackList {
 				ContentSlice = append(ContentSlice, [3]string{track, selectedSuggestion, albumName})
 			}
 		}
 	}
-	if aMap := QueryArtistTreeForAlbums(ArtistTree, selectedSuggestion); len(aMap) != 0 {
+	if aMap := QueryAlbum(selectedSuggestion); len(aMap) != 0 {
 		ContentSlice = append(ContentSlice, WHITE_AND_BOLD+"Albums :")
 		for mSlice := range aMap {
 			ContentSlice = append(ContentSlice, mSlice)
@@ -64,7 +62,7 @@ func GenerateContentSlice(selectedSuggestion string) ([]interface{}, error) {
 			}
 		}
 	}
-	if tMap := QueryArtistTreeForTracks(ArtistTree, selectedSuggestion); len(tMap) != 0 {
+	if tMap := QueryTitle(selectedSuggestion); len(tMap) != 0 {
 		ContentSlice = append(ContentSlice, WHITE_AND_BOLD+"Tracks :")
 		for mSlice := range tMap {
 			ContentSlice = append(ContentSlice, mSlice)
@@ -73,46 +71,11 @@ func GenerateContentSlice(selectedSuggestion string) ([]interface{}, error) {
 	return ContentSlice, nil
 }
 
-// GenerateArtistTree Artist Tree is a map of Artist to their Album Map
-// Album Tree is a map of the tracks in that particular album.
-func GenerateArtistTree() (map[string]map[string]map[string]string, error) {
-	ArtistTree = make(map[string]map[string]map[string]string)
-	AllInfo, err := Conn.ListAllInfo("/")
-	if err == nil {
-		for _, i := range AllInfo {
-			if _, ArtistExists := ArtistTree[i["Artist"]]; !ArtistExists {
-				ArtistTree[i["Artist"]] = make(map[string]map[string]string)
-			}
-			if _, AlbumExists := ArtistTree[i["Artist"]][i["Album"]]; !AlbumExists {
-				ArtistTree[i["Artist"]][i["Album"]] = make(map[string]string)
-			}
-			if _, TitleExists := ArtistTree[i["Artist"]][i["Album"]][i["Title"]]; !TitleExists {
-				ArtistTree[i["Artist"]][i["Album"]][i["Title"]] = i["file"]
-			}
-		}
-		return ArtistTree, nil
-	} else {
-		return nil, errors.New("Could Not Generate Artist Tree")
-	}
-}
-
-func PrintArtistTree(a map[string]map[string]map[string]string) {
-	for k, v := range a {
-		fmt.Println(k, " : ")
-		for k1, v1 := range v {
-			fmt.Println("\t|---", k1, " : ")
-			for k2 := range v1 {
-				fmt.Println("\t\t|---", k2)
-			}
-		}
-	}
-}
-
 // Adds All tracks from a specified album to a playlist
-func AddAlbum(a map[string]map[string]map[string]string, alb string, artist string) error {
+func AddAlbum(alb string, artist string) error {
 	clist := Conn.BeginCommandList()
-	for _, v := range a[artist][alb] {
-		clist.Add(v)
+	for _, fpath := range ArtistM[artist][alb] {
+		clist.Add(fpath)
 	}
 	if err := clist.End(); err != nil {
 		return errors.New("Could Not Add Album : " + alb)
@@ -122,12 +85,12 @@ func AddAlbum(a map[string]map[string]map[string]string, alb string, artist stri
 }
 
 // Adds All tracks from a specified artist to a playlist
-func AddArtist(a map[string]map[string]map[string]string, artist string) error {
+func AddArtist(artist string) error {
 	clist := Conn.BeginCommandList()
-	if val, ok := a[artist]; ok {
+	if val, ok := ArtistM[artist]; ok {
 		for _, v := range val {
-			for _, path := range v {
-				clist.Add(path)
+			for _, fpath := range v {
+				clist.Add(fpath)
 			}
 		}
 		if err := clist.End(); err != nil {
@@ -141,55 +104,19 @@ func AddArtist(a map[string]map[string]map[string]string, artist string) error {
 }
 
 // Adds Specified Track to the Playlist
-func AddTitle(a map[string]map[string]map[string]string, artist, alb, track string, addAndPlay bool) error {
+func AddTitle(artist, alb, track string, addAndPlay bool) error {
 	if addAndPlay {
-		id, err := Conn.AddID(a[artist][alb][track], -1)
-		Conn.PlayID(id)
-		if err != nil {
+		if id, err := Conn.AddID(ArtistM[artist][alb][track], -1); err != nil {
 			return errors.New("Could Not Add Track : " + track)
+		} else {
+			if _err := Conn.PlayID(id); _err != nil {
+				return errors.New("Could Not Play Track : " + track)
+			}
 		}
 	} else {
-		err := Conn.Add(a[artist][alb][track])
-		if err != nil {
+		if err := Conn.Add(ArtistM[artist][alb][track]); err != nil {
 			return errors.New("Could Not Add Track : " + track)
 		}
 	}
 	return nil
-}
-
-/*
-	Querys the Artist Tree for a track and returns a TrackMap (i.e [3]string{artist, album, track} -> Path) which will help us
-
-to add tracks to the playlist
-*/
-func QueryArtistTreeForTracks(a map[string]map[string]map[string]string, track string) map[[3]string]string {
-	TrackMap := make(map[[3]string]string)
-	for artistName, albumMap := range a {
-		for albumName, trackList := range albumMap {
-			for trackName, path := range trackList {
-				if trackName == track {
-					TrackMap[[3]string{trackName, artistName, albumName}] = path
-				}
-			}
-		}
-	}
-	return TrackMap
-}
-
-// Querys the Artist Tree for an album and returns a AlbumMap (i.e [3]string{artist, album } ->[]Path of songs in the album)
-// which will help us to add all album tracks to the playlist
-func QueryArtistTreeForAlbums(a map[string]map[string]map[string]string, album string) map[[2]string][][2]string {
-	AlbumMap := make(map[[2]string][][2]string)
-	for artistName, albumMap := range a {
-		for albumName, trackList := range albumMap {
-			if albumName == album {
-				var pathSlice [][2]string
-				for trackName, path := range trackList {
-					pathSlice = append(pathSlice, [2]string{trackName, path})
-				}
-				AlbumMap[[2]string{albumName, artistName}] = pathSlice
-			}
-		}
-	}
-	return AlbumMap
 }
