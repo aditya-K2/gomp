@@ -67,13 +67,13 @@ func GenerateArtistMap() error {
 			if title == "" {
 				title = i["file"]
 			}
-			if _, ArtistExists := ArtistM[artist]; !ArtistExists {
+			if _, ok := ArtistM[artist]; !ok {
 				ArtistM[artist] = make(map[string]Titles)
 			}
-			if _, AlbumExists := ArtistM[artist][album]; !AlbumExists {
+			if _, ok := ArtistM[artist][album]; !ok {
 				ArtistM[artist][album] = make(map[string]string)
 			}
-			if _, TitleExists := ArtistM[artist][album][title]; !TitleExists {
+			if _, ok := ArtistM[artist][album][title]; !ok {
 				ArtistM[artist][album][title] = i["file"]
 			}
 		}

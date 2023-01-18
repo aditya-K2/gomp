@@ -32,43 +32,43 @@ func TogglePlayBack() error {
 // because the random nature of maps as they return values randomly hence the draw function keeps changing the order
 // in which the results appear.
 func GenerateContentSlice(selectedSuggestion string) ([]interface{}, error) {
-	var ContentSlice []interface{}
+	var _content []interface{}
 	if strings.TrimRight(selectedSuggestion, " ") == "" {
 		return nil, EmptySearchErr
 	}
 	if _, ok := ArtistM[selectedSuggestion]; ok {
-		ContentSlice = append(ContentSlice, WHITE_AND_BOLD+"Artists :")
-		ContentSlice = append(ContentSlice, selectedSuggestion)
-		ContentSlice = append(ContentSlice, WHITE_AND_BOLD+"Artist Albums :")
+		_content = append(_content, WHITE_AND_BOLD+"Artists :")
+		_content = append(_content, selectedSuggestion)
+		_content = append(_content, WHITE_AND_BOLD+"Artist Albums :")
 		for albumName := range ArtistM[selectedSuggestion] {
-			ContentSlice = append(ContentSlice, [2]string{albumName, selectedSuggestion})
+			_content = append(_content, [2]string{albumName, selectedSuggestion})
 		}
-		ContentSlice = append(ContentSlice, WHITE_AND_BOLD+"Artist Tracks :")
+		_content = append(_content, WHITE_AND_BOLD+"Artist Tracks :")
 		for albumName, trackList := range ArtistM[selectedSuggestion] {
 			for track := range trackList {
-				ContentSlice = append(ContentSlice, [3]string{track, selectedSuggestion, albumName})
+				_content = append(_content, [3]string{track, selectedSuggestion, albumName})
 			}
 		}
 	}
 	if aMap := QueryAlbum(selectedSuggestion); len(aMap) != 0 {
-		ContentSlice = append(ContentSlice, WHITE_AND_BOLD+"Albums :")
+		_content = append(_content, WHITE_AND_BOLD+"Albums :")
 		for mSlice := range aMap {
-			ContentSlice = append(ContentSlice, mSlice)
+			_content = append(_content, mSlice)
 		}
-		ContentSlice = append(ContentSlice, WHITE_AND_BOLD+"Album Tracks :")
+		_content = append(_content, WHITE_AND_BOLD+"Album Tracks :")
 		for a, pathSlice := range aMap {
 			for _, path := range pathSlice {
-				ContentSlice = append(ContentSlice, [3]string{path[0], a[1], a[0]})
+				_content = append(_content, [3]string{path[0], a[1], a[0]})
 			}
 		}
 	}
 	if tMap := QueryTitle(selectedSuggestion); len(tMap) != 0 {
-		ContentSlice = append(ContentSlice, WHITE_AND_BOLD+"Tracks :")
+		_content = append(_content, WHITE_AND_BOLD+"Tracks :")
 		for mSlice := range tMap {
-			ContentSlice = append(ContentSlice, mSlice)
+			_content = append(_content, mSlice)
 		}
 	}
-	return ContentSlice, nil
+	return _content, nil
 }
 
 // Adds All tracks from a specified album to a playlist

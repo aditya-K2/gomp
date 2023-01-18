@@ -40,6 +40,7 @@ func main() {
 	ui.Ui = ui.NewApplication()
 	ui.Ui.ProgressBar.SetProgressFunc(watchers.ProgressFunction)
 
+	// Generating the Directory Tree for File Navigation.
 	if fileMap, err := Conn.ListAllInfo("/"); err != nil {
 		utils.Print("RED", "Could Not Generate the File Map\n")
 		utils.Print("GREEN", "Make Sure You Mention the Correct MPD Port in the config file.\n")
@@ -48,10 +49,7 @@ func main() {
 		client.DirTree = client.GenerateDirectoryTree(fileMap)
 	}
 
-	// Generating the Directory Tree for File Navigation.
-
-	var err error
-	if err = client.GenerateArtistMap(); err != nil {
+	if err := client.GenerateArtistMap(); err != nil {
 		utils.Print("RED", "Could Not Generate the ArtistTree\n")
 		utils.Print("GREEN", "Make Sure You Mention the Correct MPD Port in the config file.\n")
 		panic(err)
@@ -76,8 +74,6 @@ func main() {
 
 	ui.InitNotifier()
 
-	// This Function Is Responsible for Changing the Focus it uses the Focus Map and Based on it Chooses
-	// the Draw Function
 	watchers.StartPlaylistWatcher()
 	watchers.StartMPListener()
 	watchers.StartRectWatcher()
@@ -99,6 +95,5 @@ func main() {
 	if err := ui.Ui.App.Run(); err != nil {
 		panic(err)
 	}
-
 	defer watchers.DBCheck()
 }
