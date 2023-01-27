@@ -84,15 +84,6 @@ type ConfigS struct {
 	// ```
 	RedrawInterval int `mapstructure:"REDRAW_INTERVAL"`
 
-	// ## Database Path
-	//
-	// The path where the database of playtime of all the songs is stored.
-	//
-	// ```yml
-	// DB_PATH : "~/.cache/gompDB"
-	// ```
-	DBPath string `mapstructure:"DB_PATH"`
-
 	// ## MPD Port
 	// This is the port where your Music Player Daemon Is Running.
 	//
@@ -227,7 +218,6 @@ func NewConfigS() *ConfigS {
 		CacheDir:              utils.CheckDirectoryFmt(UserCacheDir),
 		SeekOffset:            1,
 		RedrawInterval:        500,
-		DBPath:                (UserCacheDir + "/gompDB"),
 		Colors:                NewColors(),
 		GetCoverArtFromLastFm: false,
 	}

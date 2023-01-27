@@ -13,7 +13,6 @@ var (
 	SView       SearchView
 	FView       FileView
 	PView       PlaylistView
-	MPView      MostPlayedView
 )
 
 type View interface {

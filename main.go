@@ -75,7 +75,6 @@ func main() {
 	ui.InitNotifier()
 
 	watchers.StartPlaylistWatcher()
-	watchers.StartMPListener()
 	watchers.StartRectWatcher()
 
 	ui.SetCurrentView(&ui.PView)
@@ -95,5 +94,4 @@ func main() {
 	if err := ui.Ui.App.Run(); err != nil {
 		panic(err)
 	}
-	defer watchers.DBCheck()
 }

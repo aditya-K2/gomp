@@ -121,11 +121,6 @@ func GenerateFuncMap(Conn *mpd.Client) map[string]func() {
 			Ui.Navbar.Select(0, 0)
 			PView.Update(Ui.MainS)
 		},
-		"navigateToMostPlayed": func() {
-			SetCurrentView(&MPView)
-			Ui.Navbar.Select(2, 0)
-			MPView.Update(Ui.MainS)
-		},
 		"navigateToSearch": func() {
 			SetCurrentView(SView)
 			Ui.Navbar.Select(3, 0)

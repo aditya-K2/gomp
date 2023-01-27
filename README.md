@@ -14,7 +14,6 @@
 
 # Features
 
-- **Functionality to Sort out most played songs**
 - **Live Config Changes**
 - **Cover Art View**
 - **LastFM Integration** *(Cover Art)*

@@ -7,7 +7,6 @@ import (
 
 	"github.com/aditya-K2/gomp/client"
 	"github.com/aditya-K2/gomp/config"
-	"github.com/aditya-K2/gomp/database"
 	"github.com/aditya-K2/gomp/render"
 	"github.com/aditya-K2/gomp/ui"
 	"github.com/aditya-K2/gomp/utils"
@@ -17,7 +16,6 @@ import (
 var (
 	currentSong mpd.Attrs
 	start       bool = true
-	ctime       time.Time
 	status      mpd.Attrs
 )
 
@@ -25,32 +23,14 @@ func OnConfigChange() {
 	render.DrawCover(currentSong, false)
 }
 
-func Skip() bool {
-	skip := false
-	if _status, err := client.Conn.Status(); err != nil {
-		skip = true
-	} else {
-		if status["state"] == "pause" && _status["state"] == "play" {
-			skip = true
-		}
-		status = _status
-	}
-	return skip
-}
-
 func Init() {
 	config.OnConfigChange = OnConfigChange
-	database.SetDB(config.Config.DBPath)
-	database.Read()
-	database.Start()
 	if c, err := client.Conn.CurrentSong(); err != nil {
 		ui.SendNotification("Couldn't get current song from MPD")
 	} else {
 		currentSong = c
-		database.Send(currentSong, time.Second*0)
 	}
 	render.Rendr = render.NewRenderer()
-	ctime = time.Now()
 }
 func StartRectWatcher() {
 	redrawInterval := config.Config.RedrawInterval
@@ -128,28 +108,10 @@ func StartPlaylistWatcher() {
 					utils.Print("RED", "Watcher couldn't get the current Playlist.\n")
 					panic(err)
 				} else {
-					_ctime := time.Now()
-					if !Skip() {
-						database.Send(currentSong, _ctime.Sub(ctime))
-					}
-					ctime = _ctime
 					currentSong = c
 					render.DrawCover(c, false)
 				}
 			}
-		}
-	}()
-}
-
-func StartMPListener() {
-	ui.MPView.FSlice = []string{}
-	mch := make(chan database.SubPayload)
-	database.Subscribe(mch)
-	go func() {
-		for {
-			sp := <-mch
-			ui.MPView.FMap = sp.Fmap
-			ui.MPView.FSlice = sp.Slice
 		}
 	}()
 }
@@ -185,9 +147,4 @@ func ProgressFunction() (string, string, string, float64) {
 		percentage = 0
 	}
 	return song, top, text, percentage
-}
-
-func DBCheck() {
-	database.Add(currentSong["file"], time.Now().Sub(ctime))
-	database.Write()
 }
