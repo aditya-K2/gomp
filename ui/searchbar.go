@@ -73,7 +73,7 @@ func NewSearchBar() *tview.InputField {
 				} else {
 					searchbar.SetText("")
 					Ui.App.SetFocus(Ui.MainS)
-					Ui.Navbar.Select(3, 0)
+					Ui.Navbar.Select(2, 0)
 				}
 			}
 		}

@@ -10,7 +10,7 @@
 
 ----
 
-![Sep11(Sun)11:2026PM](https://user-images.githubusercontent.com/51816057/189541853-282716f1-0515-4ee6-a19a-4989b9de5daf.png)
+![Cover](./docs/assets/readme.png)
 
 # Features
 
