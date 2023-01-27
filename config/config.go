@@ -47,7 +47,6 @@ func ReadConfig() {
 		Config.DefaultImagePath = utils.ExpandHomeDir(Config.DefaultImagePath)
 		Config.CacheDir = utils.ExpandHomeDir(Config.CacheDir)
 		Config.NetworkAddress = utils.ExpandHomeDir(Config.NetworkAddress)
-		Config.DBPath = utils.ExpandHomeDir(Config.DBPath)
 	}
 
 	viper.OnConfigChange(func(e fsnotify.Event) {

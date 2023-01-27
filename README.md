@@ -21,7 +21,6 @@
 
 # Roadmap
 
-- [ ] daemonising `gomp` or a `headless` flag
 - [ ] Vim-like Visual Mode
 
 # Installing / Building

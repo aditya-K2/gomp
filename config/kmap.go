@@ -86,7 +86,7 @@ var (
 		49: "navigateToPlaylist",
 		// |     navigateToFiles                |    <kbd>2</kbd>     |
 		50: "navigateToFiles",
-		// |     navigateToSearch               |    <kbd>4</kbd>     |
+		// |     navigateToSearch               |    <kbd>3</kbd>     |
 		51: "navigateToSearch",
 		// |     quit                           |    <kbd>q</kbd>     |
 		113: "quit",

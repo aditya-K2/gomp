@@ -123,7 +123,7 @@ func GenerateFuncMap(Conn *mpd.Client) map[string]func() {
 		},
 		"navigateToSearch": func() {
 			SetCurrentView(SView)
-			Ui.Navbar.Select(3, 0)
+			Ui.Navbar.Select(2, 0)
 			SView.Update(Ui.MainS)
 		},
 		"quit": func() {

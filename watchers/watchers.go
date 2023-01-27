@@ -16,7 +16,6 @@ import (
 var (
 	currentSong mpd.Attrs
 	start       bool = true
-	status      mpd.Attrs
 )
 
 func OnConfigChange() {
@@ -82,7 +81,11 @@ func StartPlaylistWatcher() {
 		}
 	}
 
-	nt, addr := utils.GetNetwork(config.Config.NetworkType, config.Config.Port, config.Config.NetworkAddress)
+	nt, addr := utils.GetNetwork(
+		config.Config.NetworkType,
+		config.Config.Port,
+		config.Config.NetworkAddress)
+
 	w, err := mpd.NewWatcher(nt, addr, "")
 	if err != nil {
 		utils.Print("RED", "Could Not Start Watcher.\n")
