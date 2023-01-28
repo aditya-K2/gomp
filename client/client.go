@@ -62,13 +62,13 @@ func GenerateContentSlice(selectedSuggestion string) ([]interface{}, error) {
 		_alTitles := []interface{}{}
 		for _, album := range albums {
 			artist := GetTag([]string{"artist", "album", album})[0]
+			_albums = append(_albums, [2]string{album, artist})
 			for _, album := range albums {
 				if titles := getAlbumTitles(album); len(titles) != 0 {
 					for _, title := range titles {
 						_alTitles = append(_alTitles, [3]string{title, artist, album})
 					}
 				}
-				_albums = append(_albums, [2]string{album, artist})
 			}
 		}
 		_content = append(_content, _albums...)
