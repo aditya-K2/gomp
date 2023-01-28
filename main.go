@@ -49,28 +49,22 @@ func main() {
 		client.DirTree = client.GenerateDirectoryTree(fileMap)
 	}
 
-	if err := client.GenerateArtistMap(); err != nil {
-		utils.Print("RED", "Could Not Generate the ArtistTree\n")
-		utils.Print("GREEN", "Make Sure You Mention the Correct MPD Port in the config file.\n")
-		panic(err)
-	} else {
-		getContent := func() []string {
-			var p []string
-			for k2, v := range client.ArtistM {
-				p = append(p, k2)
-				for k1, v1 := range v {
-					p = append(p, k1)
-					for k := range v1 {
-						p = append(p, k)
-					}
-				}
-			}
-			return p
+	getContent := func() []string {
+		var p []string
+		for _, v := range client.GetTag([]string{"artist"}) {
+			p = append(p, v)
 		}
-		// Used for Fuzzy Searching
-		ArtistTreeContent := getContent()
-		ui.SetArtistTreeContent(ArtistTreeContent)
+		for _, v := range client.GetTag([]string{"album"}) {
+			p = append(p, v)
+		}
+		for _, v := range client.GetTag([]string{"title"}) {
+			p = append(p, v)
+		}
+		return p
 	}
+	// Used for Fuzzy Searching
+	ArtistTreeContent := getContent()
+	ui.SetArtistTreeContent(ArtistTreeContent)
 
 	ui.InitNotifier()
 

@@ -17,7 +17,7 @@ func addToPlaylist(a interface{}, addAndPlay bool) {
 	case [3]string:
 		{
 			b := a.([3]string)
-			if err := client.AddTitle(b[1], b[2], b[0], addAndPlay); err != nil {
+			if err := client.AddTitle(b[0], addAndPlay); err != nil {
 				SendNotification(err.Error())
 			} else {
 				SendNotification(fmt.Sprintf(
@@ -27,7 +27,7 @@ func addToPlaylist(a interface{}, addAndPlay bool) {
 	case [2]string:
 		{
 			b := a.([2]string)
-			if err := client.AddAlbum(b[0], b[1]); err != nil {
+			if err := client.AddAlbum(b[0]); err != nil {
 				SendNotification(err.Error())
 			} else {
 				SendNotification(fmt.Sprintf(
