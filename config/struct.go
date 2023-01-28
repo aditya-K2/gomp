@@ -1,4 +1,4 @@
-// ![Sep11(Sun)11:2026PM](https://user-images.githubusercontent.com/51816057/189541853-282716f1-0515-4ee6-a19a-4989b9de5daf.png)
+// ![cover](../docs/assets/readme.png)
 // # Configuration
 // Configuration of gomp is done through a `config.yml` file in `$HOME/.config/gomp/`
 package config
