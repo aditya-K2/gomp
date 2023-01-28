@@ -28,9 +28,7 @@ func TogglePlayBack() error {
 	return err
 }
 
-// The GenerateContentSlice returns a slice of the content to be displayed on the Search View. The Slice is generated
-// because the random nature of maps as they return values randomly hence the draw function keeps changing the order
-// in which the results appear.
+// The GenerateContentSlice returns a slice of the content to be displayed on the Search View.
 func GenerateContentSlice(selectedSuggestion string) ([]interface{}, error) {
 	var _content []interface{}
 
@@ -64,11 +62,10 @@ func GenerateContentSlice(selectedSuggestion string) ([]interface{}, error) {
 	}
 
 	if albums := getAlbums(selectedSuggestion); len(albums) != 0 {
-		_content = append(_content, WHITE_AND_BOLD+"Albums :")
 		_albums := []interface{}{}
 		_alTitles := []interface{}{}
 		for _, album := range albums {
-			artist := GetTag([]string{"artist", "album", album})[0]
+			artist := getTag([]string{"artist", "album", album})[0]
 			_albums = append(_albums, [2]string{album, artist})
 			for _, album := range albums {
 				if titles := getAlbumTitles(album); len(titles) != 0 {
@@ -78,26 +75,27 @@ func GenerateContentSlice(selectedSuggestion string) ([]interface{}, error) {
 				}
 			}
 		}
+		_content = append(_content, WHITE_AND_BOLD+"Albums :")
 		_content = append(_content, _albums...)
 		_content = append(_content, WHITE_AND_BOLD+"Album Titles :")
 		_content = append(_content, _alTitles...)
 	}
 
 	if titles := getTitles(selectedSuggestion); len(titles) != 0 {
-		_content = append(_content, WHITE_AND_BOLD+"Titles :")
 		_titles := []interface{}{}
 		for _, title := range titles {
-			artist := GetTag([]string{"artist", "title", title})[0]
-			album := GetTag([]string{"album", "title", title})[0]
+			artist := getTag([]string{"artist", "title", title})[0]
+			album := getTag([]string{"album", "title", title})[0]
 			_titles = append(_titles, [3]string{title, artist, album})
 		}
+		_content = append(_content, WHITE_AND_BOLD+"Titles :")
 		_content = append(_content, _titles...)
 	}
 
 	return _content, nil
 }
 
-func GetTag(filter []string) []string {
+func getTag(filter []string) []string {
 	if s, err := Conn.List(filter...); err != nil {
 		return make([]string, 0)
 	} else {
@@ -106,27 +104,27 @@ func GetTag(filter []string) []string {
 }
 
 func getArtists(artist string) []string {
-	return GetTag([]string{"artist", "artist", artist})
+	return getTag([]string{"artist", "artist", artist})
 }
 
 func getArtistAlbums(artist string) []string {
-	return GetTag([]string{"album", "artist", artist})
+	return getTag([]string{"album", "artist", artist})
 }
 
 func getArtistTitles(artist string) []string {
-	return GetTag([]string{"title", "artist", artist})
+	return getTag([]string{"title", "artist", artist})
 }
 
 func getAlbums(album string) []string {
-	return GetTag([]string{"album", "album", album})
+	return getTag([]string{"album", "album", album})
 }
 
 func getAlbumTitles(album string) []string {
-	return GetTag([]string{"title", "album", album})
+	return getTag([]string{"title", "album", album})
 }
 
 func getTitles(title string) []string {
-	return GetTag([]string{"title", "title", title})
+	return getTag([]string{"title", "title", title})
 }
 
 func add(uris []string) error {
@@ -142,17 +140,17 @@ func add(uris []string) error {
 }
 
 func AddAlbum(album string) error {
-	uris := GetTag([]string{"file", "album", album})
+	uris := getTag([]string{"file", "album", album})
 	return add(uris)
 }
 
 func AddArtist(artist string) error {
-	uris := GetTag([]string{"file", "artist", artist})
+	uris := getTag([]string{"file", "artist", artist})
 	return add(uris)
 }
 
 func AddTitle(title string, play bool) error {
-	uri := GetTag([]string{"file", "title", title})[0]
+	uri := getTag([]string{"file", "title", title})[0]
 	if play {
 		if id, err := Conn.AddID(uri, -1); err != nil {
 			return errors.New("Could Not Add Track : " + title)
@@ -167,4 +165,18 @@ func AddTitle(title string, play bool) error {
 		}
 	}
 	return nil
+}
+
+func GetContent() []string {
+	var p []string
+	for _, v := range getTag([]string{"artist"}) {
+		p = append(p, v)
+	}
+	for _, v := range getTag([]string{"album"}) {
+		p = append(p, v)
+	}
+	for _, v := range getTag([]string{"title"}) {
+		p = append(p, v)
+	}
+	return p
 }

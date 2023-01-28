@@ -49,21 +49,8 @@ func main() {
 		client.DirTree = client.GenerateDirectoryTree(fileMap)
 	}
 
-	getContent := func() []string {
-		var p []string
-		for _, v := range client.GetTag([]string{"artist"}) {
-			p = append(p, v)
-		}
-		for _, v := range client.GetTag([]string{"album"}) {
-			p = append(p, v)
-		}
-		for _, v := range client.GetTag([]string{"title"}) {
-			p = append(p, v)
-		}
-		return p
-	}
 	// Used for Fuzzy Searching
-	ArtistTreeContent := getContent()
+	ArtistTreeContent := client.GetContent()
 	ui.SetArtistTreeContent(ArtistTreeContent)
 
 	ui.InitNotifier()

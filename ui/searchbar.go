@@ -80,10 +80,10 @@ func NewSearchBar() *tview.InputField {
 		if e == tcell.KeyEscape {
 			if GetCurrentView().Name() == "BuffSearchView" {
 				client.Matches = nil
+				SetCurrentView(FView)
 			}
 			searchbar.SetText("")
 			Ui.App.SetFocus(Ui.MainS)
-			SetCurrentView(FView)
 		}
 	})
 
