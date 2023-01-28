@@ -40,10 +40,6 @@ func NewApplication() *Application {
 	Navbar.SetBorder(true)
 	Navbar.SetSelectable(true, false)
 
-	Navbar.SetCell(0, 0, tview.NewTableCell("PlayList"))
-	Navbar.SetCell(1, 0, tview.NewTableCell("Files"))
-	Navbar.SetCell(2, 0, tview.NewTableCell("Search"))
-
 	searchNavFlex := tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(Navbar, 0, 4, false).
 		AddItem(imagePreviewer, 9, 3, false)
