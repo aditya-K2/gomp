@@ -33,9 +33,11 @@ func TogglePlayBack() error {
 // in which the results appear.
 func GenerateContentSlice(selectedSuggestion string) ([]interface{}, error) {
 	var _content []interface{}
+
 	if strings.TrimRight(selectedSuggestion, " ") == "" {
 		return nil, EmptySearchErr
 	}
+
 	if artists := getArtists(selectedSuggestion); len(artists) != 0 {
 		_content = append(_content, WHITE_AND_BOLD+"Artists :")
 		_arTitles := []interface{}{}
@@ -51,11 +53,16 @@ func GenerateContentSlice(selectedSuggestion string) ([]interface{}, error) {
 				}
 			}
 		}
-		_content = append(_content, WHITE_AND_BOLD+"Artist Albums :")
-		_content = append(_content, _arAlbums)
-		_content = append(_content, WHITE_AND_BOLD+"Artist Titles :")
-		_content = append(_content, _arTitles)
+		if len(_arAlbums) != 0 {
+			_content = append(_content, WHITE_AND_BOLD+"Artist Albums :")
+			_content = append(_content, _arAlbums...)
+		}
+		if len(_arTitles) != 0 {
+			_content = append(_content, WHITE_AND_BOLD+"Artist Titles :")
+			_content = append(_content, _arTitles...)
+		}
 	}
+
 	if albums := getAlbums(selectedSuggestion); len(albums) != 0 {
 		_content = append(_content, WHITE_AND_BOLD+"Albums :")
 		_albums := []interface{}{}
@@ -75,6 +82,7 @@ func GenerateContentSlice(selectedSuggestion string) ([]interface{}, error) {
 		_content = append(_content, WHITE_AND_BOLD+"Album Titles :")
 		_content = append(_content, _alTitles...)
 	}
+
 	if titles := getTitles(selectedSuggestion); len(titles) != 0 {
 		_content = append(_content, WHITE_AND_BOLD+"Titles :")
 		_titles := []interface{}{}
@@ -83,6 +91,7 @@ func GenerateContentSlice(selectedSuggestion string) ([]interface{}, error) {
 			album := GetTag([]string{"album", "title", title})[0]
 			_titles = append(_titles, [3]string{title, artist, album})
 		}
+		_content = append(_content, _titles...)
 	}
 
 	return _content, nil
@@ -97,7 +106,7 @@ func GetTag(filter []string) []string {
 }
 
 func getArtists(artist string) []string {
-	return GetTag([]string{"artist", artist})
+	return GetTag([]string{"artist", "artist", artist})
 }
 
 func getArtistAlbums(artist string) []string {
@@ -109,7 +118,7 @@ func getArtistTitles(artist string) []string {
 }
 
 func getAlbums(album string) []string {
-	return GetTag([]string{"album", album})
+	return GetTag([]string{"album", "album", album})
 }
 
 func getAlbumTitles(album string) []string {
@@ -117,7 +126,7 @@ func getAlbumTitles(album string) []string {
 }
 
 func getTitles(title string) []string {
-	return GetTag([]string{"title", title})
+	return GetTag([]string{"title", "title", title})
 }
 
 func add(uris []string) error {
