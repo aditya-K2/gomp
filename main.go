@@ -50,8 +50,7 @@ func main() {
 	}
 
 	// Used for Fuzzy Searching
-	ArtistTreeContent := client.GetContent()
-	ui.SetArtistTreeContent(ArtistTreeContent)
+	ui.SetArtistTreeContent(client.GetContent())
 
 	ui.InitNotifier()
 
