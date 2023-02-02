@@ -37,11 +37,11 @@ func GenerateContentSlice(selectedSuggestion string) ([]interface{}, error) {
 	}
 
 	if artists := getArtists(selectedSuggestion); len(artists) != 0 {
-		_content = append(_content, WHITE_AND_BOLD+"Artists :")
+		_artists := []interface{}{}
 		_arTitles := []interface{}{}
 		_arAlbums := []interface{}{}
 		for _, artist := range artists {
-			_content = append(_content, artist)
+			_artists = append(_artists, artist)
 			if albums := getArtistAlbums(artist); len(albums) != 0 {
 				for _, album := range albums {
 					for _, title := range getAlbumTitles(album) {
@@ -51,14 +51,12 @@ func GenerateContentSlice(selectedSuggestion string) ([]interface{}, error) {
 				}
 			}
 		}
-		if len(_arAlbums) != 0 {
-			_content = append(_content, WHITE_AND_BOLD+"Artist Albums :")
-			_content = append(_content, _arAlbums...)
-		}
-		if len(_arTitles) != 0 {
-			_content = append(_content, WHITE_AND_BOLD+"Artist Titles :")
-			_content = append(_content, _arTitles...)
-		}
+		_content = append(_content, WHITE_AND_BOLD+"Artists :")
+		_content = append(_content, _artists...)
+		_content = append(_content, WHITE_AND_BOLD+"Artist Albums :")
+		_content = append(_content, _arAlbums...)
+		_content = append(_content, WHITE_AND_BOLD+"Artist Titles :")
+		_content = append(_content, _arTitles...)
 	}
 
 	if albums := getAlbums(selectedSuggestion); len(albums) != 0 {
