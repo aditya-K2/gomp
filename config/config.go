@@ -15,7 +15,7 @@ var (
 	defaultImageLink       = "https://raw.githubusercontent.com/aditya-K2/gomp/master/docs/assets/logo.png"
 	defaultImagePath       = userCacheDir + "/gomp_default.jpg"
 	ConfigPath             = configDir + "/gomp"
-	ShowVersion            = false
+	showVersion            = false
 	Config                 = NewConfigS()
 	OnConfigChange         func()
 )
