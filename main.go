@@ -15,6 +15,14 @@ import (
 )
 
 func main() {
+	config.ParseFlags()
+	if config.ShowVersion {
+		utils.Print("WHITE", "gomp ")
+		utils.Print("BLUE", config.VERSION+"\n")
+		utils.Print("WHITE", "Report any issues at: ")
+		utils.Print("BLUE", "https://github.com/aditya-K2/gomp/issues\n")
+		os.Exit(0)
+	}
 	config.ReadConfig()
 
 	var mcerr error

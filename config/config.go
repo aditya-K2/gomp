@@ -10,12 +10,14 @@ import (
 )
 
 var (
-	ConfigDir, configErr   = os.UserConfigDir()
-	UserCacheDir, cacheErr = os.UserCacheDir()
+	configDir, configErr   = os.UserConfigDir()
+	userCacheDir, cacheErr = os.UserCacheDir()
+	defaultImageLink       = "https://raw.githubusercontent.com/aditya-K2/gomp/master/docs/assets/logo.png"
+	defaultImagePath       = userCacheDir + "/gomp_default.jpg"
+	ConfigPath             = configDir + "/gomp"
+	ShowVersion            = false
 	Config                 = NewConfigS()
 	OnConfigChange         func()
-	DefaultImageLink       = "https://raw.githubusercontent.com/aditya-K2/gomp/master/docs/assets/logo.png"
-	DefaultImagePath       = UserCacheDir + "/gomp_default.jpg"
 )
 
 func ReadConfig() {
@@ -33,7 +35,7 @@ func ReadConfig() {
 	}
 
 	viper.SetConfigName("config")
-	viper.AddConfigPath(ConfigDir + "/gomp")
+	viper.AddConfigPath(ConfigPath)
 
 	if err := viper.ReadInConfig(); err != nil {
 		utils.Print("RED", "Could Not Read Config file.\n")
@@ -56,16 +58,16 @@ func ReadConfig() {
 	})
 	viper.WatchConfig()
 
-	if Config.DefaultImagePath == DefaultImagePath {
-		if !utils.FileExists(DefaultImagePath) {
+	if Config.DefaultImagePath == defaultImagePath {
+		if !utils.FileExists(defaultImagePath) {
 			utils.Print("BLUE", "Default Image Not Provided Downloading Default Image From: ")
-			utils.Print("YELLOW", DefaultImageLink+"\n")
-			if _, err := utils.DownloadImage(DefaultImageLink, DefaultImagePath); err != nil {
+			utils.Print("YELLOW", defaultImageLink+"\n")
+			if _, err := utils.DownloadImage(defaultImageLink, defaultImagePath); err != nil {
 				utils.Print("RED", "Couldn't Download Default Image!\n")
 				os.Exit(-1)
 			} else {
 				utils.Print("CYAN", "Downloaded @ ")
-				utils.Print("PURPLE", DefaultImagePath+"\n")
+				utils.Print("PURPLE", defaultImagePath+"\n")
 			}
 		}
 	}
@@ -88,7 +90,7 @@ func GenerateKeyMap(funcMap map[string]func()) {
 }
 
 func ParseMPDConfig() {
-	uwconf := ConfigDir + "/mpd/mpd.conf"
+	uwconf := configDir + "/mpd/mpd.conf"
 	swconf := "/etc/mpd.conf"
 	set_defaults := func(path string) {
 		m := conf.GenerateMap(path)
