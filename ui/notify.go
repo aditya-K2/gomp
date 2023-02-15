@@ -134,15 +134,21 @@ func (self *notification) Draw(screen tcell.Screen) {
 // the notification at the top of the queue to the notificationRoutine
 func queueRoutine() {
 	go func() {
+		t := time.NewTicker(time.Millisecond * 200)
 		for {
-			for !posArr.Available() {
-				continue
-			}
-			if !nQueue.Empty() {
-				qm.Lock()
-				_new := heap.Pop(nQueue).(*notification)
-				qm.Unlock()
-				notificationRoutine(_new)
+			select {
+			case <-t.C:
+				{
+					for !posArr.Available() {
+						continue
+					}
+					if !nQueue.Empty() {
+						qm.Lock()
+						_new := heap.Pop(nQueue).(*notification)
+						qm.Unlock()
+						notificationRoutine(_new)
+					}
+				}
 			}
 		}
 	}()
