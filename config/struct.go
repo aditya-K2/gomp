@@ -1,4 +1,4 @@
-// ![cover](../docs/assets/readme.png)
+// ![cover](./assets/readme.png)
 // # Configuration
 // Configuration of gomp is done through a `config.yml` file in `$HOME/.config/gomp/`
 package config
