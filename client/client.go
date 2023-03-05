@@ -19,13 +19,16 @@ var (
 )
 
 func TogglePlayBack() error {
-	status, err := Conn.Status()
-	if status["state"] == "play" && err == nil {
-		Conn.Pause(true)
-	} else if status["state"] == "pause" && err == nil {
-		Conn.Play(-1)
+	if status, err := Conn.Status(); err != nil {
+		return err
+	} else {
+		if status["state"] == "play" {
+			Conn.Pause(true)
+		} else if status["state"] == "pause" || status["state"] == "stop" {
+			Conn.Play(-1)
+		}
 	}
-	return err
+	return nil
 }
 
 // The GenerateContentSlice returns a slice of the content to be displayed on the Search View.
