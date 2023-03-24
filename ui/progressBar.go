@@ -5,8 +5,8 @@ import (
 
 	"github.com/gdamore/tcell/v2"
 
-	"github.com/aditya-K2/gomp/utils"
 	"github.com/aditya-K2/tview"
+	"github.com/aditya-K2/utils"
 )
 
 // ProgressBar is a two-lined Box. First line is the BarTitle

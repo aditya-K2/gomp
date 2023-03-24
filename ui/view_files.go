@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/aditya-K2/gomp/client"
-	"github.com/aditya-K2/gomp/utils"
+	"github.com/aditya-K2/utils"
 	"github.com/aditya-K2/tview"
 	"github.com/gdamore/tcell/v2"
 )

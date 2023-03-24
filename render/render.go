@@ -5,7 +5,7 @@ import (
 	"github.com/aditya-K2/gomp/ui"
 	"github.com/fhs/gompd/v2/mpd"
 
-	"github.com/aditya-K2/gomp/utils"
+	"github.com/aditya-K2/utils"
 	"gitlab.com/diamondburned/ueberzug-go"
 )
 

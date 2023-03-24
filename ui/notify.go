@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/aditya-K2/gomp/utils"
+	"github.com/aditya-K2/utils"
 
 	"github.com/aditya-K2/tview"
 	"github.com/gdamore/tcell/v2"

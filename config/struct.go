@@ -18,7 +18,7 @@ package config
 // If there is no `DEFAULT_IMAGE_PATH` key in the `config.yml` it downloads a
 // default image @ ~/$USER_CACHE_DIR/gomp_default.jpg
 
-import "github.com/aditya-K2/gomp/utils"
+import "github.com/aditya-K2/utils"
 
 type ConfigS struct {
 

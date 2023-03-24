@@ -2,7 +2,7 @@ package ui
 
 import (
 	"github.com/aditya-K2/gomp/client"
-	"github.com/aditya-K2/gomp/utils"
+	"github.com/aditya-K2/utils"
 	"github.com/aditya-K2/tview"
 	"github.com/fhs/gompd/v2/mpd"
 )

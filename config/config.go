@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/aditya-K2/gomp/config/conf"
-	"github.com/aditya-K2/gomp/utils"
+	"github.com/aditya-K2/utils"
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
 )

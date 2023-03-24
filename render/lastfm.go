@@ -4,7 +4,7 @@ import (
 	_ "image/jpeg"
 
 	"github.com/aditya-K2/gomp/config"
-	"github.com/aditya-K2/gomp/utils"
+	"github.com/aditya-K2/utils"
 	"github.com/shkh/lastfm-go/lastfm"
 )
 
