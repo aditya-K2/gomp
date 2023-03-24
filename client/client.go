@@ -152,7 +152,11 @@ func AddArtist(artist string) error {
 }
 
 func AddTitle(title string, play bool) error {
-	uri := getTag([]string{"file", "title", title})[0]
+	_t := getTag([]string{"file", "title", title})
+	if len(_t) == 0 {
+		return errors.New("No Title Found: " + title)
+	}
+	uri := _t[0]
 	if play {
 		if id, err := Conn.AddID(uri, -1); err != nil {
 			return errors.New("Could Not Add Track : " + title)
