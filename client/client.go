@@ -16,6 +16,7 @@ var (
 	Matches            fuzzy.Matches
 	SearchContentSlice []interface{}
 	EmptySearchErr     = errors.New("empty Search String Provided")
+	AllContent         []string
 )
 
 func TogglePlayBack() error {
@@ -168,16 +169,14 @@ func AddTitle(title string, play bool) error {
 	return nil
 }
 
-func GetContent() []string {
-	var p []string
+func GetContent() {
 	for _, v := range getTag([]string{"artist"}) {
-		p = append(p, v)
+		AllContent = append(AllContent, v)
 	}
 	for _, v := range getTag([]string{"album"}) {
-		p = append(p, v)
+		AllContent = append(AllContent, v)
 	}
 	for _, v := range getTag([]string{"title"}) {
-		p = append(p, v)
+		AllContent = append(AllContent, v)
 	}
-	return p
 }

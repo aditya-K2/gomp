@@ -8,12 +8,6 @@ import (
 	"github.com/gdamore/tcell/v2"
 )
 
-var artistTreeContent []string
-
-func SetArtistTreeContent(a []string) {
-	artistTreeContent = a
-}
-
 func NewSearchBar() *tview.InputField {
 	searchbar := tview.NewInputField()
 
@@ -43,7 +37,7 @@ func NewSearchBar() *tview.InputField {
 		} else {
 			if c != "" && c != " " && c != "  " {
 				_, _, w, _ := searchbar.GetRect()
-				matches := fuzzy.Find(c, artistTreeContent)
+				matches := fuzzy.Find(c, client.AllContent)
 				var suggestions []string
 				for i, match := range matches {
 					if i == 10 {

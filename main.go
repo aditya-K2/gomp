@@ -50,8 +50,7 @@ func main() {
 		client.DirTree = client.GenerateDirectoryTree(fileMap)
 	}
 
-	// Used for Fuzzy Searching
-	ui.SetArtistTreeContent(client.GetContent())
+	client.GetContent()
 
 	ui.InitNotifier()
 
