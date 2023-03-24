@@ -29,5 +29,10 @@ func GenerateName(artist, album string) string {
 	if (artist == "" && album == "") || (artist == " " && album == " ") {
 		return CACHE_DIR + "UnknownArtist-UnknownAlbum.jpg"
 	}
-	return CACHE_DIR + strings.Replace(strings.Replace(fmt.Sprintf("%s-%s.jpg", artist, album), " ", "_", -1), "/", "_", -1)
+	return CACHE_DIR +
+		strings.Replace(
+			strings.Replace(
+				fmt.Sprintf("%s-%s.jpg", artist, album),
+				" ", "_", -1),
+			"/", "_", -1)
 }

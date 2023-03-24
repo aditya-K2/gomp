@@ -31,7 +31,8 @@ func (f FileNodes) Len() int {
 	return len(f)
 }
 
-func (f *FileNode) AddChildren(path string, title string, artist string, album string) {
+func (f *FileNode) AddChildren(
+	path string, title string, artist string, album string) {
 	if f.Path != "" {
 		f.Children = append(f.Children,
 			FileNode{
@@ -64,7 +65,8 @@ func GenerateDirectoryTree(path []mpd.Attrs) *FileNode {
 		sepPaths := strings.Split(path[i]["file"], "/")
 		for j := range sepPaths {
 			if len(head.Children) == 0 {
-				head.AddChildren(sepPaths[j], path[i]["Title"], path[i]["Artist"], path[i]["Album"])
+				head.AddChildren(sepPaths[j], path[i]["Title"],
+					path[i]["Artist"], path[i]["Album"])
 				head = &(head.Children[len(head.Children)-1])
 			} else {
 				var headIsChanged = false
@@ -76,7 +78,8 @@ func GenerateDirectoryTree(path []mpd.Attrs) *FileNode {
 					}
 				}
 				if !headIsChanged {
-					head.AddChildren(sepPaths[j], path[i]["Title"], path[i]["Artist"], path[i]["Album"])
+					head.AddChildren(sepPaths[j], path[i]["Title"],
+						path[i]["Artist"], path[i]["Album"])
 					head = &(head.Children[len(head.Children)-1])
 				}
 			}
