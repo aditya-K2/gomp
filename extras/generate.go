@@ -14,6 +14,7 @@ func ReadComments(path string) (string, error) {
 		for _, v := range strings.Split(string(_c), "\n") {
 			v = strings.Trim(v, "\t ")
 			if strings.HasPrefix(v, "//") {
+				v = strings.ReplaceAll(v, "\t", "  ")
 				content += strings.TrimPrefix(
 					strings.TrimPrefix(v, "//"), " ") + "\n"
 			}
