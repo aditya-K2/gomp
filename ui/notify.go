@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"container/heap"
 	"sync"
 	"time"
 
@@ -15,10 +14,10 @@ var (
 	maxNotifications                = 3
 	EmptyNotification *notification = newNotifcation(
 		"gomp.notify.Notifcation.Empty")
-	nQueue       *notificationQueue
-	qm, pm       sync.Mutex
+	pm           sync.Mutex
 	notAvailable = -1
 	posArr       = positionArray{}
+	c            chan string
 )
 
 // Start Notification Service
@@ -26,9 +25,8 @@ func InitNotifier() {
 	for _m := maxNotifications; _m != 0; _m-- {
 		posArr = append(posArr, true)
 	}
-	nQueue = &notificationQueue{}
-	heap.Init(nQueue)
-	queueRoutine()
+	c = make(chan string, maxNotifications)
+	routine()
 }
 
 // notification Primitive
@@ -37,32 +35,6 @@ type notification struct {
 	Text     string
 	TimeRecv time.Time
 	Position int
-}
-
-type notificationQueue []*notification
-
-func (n notificationQueue) Len() int { return len(n) }
-func (n notificationQueue) Less(i, j int) bool {
-	ctime := time.Now()
-	// Return the Oldest One.
-	return ctime.Sub(n[i].TimeRecv) > ctime.Sub(n[j].TimeRecv)
-}
-func (n notificationQueue) Swap(i, j int) { n[i], n[j] = n[j], n[i] }
-
-func (n *notificationQueue) Push(x any) {
-	*n = append(*n, x.(*notification))
-}
-
-func (n *notificationQueue) Pop() any {
-	old := *n
-	_n := len(old)
-	x := old[_n-1]
-	*n = old[0 : _n-1]
-	return x
-}
-
-func (n notificationQueue) Empty() bool {
-	return len(n) == 0
 }
 
 // Array for all available positions where the notification can be displayed.
@@ -130,31 +102,22 @@ func (self *notification) Draw(screen tcell.Screen) {
 		tview.AlignCenter, tcell.ColorWhite)
 }
 
-// this routine checks for available position and then sends
-// the notification at the top of the queue to the notificationRoutine
-func queueRoutine() {
+// this routine checks for available position and sends notification if
+// position is available.
+func routine() {
 	go func() {
-		t := time.NewTicker(time.Millisecond * 200)
 		for {
-			select {
-			case <-t.C:
-				{
-					for !posArr.Available() {
-						continue
-					}
-					if !nQueue.Empty() {
-						qm.Lock()
-						_new := heap.Pop(nQueue).(*notification)
-						qm.Unlock()
-						notificationRoutine(_new)
-					}
-				}
+			val := <-c
+			// Wait until a new position isn't available
+			for !posArr.Available() {
+				continue
 			}
+			notify(newNotifcation(val))
 		}
 	}()
 }
 
-func notificationRoutine(s *notification) {
+func notify(s *notification) {
 	if s != EmptyNotification {
 		go func() {
 			currentTime := time.Now().String()
@@ -178,8 +141,6 @@ func notificationRoutine(s *notification) {
 
 func SendNotification(text string) {
 	go func() {
-		qm.Lock()
-		heap.Push(nQueue, newNotifcation(text))
-		qm.Unlock()
+		c <- text
 	}()
 }
