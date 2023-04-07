@@ -3,6 +3,7 @@ package ui
 import (
 	"github.com/aditya-K2/fuzzy"
 	"github.com/aditya-K2/gomp/client"
+	"github.com/aditya-K2/gomp/config"
 	"github.com/aditya-K2/tview"
 	"github.com/gdamore/tcell/v2"
 )
@@ -14,6 +15,10 @@ func NewSearchBar() *tview.InputField {
 	searchbar.SetBackgroundColor(tcell.ColorDefault)
 	searchbar.SetTitle("Search").SetTitleAlign(tview.AlignLeft)
 	searchbar.SetBorder(true)
+	searchbar.SetAutocompleteStyles(
+		config.Config.Colors.Autocomplete.Background(),
+		tcell.StyleDefault,
+		config.Config.Colors.Autocomplete.Style().Reverse(true))
 	searchbar.SetAutocompleteMatchFieldWidth(true)
 	searchbar.SetDoneFunc(func(k tcell.Key) {
 		switch k {

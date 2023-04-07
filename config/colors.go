@@ -61,9 +61,10 @@ var (
 )
 
 type Color struct {
-	Foreground string `mapstructure:"foreground"`
-	Bold       bool   `mapstructure:"bold"`
-	Italic     bool   `mapstructure:"italic"`
+	Fg     string `mapstructure:"foreground"`
+	Bg     string `mapstructure:"background"`
+	Bold   bool   `mapstructure:"bold"`
+	Italic bool   `mapstructure:"italic"`
 }
 
 // ### Following Aspects can be changed:
@@ -88,18 +89,42 @@ type Colors struct {
 	PBarArtist Color `mapstructure:"pbar_artist"`
 	// - `pbar_track`
 	PBarTrack Color `mapstructure:"pbar_track"`
-	Null      Color
+	// - `autocomplete`
+	Autocomplete Color `mapstructure:"autocomplete"`
+	Null         Color
 }
 
-func (c Color) Color() tcell.Color {
-	if strings.HasPrefix(c.Foreground, "#") && len(c.Foreground) == 7 {
-		return tcell.GetColor(c.Foreground)
-	} else if val, ok := DColors[c.Foreground]; ok {
+func (c Color) Foreground() tcell.Color {
+	if strings.HasPrefix(c.Fg, "#") && len(c.Fg) == 7 {
+		return tcell.GetColor(c.Fg)
+	} else if val, ok := DColors[c.Fg]; ok {
 		return val
 	} else {
-		ColorError(c.Foreground)
+		ColorError(c.Fg)
 		return tcell.ColorBlack
 	}
+}
+
+func (c Color) Background() tcell.Color {
+	if c.Bg == "" {
+		return tcell.ColorBlack
+	}
+	if strings.HasPrefix(c.Bg, "#") && len(c.Bg) == 7 {
+		return tcell.GetColor(c.Bg)
+	} else if val, ok := DColors[c.Bg]; ok {
+		return val
+	} else {
+		ColorError(c.Bg)
+		return tcell.ColorBlack
+	}
+}
+
+func (c Color) Style() tcell.Style {
+	return tcell.StyleDefault.
+		Foreground(c.Foreground()).
+		Background(c.Background()).
+		Bold(c.Bold).
+		Italic(c.Italic)
 }
 
 func (c Color) String() string {
@@ -121,66 +146,72 @@ func (c Color) String() string {
 		}
 		return res
 	}
-	foreground := checkColor(c.Foreground)
+	foreground := checkColor(c.Fg)
 	return fmt.Sprintf("[%s::%s]", foreground, style)
 }
 
 func NewColors() *Colors {
 	return &Colors{
 		Artist: Color{
-			Foreground: "Purple",
-			Bold:       false,
-			Italic:     false,
+			Fg:     "Purple",
+			Bold:   false,
+			Italic: false,
 		},
 		Album: Color{
-			Foreground: "Yellow",
-			Bold:       false,
-			Italic:     false,
+			Fg:     "Yellow",
+			Bold:   false,
+			Italic: false,
 		},
 		Track: Color{
-			Foreground: "Green",
-			Bold:       false,
-			Italic:     false,
+			Fg:     "Green",
+			Bold:   false,
+			Italic: false,
 		},
 		Timestamp: Color{
-			Foreground: "Red",
-			Bold:       false,
-			Italic:     true,
+			Fg:     "Red",
+			Bold:   false,
+			Italic: true,
 		},
 		File: Color{
-			Foreground: "Blue",
-			Bold:       true,
-			Italic:     false,
+			Fg:     "Blue",
+			Bold:   true,
+			Italic: false,
 		},
 		Folder: Color{
-			Foreground: "Yellow",
-			Bold:       true,
-			Italic:     false,
+			Fg:     "Yellow",
+			Bold:   true,
+			Italic: false,
 		},
 		MatchedFolder: Color{
-			Foreground: "Blue",
-			Bold:       true,
-			Italic:     true,
+			Fg:     "Blue",
+			Bold:   true,
+			Italic: true,
 		},
 		MatchedTitle: Color{
-			Foreground: "Yellow",
-			Bold:       true,
-			Italic:     true,
+			Fg:     "Yellow",
+			Bold:   true,
+			Italic: true,
 		},
 		PBarArtist: Color{
-			Foreground: "Blue",
-			Bold:       true,
-			Italic:     false,
+			Fg:     "Blue",
+			Bold:   true,
+			Italic: false,
 		},
 		PBarTrack: Color{
-			Foreground: "Green",
-			Bold:       true,
-			Italic:     true,
+			Fg:     "Green",
+			Bold:   true,
+			Italic: true,
+		},
+		Autocomplete: Color{
+			Fg:     "White",
+			Bg:     "Black",
+			Bold:   false,
+			Italic: false,
 		},
 		Null: Color{
-			Foreground: "White",
-			Bold:       true,
-			Italic:     false,
+			Fg:     "White",
+			Bold:   true,
+			Italic: false,
 		},
 	}
 }
