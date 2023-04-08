@@ -52,6 +52,16 @@ func NewSearchBar() *tview.InputField {
 		}
 	})
 
+	searchbar.SetInputCapture(func(e *tcell.EventKey) *tcell.EventKey {
+		if e.Key() == tcell.KeyCtrlP {
+			return tcell.NewEventKey(tcell.KeyUp, 'k', tcell.ModNone)
+		}
+		if e.Key() == tcell.KeyCtrlN {
+			return tcell.NewEventKey(tcell.KeyDown, 'j', tcell.ModNone)
+		}
+		return e
+	})
+
 	searchbar.SetDoneFunc(func(e tcell.Key) {
 		var err error
 		if e == tcell.KeyEnter {
