@@ -11,13 +11,11 @@ import (
 )
 
 var (
-	maxNotifications                = 3
-	EmptyNotification *notification = newNotifcation(
-		"gomp.notify.Notifcation.Empty")
-	pm           sync.Mutex
-	notAvailable = -1
-	posArr       = positionArray{}
-	c            chan string
+	maxNotifications = 3
+	pm               sync.Mutex
+	notAvailable     = -1
+	posArr           = positionArray{}
+	c                chan *notification
 )
 
 // Start Notification Service
@@ -25,7 +23,7 @@ func InitNotifier() {
 	for _m := maxNotifications; _m != 0; _m-- {
 		posArr = append(posArr, true)
 	}
-	c = make(chan string, maxNotifications)
+	c = make(chan *notification, maxNotifications)
 	routine()
 }
 
@@ -33,8 +31,9 @@ func InitNotifier() {
 type notification struct {
 	*tview.Box
 	Text     string
-	TimeRecv time.Time
 	Position int
+	close    chan time.Time
+	timer    time.Duration
 }
 
 // Array for all available positions where the notification can be displayed.
@@ -74,11 +73,21 @@ func (p *positionArray) Free(i int) {
 }
 
 // Get A Pointer to A Notification Struct
-func newNotifcation(s string) *notification {
+func newNotificationWithTimer(s string, t time.Duration) *notification {
 	return &notification{
-		Box:      tview.NewBox(),
-		Text:     s,
-		TimeRecv: time.Now(),
+		Box:   tview.NewBox(),
+		Text:  s,
+		timer: t,
+		close: nil,
+	}
+}
+
+// Get A Pointer to A Notification Struct with a close channel
+func newNotificationWithChan(s string, c chan time.Time) *notification {
+	return &notification{
+		Box:   tview.NewBox(),
+		Text:  s,
+		close: c,
 	}
 }
 
@@ -112,35 +121,47 @@ func routine() {
 			for !posArr.Available() {
 				continue
 			}
-			notify(newNotifcation(val))
+			notify(val)
 		}
 	}()
 }
 
-func notify(s *notification) {
-	if s != EmptyNotification {
-		go func() {
-			currentTime := time.Now().String()
-			np := posArr.GetNextPosition()
-			// Ensure a position is available.
-			if np == notAvailable {
-				for !posArr.Available() {
-				}
-				np = posArr.GetNextPosition()
+func notify(n *notification) {
+	go func() {
+		currentTime := time.Now().String()
+		npos := posArr.GetNextPosition()
+		// Ensure a position is available.
+		if npos == notAvailable {
+			for !posArr.Available() {
 			}
-			s.Position = np
-			Ui.Pages.AddPage(currentTime, s, false, true)
-			Ui.App.SetFocus(Ui.MainS)
-			time.Sleep(time.Second * 1)
-			Ui.Pages.RemovePage(currentTime)
-			posArr.Free(np)
-			Ui.App.SetFocus(Ui.MainS)
-		}()
-	}
+			npos = posArr.GetNextPosition()
+		}
+		n.Position = npos
+		Ui.Pages.AddPage(currentTime, n, false, true)
+		Ui.App.SetFocus(Ui.MainS)
+		if n.close != nil {
+			<-n.close
+		} else {
+			time.Sleep(n.timer)
+		}
+		Ui.Pages.RemovePage(currentTime)
+		posArr.Free(npos)
+		Ui.App.SetFocus(Ui.MainS)
+	}()
 }
 
 func SendNotification(text string) {
+	SendNotificationWithTimer(text, time.Second)
+}
+
+func SendNotificationWithTimer(text string, t time.Duration) {
 	go func() {
-		c <- text
+		c <- newNotificationWithTimer(text, t)
+	}()
+}
+
+func SendNotificationWithChan(text string, close chan time.Time) {
+	go func() {
+		c <- newNotificationWithChan(text, close)
 	}()
 }
