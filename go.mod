@@ -4,8 +4,11 @@ go 1.19
 
 require (
 	github.com/aditya-K2/fuzzy v0.1.1-0.20211128173834-d0023b66cdd4
-	github.com/aditya-K2/tview v0.0.0-20230406230649-1e8b5d9582fb
+	github.com/aditya-K2/tview v0.0.0-20230410122952-fb622a5db15f
+	github.com/aditya-K2/utils v0.0.0-20230324221547-e982ed1e980e
+	github.com/dhowden/tag v0.0.0-20220618230019-adf36e896086
 	github.com/fhs/gompd/v2 v2.2.0
+	github.com/fsnotify/fsnotify v1.5.1
 	github.com/gdamore/tcell/v2 v2.6.0
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/shkh/lastfm-go v0.0.0-20191215035245-89a801c244e0
@@ -18,9 +21,6 @@ require (
 	github.com/BurntSushi/graphics-go v0.0.0-20160129215708-b43f31a4a966 // indirect
 	github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802 // indirect
 	github.com/BurntSushi/xgbutil v0.0.0-20160919175755-f7c97cef3b4e // indirect
-	github.com/aditya-K2/utils v0.0.0-20230324221547-e982ed1e980e // indirect
-	github.com/dhowden/tag v0.0.0-20220618230019-adf36e896086 // indirect
-	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/gdamore/encoding v1.0.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
