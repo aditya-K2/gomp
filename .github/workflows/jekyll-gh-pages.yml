@@ -1,30 +1,22 @@
-# Sample workflow for building and deploying a Jekyll site to GitHub Pages
-name: Deploy Jekyll with GitHub Pages dependencies preinstalled
+name: Publish Documentation
 
 on:
-  # Runs on pushes targeting the default branch
   push:
     branches: ["master"]
 
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# Allow one concurrent deployment
+# If a job is already running cancel it
 concurrency:
   group: "pages"
   cancel-in-progress: true
 
 jobs:
-
-
-
-  # Build job
   build:
     runs-on: ubuntu-latest
     steps:
@@ -34,7 +26,7 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: 1.19
-      - name: Generate Documentation generate script
+      - name: Generate Documentation through generate.sh
         run: |
          chmod +x ./extras/generate.sh
          ./extras/generate.sh
@@ -49,7 +41,6 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
 
-  # Deployment job
   deploy:
     environment:
       name: github-pages
