@@ -8,6 +8,8 @@
     <a href="https://github.com/aditya-K2/gomp/discussions">Discussion</a>
 </div>
 
+<!-- NEW CHANGE -->
+
 ----
 
 ![Cover](./docs/assets/readme.png)
