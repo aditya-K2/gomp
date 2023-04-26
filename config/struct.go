@@ -41,7 +41,7 @@ type ConfigS struct {
 	// Defaults to `localhost` if not provided.
 	//
 	// ```yml
-	// NETWORK_ADDRESS : "/home/$USER/.mpd/socket"
+	// NETWORK_ADDRESS : "/home/$USER/.mpd/path_to_socket"
 	// ```
 	//
 	// Read More about it in the [sample_config](https://github.com/aditya-K2/gomp/blob/master/sample_config.yml)
