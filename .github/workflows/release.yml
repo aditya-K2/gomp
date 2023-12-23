@@ -13,12 +13,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          fetch-depth: '0'
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
           go-version: 1.19
-      - name: Build the Binary
-        run: go build -v
+      - name: Install make
+        run: sudo apt update && sudo apt install build-essential
+      - name: Build All targets
+        run: make VERBOSE="-v" all
       - name: Release Binary
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
@@ -26,4 +30,4 @@ jobs:
           prerelease: false
           title: "${{ github.ref_name }}"
           files: |
-            gomp
+            bin/*

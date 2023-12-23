@@ -8,3 +8,4 @@ config.yml
 generate
 docs/index.md
 a.out
+bin

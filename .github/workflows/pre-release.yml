@@ -1,23 +1,28 @@
-name: Pre-release
+name: Pre-Release
 
 on:
   push:
-    branches: [ "master" ]
+    branches:
+      - master
 
   workflow_dispatch:
 
 jobs:
-  prerelease:
+  release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          fetch-depth: '0'
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
           go-version: 1.19
-      - name: Build the Binary
-        run: go build -v
+      - name: Install make
+        run: sudo apt update && sudo apt install build-essential
+      - name: Build All targets
+        run: make VERBOSE="-v" all
       - name: Release Binary
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
@@ -26,4 +31,4 @@ jobs:
           automatic_release_tag: "pre-release"
           title: "Pre-release"
           files: |
-            gomp
+            bin/*

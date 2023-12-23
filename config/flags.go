@@ -7,10 +7,6 @@ import (
 	"github.com/aditya-K2/utils"
 )
 
-var (
-	VERSION = "1.0.0"
-)
-
 func ParseFlags() {
 	flag.StringVar(&ConfigPath, "c", ConfigPath,
 		"Specify The Directory where to check for config.yml file.")
@@ -19,7 +15,9 @@ func ParseFlags() {
 	flag.Parse()
 	if showVersion {
 		utils.Print("WHITE", "gomp ")
-		utils.Print("BLUE", VERSION+"\n")
+		utils.Print("BLUE", version+"\n")
+		utils.Print("WHITE", "Build Date: ")
+		utils.Print("BLUE", buildDate+"\n")
 		utils.Print("WHITE", "Report any issues at: ")
 		utils.Print("BLUE", "https://github.com/aditya-K2/gomp/issues\n")
 		os.Exit(0)

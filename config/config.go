@@ -18,6 +18,8 @@ var (
 	showVersion            = false
 	Config                 = NewConfigS()
 	OnConfigChange         func()
+	version                string
+	buildDate              string
 )
 
 func ReadConfig() {
