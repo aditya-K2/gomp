@@ -19,10 +19,12 @@ func main() {
 	config.ReadConfig()
 
 	var mcerr error
-	client.Conn, mcerr = mpd.Dial(
-		utils.GetNetwork(config.Config.NetworkType,
-			config.Config.Port,
-			config.Config.NetworkAddress))
+	network, addr := utils.GetNetwork(config.Config.NetworkType, config.Config.Port, config.Config.NetworkAddress)
+	if config.Config.Password != "" {
+		client.Conn, mcerr = mpd.DialAuthenticated(network, addr, config.Config.Password)
+	} else {
+		client.Conn, mcerr = mpd.Dial(network, addr)
+	}
 
 	if mcerr != nil {
 		utils.Print("RED", "There was a Problem Connecting to the MPD Server\nTry Checking:\n")

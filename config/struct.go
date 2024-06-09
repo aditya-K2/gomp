@@ -47,6 +47,18 @@ type ConfigS struct {
 	// Read More about it in the [sample_config](https://github.com/aditya-K2/gomp/blob/master/sample_config.yml)
 	NetworkAddress string `mapstructure:"NETWORK_ADDRESS"`
 
+	//
+	// ## Password
+	//
+	// The password to your MPD Server
+	// Defaults to unauthenticated connection if empty string is provided.
+	//
+	// ```yml
+	// MPD_PASSWORD : "my_password"
+	// ```
+	//
+	Password string `mapstructure:"MPD_PASSWORD"`
+
 	// ### Default Image Path
 	//
 	// This is the Fallback Image that will be rendered if gomp doesn't find the embedded cover art or LastFM Cover Art.
