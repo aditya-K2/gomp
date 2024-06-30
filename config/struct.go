@@ -105,6 +105,15 @@ type ConfigS struct {
 	// ```
 	RedrawInterval int `mapstructure:"REDRAW_INTERVAL"`
 
+	// ## Rounded Corners
+	//
+	// Enable Rounded Corners for the UI. Defaults to True.
+	//
+	// ```yml
+	// ROUNDED_CORNERS: True
+	// ```
+	RoundedCorners bool `mapstructure:"ROUNDED_CORNERS"`
+
 	// ## MPD Port
 	// This is the port where your Music Player Daemon Is Running.
 	//
@@ -241,5 +250,6 @@ func NewConfigS() *ConfigS {
 		RedrawInterval:        500,
 		Colors:                NewColors(),
 		GetCoverArtFromLastFm: false,
+		RoundedCorners:        true,
 	}
 }

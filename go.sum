@@ -56,6 +56,8 @@ github.com/aditya-K2/fuzzy v0.1.1-0.20211128173834-d0023b66cdd4 h1:GEy4yHiudZCZy
 github.com/aditya-K2/fuzzy v0.1.1-0.20211128173834-d0023b66cdd4/go.mod h1:82s+GWKOo176xBYRWstoAM6Fl5jpXNuZ1syuJvRwVN8=
 github.com/aditya-K2/tview v0.0.0-20230410122952-fb622a5db15f h1:9/fdQsE2KghxgOVPyB9stuz5LGr7/xNOhW8tq0lFizU=
 github.com/aditya-K2/tview v0.0.0-20230410122952-fb622a5db15f/go.mod h1:4mQQQ0q5F3GvKXtwNkViuvng/bNxt3Y3c95rGlULlv4=
+github.com/aditya-K2/tview v0.0.0-20230501091922-5da3458d3dff h1:ppQVp6+4XxXb0ypMIt5cItlc3+F1eouzVjYif/Err20=
+github.com/aditya-K2/tview v0.0.0-20230501091922-5da3458d3dff/go.mod h1:4mQQQ0q5F3GvKXtwNkViuvng/bNxt3Y3c95rGlULlv4=
 github.com/aditya-K2/tview v0.0.0-20240609093139-fc55924ac006 h1:9VkiLJ8X1/fK2ZZWtY91FLu+vsxWDGv2voOv+/8b2qo=
 github.com/aditya-K2/tview v0.0.0-20240609093139-fc55924ac006/go.mod h1:4mQQQ0q5F3GvKXtwNkViuvng/bNxt3Y3c95rGlULlv4=
 github.com/aditya-K2/utils v0.0.0-20230324221547-e982ed1e980e h1:blLZ2IHGPfAo2zOEpj4FsuqliHmpLw4u2Zp6GR0VMZ8=

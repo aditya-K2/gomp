@@ -58,6 +58,8 @@ func main() {
 
 	watchers.StartPlaylistWatcher()
 
+    ui.SetBorderRunes(config.Config.RoundedCorners)
+
 	if !config.Config.HideImage {
 		watchers.StartRectWatcher()
 	}
