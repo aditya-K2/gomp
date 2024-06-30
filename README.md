@@ -37,6 +37,8 @@
 yay -S gomp-git
 ```
 
+###### Pre-built Binaries are available [here](https://github.com/aditya-K2/gomp/releases/tag/pre-release)
+
 ## Manually
 
 - Install `go` and `git` through your package manager and then
