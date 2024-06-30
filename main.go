@@ -40,7 +40,7 @@ func main() {
 
 	watchers.Init()
 
-	ui.Ui = ui.NewApplication()
+	ui.Ui = ui.NewApplication(config.Config.HideImage)
 	ui.Ui.ProgressBar.SetProgressFunc(watchers.ProgressFunction)
 
 	// Generating the Directory Tree for File Navigation.
@@ -57,7 +57,10 @@ func main() {
 	ui.InitNotifier()
 
 	watchers.StartPlaylistWatcher()
-	watchers.StartRectWatcher()
+
+	if !config.Config.HideImage {
+		watchers.StartRectWatcher()
+	}
 
 	ui.SetCurrentView(&ui.PView)
 

@@ -23,7 +23,7 @@ type Application struct {
 	ImagePreviewer *tview.Box
 }
 
-func NewApplication() *Application {
+func NewApplication(hideImage bool) *Application {
 
 	pBar := NewProgressBar()
 	mainS := NewMainS()
@@ -41,8 +41,15 @@ func NewApplication() *Application {
 	Navbar.SetSelectable(true, false)
 
 	searchNavFlex := tview.NewFlex().SetDirection(tview.FlexRow).
-		AddItem(Navbar, 0, 4, false).
-		AddItem(imagePreviewer, 9, 3, false)
+		AddItem(Navbar, 0, 4, false)
+
+	if !hideImage {
+		searchNavFlex.AddItem(imagePreviewer, 9, 3, false)
+	}
+
+	Navbar.SetCell(0, 0, tview.NewTableCell("Queue"))
+	Navbar.SetCell(1, 0, tview.NewTableCell("Files"))
+	Navbar.SetCell(2, 0, tview.NewTableCell("Search"))
 
 	sNavExpViewFlex := tview.NewFlex().
 		AddItem(searchNavFlex, 17, 1, false).

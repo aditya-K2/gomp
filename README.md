@@ -8,9 +8,6 @@
     <a href="https://github.com/aditya-K2/gomp/discussions">Discussion</a>
 </div>
 
-<!-- NEW CHANGE -->
-<!-- ANOTHER NEW CHANGE -->
-
 ----
 
 ![Cover](./docs/assets/readme.png)
@@ -25,6 +22,12 @@
 # Roadmap
 
 - [ ] Vim-like Visual Mode
+
+### Things to Note:
+
+- Images are rendered using the X child windows. Currently there is ***no support*** for Wayland.
+
+***See Docs for information on how to Hide Images***
 
 # Installing / Building
 

@@ -59,6 +59,15 @@ type ConfigS struct {
 	//
 	Password string `mapstructure:"MPD_PASSWORD"`
 
+	// ### Hide Image
+	//
+	// By default, the cover art is rendered. Set this parameter to true, in order to hide the image.
+	//
+	// ```yml
+	// HIDE_IMAGE : False
+	// ```
+	HideImage bool `mapstructure:"HIDE_IMAGE"`
+
 	// ### Default Image Path
 	//
 	// This is the Fallback Image that will be rendered if gomp doesn't find the embedded cover art or LastFM Cover Art.

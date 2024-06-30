@@ -10,7 +10,6 @@ import (
 	"github.com/aditya-K2/gomp/render"
 	"github.com/aditya-K2/gomp/ui"
 	"github.com/aditya-K2/utils"
-	"github.com/aditya-K2/tview"
 	"github.com/fhs/gompd/v2/mpd"
 )
 
@@ -44,13 +43,6 @@ func StartRectWatcher() {
 			ui.ImgX, ui.ImgY, ui.ImgW, ui.ImgH = ui.Ui.ImagePreviewer.GetRect()
 		}
 		drawCh <- true
-
-		// Set Names so that they appear fully selected.
-		// TODO: write a AfterDraw func which is called after the UI is drawn.
-		_, _, w, _ := ui.Ui.Navbar.GetRect()
-		ui.Ui.Navbar.SetCell(0, 0, tview.NewTableCell(utils.GetFormattedString("Queue", w-4)))
-		ui.Ui.Navbar.SetCell(1, 0, tview.NewTableCell(utils.GetFormattedString("Files", w-4)))
-		ui.Ui.Navbar.SetCell(2, 0, tview.NewTableCell(utils.GetFormattedString("Search", w-4)))
 	}()
 
 	go func() {
