@@ -1,4 +1,4 @@
-package render
+package ui
 
 import (
 	"errors"
@@ -6,13 +6,15 @@ import (
 	"image"
 	"os"
 
+	_ "image/jpeg"
+
 	"github.com/aditya-K2/gomp/cache"
 	"github.com/aditya-K2/gomp/client"
 	"github.com/aditya-K2/gomp/config"
-	"github.com/aditya-K2/gomp/ui"
 	"github.com/aditya-K2/utils"
 	"github.com/dhowden/tag"
 	"github.com/nfnt/resize"
+	"github.com/shkh/lastfm-go/lastfm"
 )
 
 var (
@@ -20,6 +22,20 @@ var (
 	ImageNotFoundErr = errors.New("Image Not Found")
 	ImageWriteErr    = errors.New("Error Writing Image to File")
 )
+
+func getImageFromLastFM(artist, album, imagePath string) (string, error) {
+	api := lastfm.New(config.Config.LastFmAPIKey, config.Config.LastFmAPISecret)
+	v, err := api.Album.GetInfo(map[string]interface{}{
+		"artist":      artist,
+		"album":       album,
+		"autocorrect": config.Config.LastFmAPIAutoCorrect,
+	})
+	if err != nil {
+		return "", err
+	} else {
+		return utils.DownloadImage(v.Images[len(v.Images)-1].Url, imagePath)
+	}
+}
 
 func CreateFile(path string, data []byte) error {
 	if imHd, err := os.Create(path); err != nil {
@@ -63,7 +79,7 @@ func GetImagePath(path string) (imagePath string) {
 	attrs, attrErr := client.Conn.ListInfo(path)
 
 	if attrErr != nil || len(attrs) <= 0 {
-		ui.SendNotification(fmt.Sprintf("Error getting image from LastFM: Attribute Error(%v)", attrErr))
+		SendNotification(fmt.Sprintf("Error getting image from LastFM: Attribute Error(%v)", attrErr))
 		return
 	}
 
@@ -80,7 +96,7 @@ func GetImagePath(path string) (imagePath string) {
 	extractedImage, xErr := ExtractImage(absPath, cachedPath)
 
 	if xErr == nil {
-		ui.SendNotification("Covert art metadata extracted from file.")
+		SendNotification("Covert art metadata extracted from file.")
 		return extractedImage
 	}
 
@@ -89,25 +105,25 @@ func GetImagePath(path string) (imagePath string) {
 	albumArt, cErr := client.Conn.AlbumArt(path)
 	if cErr == nil {
 		if err := CreateFile(cachedPath, albumArt); err == nil {
-			ui.SendNotification("Cover art retrieved from MPD")
+			SendNotification("Cover art retrieved from MPD")
 			return cachedPath
 		}
 	}
 
 	if !config.Config.GetCoverArtFromLastFm {
 		// Display the Extraction Error and fallback to default image
-		ui.SendNotification(xErr.Error())
+		SendNotification(xErr.Error())
 		return
 	}
 
 	downloadedImage, lFmErr := getImageFromLastFM(artist, album, cachedPath)
 
 	if lFmErr != nil {
-		ui.SendNotification("Error Downloading Image from LastFM: " + xErr.Error())
+		SendNotification("Error Downloading Image from LastFM: " + xErr.Error())
 		return
 	}
 
-	ui.SendNotification("Image From LastFM")
+	SendNotification("Image From LastFM")
 	imagePath = downloadedImage
 
 	return
@@ -124,10 +140,14 @@ func GetImg(uri string) (image.Image, error) {
 	if err != nil {
 		return nil, err
 	}
-	fw, fh := utils.GetFontWidth()
+	fw, fh, err := getFontWidth()
+	if err != nil {
+		Ui.App.Stop()
+		fmt.Printf("Error Occured While getting font width: %v\n", err)
+	}
 	img = resize.Resize(
-		uint(float32(ui.ImgW)*(fw+float32(config.Config.ExtraImageWidthX))),
-		uint(float32(ui.ImgH)*(fh+float32(config.Config.ExtraImageWidthY))),
+		uint(float32(ImgW)*(float32(fw)+float32(config.Config.ExtraImageWidthX))),
+		uint(float32(ImgH)*(float32(fh)+float32(config.Config.ExtraImageWidthY))),
 		img,
 		resize.Bilinear,
 	)

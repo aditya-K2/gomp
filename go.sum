@@ -62,6 +62,8 @@ github.com/aditya-K2/tview v0.0.0-20240609093139-fc55924ac006 h1:9VkiLJ8X1/fK2ZZ
 github.com/aditya-K2/tview v0.0.0-20240609093139-fc55924ac006/go.mod h1:4mQQQ0q5F3GvKXtwNkViuvng/bNxt3Y3c95rGlULlv4=
 github.com/aditya-K2/utils v0.0.0-20230324221547-e982ed1e980e h1:blLZ2IHGPfAo2zOEpj4FsuqliHmpLw4u2Zp6GR0VMZ8=
 github.com/aditya-K2/utils v0.0.0-20230324221547-e982ed1e980e/go.mod h1:M5vD+szIYMn9sAmBGSzwTiwfI63qtzCwguujFy8wybI=
+github.com/aditya-K2/utils v0.0.0-20230430194152-89e230eeaa50 h1:OM3O9MzS2+33I3HmwCGXPM2r1Bsoj1SHSmpGsQgCSy4=
+github.com/aditya-K2/utils v0.0.0-20230430194152-89e230eeaa50/go.mod h1:M5vD+szIYMn9sAmBGSzwTiwfI63qtzCwguujFy8wybI=
 github.com/antihax/optional v1.0.0/go.mod h1:uupD/76wgC+ih3iEmQUL+0Ugr19nfwCT1kdvxnR2qWY=
 github.com/armon/circbuf v0.0.0-20150827004946-bbbad097214e/go.mod h1:3U/XgcO3hCbHZ8TKRvWD2dDTCfh9M9ya+I9JpbB7O8o=
 github.com/armon/go-metrics v0.0.0-20180917152333-f0300d1749da/go.mod h1:Q73ZrmVTwzkszR9V5SSuryQ31EELlFMUz1kKyl939pY=

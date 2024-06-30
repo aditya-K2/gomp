@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/aditya-K2/fuzzy v0.1.1-0.20211128173834-d0023b66cdd4
 	github.com/aditya-K2/tview v0.0.0-20230501091922-5da3458d3dff
-	github.com/aditya-K2/utils v0.0.0-20230324221547-e982ed1e980e
+	github.com/aditya-K2/utils v0.0.0-20230430194152-89e230eeaa50
 	github.com/dhowden/tag v0.0.0-20220618230019-adf36e896086
 	github.com/fhs/gompd/v2 v2.2.0
 	github.com/fsnotify/fsnotify v1.5.1

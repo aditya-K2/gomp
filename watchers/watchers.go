@@ -7,7 +7,6 @@ import (
 
 	"github.com/aditya-K2/gomp/client"
 	"github.com/aditya-K2/gomp/config"
-	"github.com/aditya-K2/gomp/render"
 	"github.com/aditya-K2/gomp/ui"
 	"github.com/aditya-K2/utils"
 	"github.com/fhs/gompd/v2/mpd"
@@ -19,7 +18,7 @@ var (
 )
 
 func OnConfigChange() {
-	render.DrawCover(currentSong, false)
+	ui.DrawCover(currentSong, false)
 }
 
 func Init() {
@@ -29,13 +28,13 @@ func Init() {
 	} else {
 		currentSong = c
 	}
-	render.Rendr = render.NewRenderer()
+	ui.Rendr = ui.NewRenderer()
 }
 func StartRectWatcher() {
 	redrawInterval := config.Config.RedrawInterval
 
 	// Wait Until the ImagePreviewer is drawn
-	// Ensures that cover art is not drawn before the UI is rendered.
+	// Ensures that cover art is not drawn before the UI is uied.
 	// Ref Issue: #39
 	drawCh := make(chan bool)
 	go func() {
@@ -54,7 +53,7 @@ func StartRectWatcher() {
 					ImgX, ImgY, ImgW, ImgH := ui.Ui.ImagePreviewer.GetRect()
 					if start {
 						fmt.Println(ui.ImgX, ui.ImgY, ui.ImgW, ui.ImgH)
-						render.DrawCover(currentSong, true)
+						ui.DrawCover(currentSong, true)
 						start = false
 					}
 					if ImgX != ui.ImgX || ImgY != ui.ImgY ||
@@ -63,7 +62,7 @@ func StartRectWatcher() {
 						ui.ImgY = ImgY
 						ui.ImgW = ImgW
 						ui.ImgH = ImgH
-						render.DrawCover(currentSong, false)
+						ui.DrawCover(currentSong, false)
 					}
 					time.Sleep(time.Millisecond * time.Duration(redrawInterval))
 				}
@@ -112,7 +111,7 @@ func StartPlaylistWatcher() {
 					panic(err)
 				} else {
 					currentSong = c
-					render.DrawCover(c, false)
+					ui.DrawCover(c, false)
 				}
 			}
 		}

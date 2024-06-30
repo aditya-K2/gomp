@@ -1,17 +1,32 @@
-package render
+package ui
 
 import (
+	"errors"
+	"fmt"
+
 	"github.com/aditya-K2/gomp/config"
-	"github.com/aditya-K2/gomp/ui"
 	"github.com/fhs/gompd/v2/mpd"
 
-	"github.com/aditya-K2/utils"
 	"gitlab.com/diamondburned/ueberzug-go"
 )
 
 var (
 	Rendr *Renderer
 )
+
+func getFontWidth() (int, int, error) {
+	w, h, err := ueberzug.GetParentSize()
+	if err != nil {
+		return 0, 0, err
+	}
+	_, _, rw, rh := Ui.Pages.GetRect()
+	if rw == 0 || rh == 0 {
+		return 0, 0, errors.New("Unable to get row width and height")
+	}
+	fw := w / rw
+	fh := h / rh
+	return fw, fh, nil
+}
 
 // Renderer is just a channel on which we will send the Path to the song whose
 // Image is to be Rendered. This channel is passed to the OpenImage which in turn is called
@@ -44,16 +59,20 @@ func (r *Renderer) Send(path string, start bool) {
 // keep listening again. This will keep the image blocked ( i.e. no need to use time.Sleep() etc. )
 // and saves resources too.
 func OpenImage(path string, c chan string) {
-	fw, fh := utils.GetFontWidth()
+	fw, fh, err := getFontWidth()
+	if err != nil {
+		Ui.App.Stop()
+		fmt.Printf("Error Occured While getting font width: %v\n", err)
+	}
 	var im *ueberzug.Image
 	if path != "stop" {
 		extractedImage := GetImagePath(path)
 		if img2, err := GetImg(extractedImage); err == nil {
 			im, _ = ueberzug.NewImage(img2,
-				int(float32(ui.ImgX)*fw)+config.Config.AdditionalPaddingX,
-				int(float32(ui.ImgY)*fh)+config.Config.AdditionalPaddingY)
+				int(ImgX*fw)+config.Config.AdditionalPaddingX,
+				int(ImgY*fh)+config.Config.AdditionalPaddingY)
 		} else {
-			ui.SendNotification("Error Rendering Image!")
+			SendNotification("Error Rendering Image!")
 		}
 	}
 	d := <-c
