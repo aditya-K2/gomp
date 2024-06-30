@@ -3,6 +3,10 @@ name: Publish Documentation
 on:
   push:
     branches: ["master"]
+    paths:
+      - config/**
+      - docs/**
+      - extras/generate.*
 
   workflow_dispatch:
 
