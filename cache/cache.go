@@ -1,10 +1,10 @@
 package cache
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
-	"fmt"
 	"os"
-	"strings"
 
 	"github.com/aditya-K2/utils"
 )
@@ -26,13 +26,7 @@ func Exists(artist, album string) bool {
 }
 
 func GenerateName(artist, album string) string {
-	if (artist == "" && album == "") || (artist == " " && album == " ") {
-		return CACHE_DIR + "UnknownArtist-UnknownAlbum.jpg"
-	}
-	return CACHE_DIR +
-		strings.Replace(
-			strings.Replace(
-				fmt.Sprintf("%s-%s.jpg", artist, album),
-				" ", "_", -1),
-			"/", "_", -1)
+	h := sha256.New()
+	h.Write([]byte(artist + album))
+	return CACHE_DIR + hex.EncodeToString(h.Sum(nil)) + ".jpg"
 }

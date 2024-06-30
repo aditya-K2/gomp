@@ -51,34 +51,50 @@ GetImagePath This Function returns the path to the image that is to be
 rendered it checks first for the image in the cache
 else it adds the image to the cache and then extracts it and renders it.
 */
-func GetImagePath(path string) string {
-	a, err := client.Conn.ListInfo(path)
-	var extractedImage string = config.Config.DefaultImagePath
-	if err == nil && len(a) != 0 {
-		if cache.Exists(a[0]["artist"], a[0]["album"]) {
-			extractedImage = cache.GenerateName(a[0]["artist"], a[0]["album"])
-		} else {
-			imagePath := cache.GenerateName(a[0]["artist"], a[0]["album"])
-			absPath := utils.CheckDirectoryFmt(config.Config.MusicDirectory) + path
-			if _eimg, exErr := ExtractImage(absPath, imagePath); exErr != nil {
-				if config.Config.GetCoverArtFromLastFm {
-					downloadedImage, lFmErr := getImageFromLastFM(a[0]["artist"], a[0]["album"], imagePath)
-					if lFmErr == nil {
-						ui.SendNotification("Image From LastFM")
-						extractedImage = downloadedImage
-					} else {
-						ui.SendNotification(exErr.Error())
-					}
-				}
-			} else {
-				ui.SendNotification("Image Extracted Succesfully!")
-				extractedImage = _eimg
-			}
-		}
-	} else {
-		ui.SendNotification(fmt.Sprintf("Couldn't Get Attributes for %s", path))
+func GetImagePath(path string) (imagePath string) {
+	imagePath = config.Config.DefaultImagePath
+	attrs, attrErr := client.Conn.ListInfo(path)
+
+	if attrErr != nil || len(attrs) <= 0 {
+		ui.SendNotification(fmt.Sprintf("Error getting image from LastFM: Attribute Error(%v)", attrErr))
+		return
 	}
-	return extractedImage
+
+	artist := attrs[0]["artist"]
+	album := attrs[0]["album"]
+	cachedPath := cache.GenerateName(artist, album)
+
+	if cache.Exists(artist, album) {
+		imagePath = cachedPath
+		return
+	}
+
+	absPath := utils.CheckDirectoryFmt(config.Config.MusicDirectory) + path
+	extractedImage, xErr := ExtractImage(absPath, cachedPath)
+
+	if xErr == nil {
+		imagePath = extractedImage
+		ui.SendNotification("Covert art metadata extracted from file.")
+		return
+	}
+
+	if !config.Config.GetCoverArtFromLastFm {
+		// Display the Extraction Error and fallback to default image
+		ui.SendNotification(xErr.Error())
+		return
+	}
+
+	downloadedImage, lFmErr := getImageFromLastFM(artist, album, cachedPath)
+
+	if lFmErr != nil {
+		ui.SendNotification("Error Downloading Image from LastFM: " + xErr.Error())
+		return
+	}
+
+	ui.SendNotification("Image From LastFM")
+	imagePath = downloadedImage
+
+	return
 }
 
 /* Gets the Image Struct from the provided path */
