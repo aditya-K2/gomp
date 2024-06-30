@@ -21,6 +21,15 @@ var (
 	ImageWriteErr    = errors.New("Error Writing Image to File")
 )
 
+func CreateFile(path string, data []byte) error {
+	if imHd, err := os.Create(path); err != nil {
+		return ImageWriteErr
+	} else {
+		imHd.Write(data)
+		return nil
+	}
+}
+
 func ExtractImage(path string, imagePath string) (string, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -36,10 +45,8 @@ func ExtractImage(path string, imagePath string) (string, error) {
 	if picture := meta.Picture(); picture == nil {
 		return "", ImageNotFoundErr
 	} else {
-		if imHd, err := os.Create(imagePath); err != nil {
-			return "", ImageWriteErr
-		} else {
-			imHd.Write(picture.Data)
+		if err := CreateFile(imagePath, picture.Data); err != nil {
+			return "", ImageNotFoundErr
 		}
 	}
 
@@ -73,9 +80,18 @@ func GetImagePath(path string) (imagePath string) {
 	extractedImage, xErr := ExtractImage(absPath, cachedPath)
 
 	if xErr == nil {
-		imagePath = extractedImage
 		ui.SendNotification("Covert art metadata extracted from file.")
-		return
+		return extractedImage
+	}
+
+	// Query MPD for Album Art.
+	// See: https://mpd.readthedocs.io/en/latest/protocol.html#the-music-database
+	albumArt, cErr := client.Conn.AlbumArt(path)
+	if cErr == nil {
+		if err := CreateFile(cachedPath, albumArt); err == nil {
+			ui.SendNotification("Cover art retrieved from MPD")
+			return cachedPath
+		}
 	}
 
 	if !config.Config.GetCoverArtFromLastFm {
